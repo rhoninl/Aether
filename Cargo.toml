@@ -3,4 +3,5 @@ resolver = "2"
 members = [
     "crates/aether-ecs",
     "crates/aether-physics",
+    "crates/aether-scripting",
 ]

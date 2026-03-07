@@ -1,0 +1,7 @@
+[package]
+name = "aether-scripting"
+version = "0.1.0"
+edition = "2021"
+description = "WASM script runtime policy primitives for the Aether platform"
+
+[dependencies]
