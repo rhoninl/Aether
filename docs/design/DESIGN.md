@@ -500,7 +500,7 @@ Ephemeral state is captured in periodic snapshots (default every 5s). On crash, 
 
 **WAL storage on Kubernetes**: World server pods that host worlds with `durable` script state are scheduled on nodes with **PersistentVolumeClaims (PVCs)** backed by network-attached block storage (e.g., EBS, Persistent Disk, Azure Disk). The WAL is written to the PVC, not to the pod's ephemeral filesystem. This ensures WAL survives pod restarts and node failures. The PVC is mounted at `/data/wal/` and is provisioned via a `StatefulSet` (not a `Deployment`) so that each world server pod has a stable identity and persistent storage binding. On pod reschedule, the replacement pod reattaches the same PVC and replays the WAL.
 
-Worlds without `durable` script state run on stateless `Deployment` pods (no PVC required), keeping the common case lightweight. The Session Manager routes worlds to StatefulSet pods or Deployment pods based on their manifest's durability requirements.
+Worlds without `durable` script state **and** without economy features run on stateless `Deployment` pods (no PVC required), keeping the common case lightweight. Worlds that enable economy features are always scheduled on StatefulSet pods (PVC required) even if they don't use `durable` script storage, because the economy idempotency contract requires persistent storage for the pending-transactions table. The Session Manager routes worlds to StatefulSet or Deployment pods based on their manifest's durability and economy requirements.
 
 #### 3.5.4 Spatial Load Balancing
 
@@ -992,13 +992,15 @@ Every transaction request carries an **idempotency key**. The Economy Service en
 The idempotency key is a **UUID v7** generated once per logical operation and **persisted by the caller before the first attempt**:
 
 1. World server generates `idempotency_key = UUIDv7()` for the operation
-2. World server writes `(idempotency_key, operation_details, status=PENDING)` to its local pending-transactions table (on the PVC-backed WAL volume for durable worlds, or in-memory for stateless worlds)
+2. World server writes `(idempotency_key, operation_details, status=PENDING)` to its **persistent pending-transactions table** (on the PVC-backed volume)
 3. World server sends the RPC to Economy Service with the key
 4. On success: mark local record as `COMPLETED`, confirm to client
-5. On timeout/failure: retry with the **same key** (read from local record)
+5. On timeout/failure: retry with the **same key** (read from persistent record)
 6. On world server crash/restart: scan pending-transactions for `PENDING` records and retry each with its persisted key
 
-This ensures crash recovery always reuses the original key. For stateless worlds (no PVC), in-memory pending records are lost on crash — but since the Economy Service has the UNIQUE constraint, the worst case is a transaction that was actually committed but the client doesn't get confirmation. The client sees a timeout, and the Economy Service SDK provides a `get_transaction(idempotency_key)` query to check outcome after recovery.
+**Economy requires persistence**: Any world that enables economy features (purchases, tips, entry fees, trades) is automatically classified as requiring durable state. The Session Manager schedules it on a StatefulSet pod with a PVC (see Section 3.5.3.1). The pending-transactions table is stored on this PVC alongside the WAL. This ensures the idempotency key survives crash/restart — there is no "stateless world with economy" configuration.
+
+Worlds that have no economy features (no currency transactions, purely social/creative spaces) run on stateless Deployment pods. These worlds never call the Economy Service, so the idempotency contract is not relevant to them.
 
 **Collision prevention**: UUID v7 keys have 122 bits of entropy, making collisions astronomically unlikely (~10^-18 probability per billion transactions). Unlike deterministic derivation, distinct transactions always get distinct keys regardless of timing or parameters.
 
@@ -1360,49 +1362,56 @@ graph TB
 
 ### 8.3 Client Platform Support
 
-| Platform | Status | Script Execution | Notes |
-|---|---|---|---|
-| PC VR (SteamVR/Oculus) | Primary | Client + Server WASM (JIT) | Full quality, full scripting |
-| Meta Quest (standalone) | Primary | Server-only WASM; client AOT only | Android forbids JIT in some contexts; ship AOT-compiled trusted scripts only. Untrusted scripts execute server-side with results streamed to client. |
-| Desktop (flat-screen) | Secondary | Client + Server WASM (JIT) | Mouse/keyboard, spectator mode |
-| Apple Vision Pro | Planned | Server-only WASM; client AOT signed | visionOS prohibits JIT; all client WASM must be AOT-compiled and code-signed as part of the app bundle |
-| PlayStation VR2 | Planned | Server-only WASM | Console policy prohibits runtime code generation; all scripts server-authoritative |
+There are two distinct categories of client-side scripts, and constrained platforms handle them differently:
+
+- **Engine scripts**: Built-in scripts shipped as part of the Aether client binary (interaction helpers, UI toolkit, locomotion system). These are developed by the Aether team, AOT-compiled at build time, and bundled into the app. They are NOT user-generated content.
+- **User scripts (UGC)**: Scripts created by world creators and uploaded via the UGC Service. These are the scripts that run in the WASM sandbox.
+
+| Platform | Status | Engine Scripts (client) | User Scripts (UGC) | Notes |
+|---|---|---|---|---|
+| PC VR (SteamVR/Oculus) | Primary | AOT (bundled) | Client JIT + Server AOT | Full quality. User scripts run both client-side (JIT) and server-side (AOT). |
+| Desktop (flat-screen) | Secondary | AOT (bundled) | Client JIT + Server AOT | Same as PC VR. |
+| Meta Quest (standalone) | Primary | AOT (bundled) | **Server-side only** | Android restricts JIT. User scripts execute only on the server; results are streamed to client via normal state sync. No user WASM runs on the Quest client. |
+| Apple Vision Pro | Planned | AOT (bundled, code-signed) | **Server-side only** | visionOS prohibits runtime code generation. Same model as Quest. |
+| PlayStation VR2 | Planned | AOT (bundled) | **Server-side only** | Console policy prohibits runtime code generation. |
 
 **Canonical WASM runtime model per environment**:
 
-| Environment | Compilation Mode | Runtime | Rationale |
+| Environment | What runs | Compilation | Runtime |
 |---|---|---|---|
-| **World Server** (all platforms) | AOT (Cranelift, ahead of upload) | Wasmtime | Scripts are AOT-compiled when uploaded to UGC service. Servers load pre-compiled native code — zero JIT overhead at runtime. This is the canonical execution path; all scripts run here. |
-| **Client: PC / Desktop** | JIT (Cranelift, on first load) | Wasmtime | Client-side scripts (UI, visual effects, input helpers) are JIT-compiled on first load, then cached. JIT is permitted on these platforms. |
-| **Client: Quest** | AOT only (pre-compiled into app or downloaded as native module) | Wasmtime (AOT mode) | Android SELinux policies restrict JIT in W^X contexts. Only engine-provided scripts (AOT-compiled into the binary) run client-side. User scripts run server-side. |
-| **Client: visionOS** | AOT only (code-signed into app bundle) | Wasmtime (AOT mode) | visionOS prohibits runtime code generation. Same model as Quest — engine scripts AOT, user scripts server-side. |
-| **Client: Console** | AOT only | Wasmtime (AOT mode) | Console platform policies prohibit JIT. Server-authoritative for all user scripts. |
+| **World Server** (all platforms) | All user scripts + engine scripts | AOT (Cranelift, compiled at UGC upload time) | Wasmtime |
+| **Client: PC / Desktop** | Engine scripts + user scripts | Engine: AOT (bundled). User: JIT (Cranelift, on first load, cached) | Wasmtime |
+| **Client: Quest / visionOS / Console** | Engine scripts only | AOT (bundled into app binary at build time) | Wasmtime (AOT mode) |
 
-The scripting architecture diagram (Section 3.8.1) labels modules as "AOT or JIT" — the actual mode is determined by the table above based on deployment target. The server always runs AOT. The client runs JIT where permitted, AOT where required, and falls back to server-side execution for user scripts on constrained platforms.
+The key invariant: **user-generated WASM never runs on constrained-platform clients**. User scripts run on the server, and their effects (entity state changes, audio triggers, UI updates) reach constrained clients through the normal network state sync and interest management pipeline — no client-side WASM execution needed.
 
 #### 8.3.1 WASM Multi-Architecture AOT Artifact Strategy
 
-AOT compilation produces **platform-specific native code**. The UGC Service compiles each uploaded WASM module for all supported target architectures at upload time:
+AOT compilation produces **platform-specific native code**. The UGC Service compiles each uploaded user WASM module for **server targets only** (user scripts never run on constrained clients):
 
 | Target | Architecture | AOT Output | Distribution |
 |---|---|---|---|
 | World Server (Linux) | x86_64 | `.cwasm` (Cranelift compiled module) | Stored in object storage, loaded by server at world boot |
 | World Server (Linux) | aarch64 | `.cwasm` | Same, for ARM-based server nodes |
-| Client: PC (Windows/Linux) | x86_64 | Not pre-compiled (JIT at runtime) | Raw `.wasm` served, client JIT-compiles and caches locally |
-| Client: Quest (Android) | aarch64 | `.cwasm` + platform signature | Signed by platform key; client verifies signature before loading |
-| Client: visionOS | aarch64 | `.cwasm` embedded in app bundle | Bundled into signed app update (requires app store review cycle for engine scripts) |
-| Client: Console | platform-specific | `.cwasm` | Bundled into platform-certified build |
+| Client: PC / Desktop | x86_64 | Not pre-compiled (JIT at runtime) | Raw `.wasm` served via CDN, client JIT-compiles and caches locally |
 
-**Artifact storage**: Each WASM module in object storage is stored as a manifest pointing to per-architecture artifacts:
+Constrained platforms (Quest, visionOS, console) do not appear in this table because they never load user WASM. User script effects reach these clients via server state sync.
+
+**Engine scripts** (interaction toolkit, locomotion, UI) are AOT-compiled for all client architectures at **Aether build time** (not at UGC upload time) and bundled into the platform-specific app binary. These are not part of the UGC pipeline.
+
+**Artifact storage**: Each user WASM module in object storage:
 ```
 scripts/interact/
 ├── module.wasm           # canonical WASM bytecode (source of truth)
 ├── module.x86_64.cwasm   # server AOT (x86_64)
-├── module.aarch64.cwasm  # server AOT + Quest client AOT
+├── module.aarch64.cwasm  # server AOT (aarch64)
 └── manifest.json         # maps target → artifact + SHA-256 hash
 ```
 
-**Signing**: All AOT artifacts for constrained platforms (Quest, visionOS, console) are signed with the platform's Ed25519 code-signing key. The client embeds the corresponding public key and verifies the signature before loading. Unsigned or incorrectly signed modules are rejected.
+**Integrity verification**:
+- **Server**: AOT artifacts are loaded from trusted object storage (platform-controlled). No signature verification needed — the server trusts its own storage.
+- **Client: PC/Desktop**: The client downloads raw `.wasm` from the world's asset origin and verifies the **SHA-256 content hash** against the approved manifest in the World Registry. Hash mismatch → reject.
+- **Engine scripts** (all platforms): Bundled into the signed app binary. Integrity is guaranteed by the platform's app signing mechanism (code signing on macOS/iOS, APK signing on Android, console certification).
 
 **Rebuild policy**: When Wasmtime is upgraded (new Cranelift codegen), all AOT artifacts are bulk-recompiled from the canonical `.wasm` source. The canonical WASM bytecode is the permanent source of truth; AOT artifacts are derived and replaceable.
 
