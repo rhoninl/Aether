@@ -1,0 +1,8 @@
+[package]
+name = "aether-world-runtime"
+version = "0.1.0"
+edition = "2021"
+description = "World runtime loading, streaming, and lifecycle primitives"
+
+[dependencies]
+

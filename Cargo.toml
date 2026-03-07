@@ -16,4 +16,6 @@ members = [
     "crates/aether-social",
     "crates/aether-security",
     "crates/aether-deploy",
+    "crates/aether-world-runtime",
+    "crates/aether-ugc",
 ]

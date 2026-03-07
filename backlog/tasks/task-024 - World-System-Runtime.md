@@ -1,10 +1,10 @@
 ---
 id: task-024
 title: World System Runtime
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:36'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:02'
 labels: []
 dependencies:
   - task-001
@@ -32,3 +32,12 @@ Ref: docs/design/DESIGN.md Section 3.9, 5.2
 - [ ] #6 World lifecycle: boot → run → shutdown with graceful cleanup
 - [ ] #7 World settings runtime enforcement (gravity, tick rate, max players)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-world-runtime` crate for manifest parsing, chunk streaming, prop/lighting setup, spawn management, and lifecycle state machine.
+2. Add runtime setting validation and hot-enforcement policies.
+3. Add world lifecycle event/state transitions and cleanup contracts.
+4. Document implementation checkpoints against all acceptance criteria.
+<!-- SECTION:PLAN:END -->

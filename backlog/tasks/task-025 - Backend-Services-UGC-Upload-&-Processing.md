@@ -1,10 +1,10 @@
 ---
 id: task-025
 title: 'Backend Services: UGC Upload & Processing'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:38'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:02'
 labels: []
 dependencies:
   - task-011
@@ -33,3 +33,12 @@ Ref: docs/design/DESIGN.md Section 4.1, 5.2, 5.3, 8.3.1
 - [ ] #6 Approved manifest generation for World Registry
 - [ ] #7 Artifact lifecycle: upload → scan → approve/reject → publish → archive
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-ugc` crate with upload session, chunk upload, file validation, and artifact state machines.
+2. Add moderation-trigger and scan-result contracts and AOT build request abstractions.
+3. Add content-addressed storage model keyed by SHA-256.
+4. Add world-registry approval manifest pathway and lifecycle transitions.
+<!-- SECTION:PLAN:END -->
