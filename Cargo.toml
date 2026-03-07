@@ -6,4 +6,5 @@ members = [
     "crates/aether-scripting",
     "crates/aether-renderer",
     "crates/aether-audio",
+    "crates/aether-network",
 ]

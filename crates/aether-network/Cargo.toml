@@ -1,0 +1,7 @@
+[package]
+name = "aether-network"
+version = "0.1.0"
+edition = "2021"
+description = "Networking and state-sync policy primitives for the Aether engine"
+
+[dependencies]
