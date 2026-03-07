@@ -1,10 +1,10 @@
 ---
 id: task-008
 title: Avatar System
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 14:58'
 labels: []
 dependencies:
   - task-002
@@ -32,3 +32,12 @@ Ref: docs/design/DESIGN.md Section 3.6
 - [ ] #6 VRM format support + custom Aether avatar format
 - [ ] #7 Automatic LOD for avatars at distance
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Create `aether-avatar` crate with tracking sources, IK target contracts, animation state machine, lip-sync, and LOD policy.
+2. Add avatar quality rating schema with resource budgets and server/world enforcement hooks.
+3. Add format adapters for VRM + custom Aether avatar schema metadata and validation.
+4. Document avatar pipeline completion and expected extension points.
+<!-- SECTION:PLAN:END -->

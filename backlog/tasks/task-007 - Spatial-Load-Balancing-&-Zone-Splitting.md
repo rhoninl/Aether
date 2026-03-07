@@ -1,10 +1,10 @@
 ---
 id: task-007
 title: Spatial Load Balancing & Zone Splitting
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 14:58'
 labels: []
 dependencies:
   - task-005
@@ -31,3 +31,12 @@ Ref: docs/design/DESIGN.md Section 3.5.4
 - [ ] #6 Cross-zone combat: target server has final say on competitive interactions
 - [ ] #7 Zone merge when population drops below threshold
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Create spatial partition crate (`aether-zoning`) with zone topology, authority, and handoff models.
+2. Add K-d tree splitter/merger primitives and ghost entity mirror primitives.
+3. Add cross-zone session protocol records: handoff envelope, sequence fences, arbitration outcomes.
+4. Add design note capturing merge/split and combat/physics resolution flow.
+<!-- SECTION:PLAN:END -->

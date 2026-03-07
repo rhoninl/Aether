@@ -1,10 +1,10 @@
 ---
 id: task-012
 title: 'Backend Services: Economy & Ledger'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 14:58'
 labels: []
 dependencies:
   - task-011
@@ -31,3 +31,12 @@ Ref: docs/design/DESIGN.md Section 4.4
 - [ ] #7 Velocity checks and anomaly detection for anti-fraud
 - [ ] #8 7-year idempotency key retention (hot table + compressed archive)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-economy` crate exposing ledger entry primitives, transaction envelopes, anti-fraud traits, and payout channels.
+2. Add persistence-oriented idempotency constraints and pending transaction state machine.
+3. Add async/sync path protocol records for RPC and settlement events.
+4. Add design notes for constraints and retention strategy.
+<!-- SECTION:PLAN:END -->

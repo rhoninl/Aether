@@ -1,0 +1,8 @@
+[package]
+name = "aether-zoning"
+version = "0.1.0"
+edition = "2021"
+description = "Spatial load balancing and zone split/merge primitives"
+
+[dependencies]
+

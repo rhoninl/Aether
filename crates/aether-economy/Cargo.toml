@@ -1,0 +1,8 @@
+[package]
+name = "aether-economy"
+version = "0.1.0"
+edition = "2021"
+description = "Economy and ledger primitives for Aether services"
+
+[dependencies]
+

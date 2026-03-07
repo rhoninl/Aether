@@ -1,0 +1,8 @@
+[package]
+name = "aether-persistence"
+version = "0.1.0"
+edition = "2021"
+description = "Persistence policies and WAL/snapshot primitives for Aether"
+
+[dependencies]
+

@@ -7,4 +7,9 @@ members = [
     "crates/aether-renderer",
     "crates/aether-audio",
     "crates/aether-network",
+    "crates/aether-persistence",
+    "crates/aether-zoning",
+    "crates/aether-avatar",
+    "crates/aether-input",
+    "crates/aether-economy",
 ]

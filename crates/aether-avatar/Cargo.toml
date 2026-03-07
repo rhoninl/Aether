@@ -1,0 +1,8 @@
+[package]
+name = "aether-avatar"
+version = "0.1.0"
+edition = "2021"
+description = "Avatar tracking, animation, lip-sync, and quality policy primitives"
+
+[dependencies]
+
