@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RetentionState {
     Active,
     Frozen,
@@ -12,11 +12,10 @@ pub struct RetentionWindow {
     pub audit_retained: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RetentionRecord {
     pub table_name: String,
     pub row_id: String,
     pub until_ms: u64,
     pub state: RetentionState,
 }
-

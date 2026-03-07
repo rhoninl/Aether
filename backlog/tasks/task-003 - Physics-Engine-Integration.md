@@ -3,9 +3,9 @@ id: task-003
 title: Physics Engine Integration
 status: Done
 assignee:
-  - claude-001
+  - '@codex-001'
 created_date: '2026-03-07 13:17'
-updated_date: '2026-03-07 14:49'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-001

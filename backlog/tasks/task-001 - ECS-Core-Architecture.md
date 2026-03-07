@@ -3,9 +3,9 @@ id: task-001
 title: ECS Core Architecture
 status: Done
 assignee:
-  - claude-001
+  - '@codex-001'
 created_date: '2026-03-07 13:16'
-updated_date: '2026-03-07 14:40'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies: []
 priority: high

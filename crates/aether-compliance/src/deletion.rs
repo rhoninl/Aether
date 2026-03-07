@@ -7,14 +7,14 @@ pub enum DeleteScope {
     All,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum LegalHold {
     Active { reason: String, case_id: String },
     Expired,
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProfileDeletion {
     pub user_id: u64,
     pub scope: Vec<DeleteScope>,
@@ -30,4 +30,3 @@ pub struct DeleteRequest {
     pub scope: Vec<DeleteScope>,
     pub legal_hold: LegalHold,
 }
-

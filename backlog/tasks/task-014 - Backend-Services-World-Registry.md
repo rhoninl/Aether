@@ -1,10 +1,11 @@
 ---
 id: task-014
 title: 'Backend Services: World Registry'
-status: In Progress
-assignee: []
+status: Done
+assignee:
+  - '@codex-001'
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 15:00'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-011
@@ -24,11 +25,11 @@ Ref: docs/design/DESIGN.md Section 4.1, 4.2
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 World manifest storage and validation
-- [ ] #2 World discovery API with search, categories, featured
-- [ ] #3 Portal routing (aether:// protocol resolution)
-- [ ] #4 Session manager: spawn/despawn world server instances
-- [ ] #5 Matchmaking: route players to nearest region, balance load
+- [x] #1 World manifest storage and validation
+- [x] #2 World discovery API with search, categories, featured
+- [x] #3 Portal routing (aether:// protocol resolution)
+- [x] #4 Session manager: spawn/despawn world server instances
+- [x] #5 Matchmaking: route players to nearest region, balance load
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -39,3 +40,9 @@ Ref: docs/design/DESIGN.md Section 4.1, 4.2
 3. Add matchmaking policies (nearest region + load balancing) as policy objects.
 4. Add implementation notes and state transition markers.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Added registry policy in `aether-registry` covering manifest schema validation/storage contracts, discovery APIs, `aether://` portal routing contracts, session manager lifecycle, and load/region-aware matchmaking policy objects.
+<!-- SECTION:NOTES:END -->

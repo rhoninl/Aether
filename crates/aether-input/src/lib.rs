@@ -6,6 +6,7 @@ pub mod capabilities;
 pub mod haptics;
 pub mod locomotion;
 pub mod openxr;
+pub mod runtime;
 
 pub use actions::{ActionPhase, GrabState, InteractionEvent, InteractionTarget, Pose3, XRButton};
 pub use adapter::{InputFrame, InputFrameError, RuntimeAdapter};
@@ -15,3 +16,7 @@ pub use capabilities::{
 pub use haptics::{HapticChannel, HapticEffect, HapticRequest, HapticWave};
 pub use locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile, TeleportAnchor};
 pub use openxr::OpenXrAdapter;
+pub use runtime::{
+    InputRuntime, InputRuntimeConfig, InputRuntimeInput, InputRuntimeOutput, PlayerInputFrame,
+    SimulationIntent, SimulationRuntimeState,
+};

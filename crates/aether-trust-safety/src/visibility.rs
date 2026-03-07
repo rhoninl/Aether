@@ -1,13 +1,12 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum VisibilityMode {
     Visible,
     FriendsOnly,
     Invisible,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VisibleScope {
     pub mode: VisibilityMode,
     pub include_friends: bool,
 }
-

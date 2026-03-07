@@ -3,9 +3,9 @@ id: task-023
 title: Observability & Monitoring
 status: Done
 assignee:
-  - codex-001
+  - '@codex-001'
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:40'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies: []
 priority: medium

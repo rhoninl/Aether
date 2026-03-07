@@ -5,7 +5,7 @@ pub enum KeyPurpose {
     LegalHold,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct KeystoreEntry {
     pub key_id: String,
     pub purpose: KeyPurpose,
@@ -18,4 +18,3 @@ pub struct KeystoreEntry {
 pub struct ComplianceKeystore {
     pub keys: Vec<KeystoreEntry>,
 }
-

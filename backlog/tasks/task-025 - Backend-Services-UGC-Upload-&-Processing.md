@@ -1,10 +1,11 @@
 ---
 id: task-025
 title: 'Backend Services: UGC Upload & Processing'
-status: In Progress
-assignee: []
+status: Done
+assignee:
+  - '@codex-001'
 created_date: '2026-03-07 13:38'
-updated_date: '2026-03-07 15:02'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-011
@@ -25,13 +26,13 @@ Ref: docs/design/DESIGN.md Section 4.1, 5.2, 5.3, 8.3.1
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Asset upload API with chunked upload for large files
-- [ ] #2 Upload validation: file type, size limits, format verification
-- [ ] #3 Trigger moderation scan pipeline on upload
-- [ ] #4 AOT WASM compilation for all server targets at upload time
-- [ ] #5 Content-addressed storage: SHA-256 hash as artifact key
-- [ ] #6 Approved manifest generation for World Registry
-- [ ] #7 Artifact lifecycle: upload → scan → approve/reject → publish → archive
+- [x] #1 Asset upload API with chunked upload for large files
+- [x] #2 Upload validation: file type, size limits, format verification
+- [x] #3 Trigger moderation scan pipeline on upload
+- [x] #4 AOT WASM compilation for all server targets at upload time
+- [x] #5 Content-addressed storage: SHA-256 hash as artifact key
+- [x] #6 Approved manifest generation for World Registry
+- [x] #7 Artifact lifecycle: upload → scan → approve/reject → publish → archive
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -42,3 +43,9 @@ Ref: docs/design/DESIGN.md Section 4.1, 5.2, 5.3, 8.3.1
 3. Add content-addressed storage model keyed by SHA-256.
 4. Add world-registry approval manifest pathway and lifecycle transitions.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented UGC service contracts in `aether-ugc` for chunked upload sessions, file validation, moderation trigger/transition states, AOT profile descriptors, hash-addressable artifact model, and publish lifecycle states.
+<!-- SECTION:NOTES:END -->

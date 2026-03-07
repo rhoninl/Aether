@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum NatMode {
     Stun,
     Turn,
@@ -25,4 +25,3 @@ pub struct RelaySession {
     pub profile: RelayProfile,
     pub relay_region: RelayRegion,
 }
-

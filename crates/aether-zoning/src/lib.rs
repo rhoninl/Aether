@@ -2,6 +2,7 @@
 
 pub mod authority;
 pub mod config;
+pub mod runtime;
 pub mod ghost;
 pub mod partition;
 pub mod protocol;
@@ -11,10 +12,10 @@ pub use config::{
     AxisChoice, LoadMetrics, MergeThreshold, SplitPolicy, SplitResult, ZoneSplitPolicy, ZoneSpec,
 };
 pub use ghost::{GhostEntity, GhostPolicy, GhostVisibilityScope};
+pub use runtime::{ZoningRuntime, ZoningRuntimeConfig, ZoningRuntimeInput, ZoningRuntimeOutput, ZoningRuntimeState};
 pub use partition::{
     EntitySample, KdAxis, KdBoundary, KdPoint, KdTree, KdTreeNode, KdTreeSplitResult, MAX_ZONE_DEPTH,
 };
 pub use protocol::{
     CrossZoneCombatDecision, CrossZonePhysicsDecision, HandoffDecision, HandoffFailureMode, HandoffResult, SequenceFence,
 };
-

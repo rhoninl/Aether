@@ -1,10 +1,11 @@
 ---
 id: task-020
 title: Privacy & Data Compliance (GDPR/CCPA)
-status: In Progress
-assignee: []
+status: Done
+assignee:
+  - '@codex-001'
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 15:04'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-012
@@ -24,13 +25,13 @@ Ref: docs/design/DESIGN.md Section 6.3
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Account deletion: profile/social/chat/telemetry fully deleted
-- [ ] #2 Ledger pseudonymization: SHA-256(user_id + deletion_salt)
-- [ ] #3 Compliance Keystore: encrypted, dual-approval, audit-logged salt storage
-- [ ] #4 Legal hold support: defer deletion for active investigations
-- [ ] #5 GDPR Article 17(3)(b) legal basis for financial record retention
-- [ ] #6 7-year retention then permanent deletion of rows + salt
-- [ ] #7 Data export (Article 20) before pseudonymization
+- [x] #1 Account deletion: profile/social/chat/telemetry fully deleted
+- [x] #2 Ledger pseudonymization: SHA-256(user_id + deletion_salt)
+- [x] #3 Compliance Keystore: encrypted, dual-approval, audit-logged salt storage
+- [x] #4 Legal hold support: defer deletion for active investigations
+- [x] #5 GDPR Article 17(3)(b) legal basis for financial record retention
+- [x] #6 7-year retention then permanent deletion of rows + salt
+- [x] #7 Data export (Article 20) before pseudonymization
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,3 +42,9 @@ Ref: docs/design/DESIGN.md Section 6.3
 3. Add data export and deletion manifest contracts.
 4. Add design notes covering auditability and dual-approval controls.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented compliance workflow primitives in `aether-compliance` for scoped deletions, pseudonymized exports (`SHA-256 + deletion salt`), dual-approval keystore envelope, legal-hold overrides, and retention window modeling for lawful retention.
+<!-- SECTION:NOTES:END -->

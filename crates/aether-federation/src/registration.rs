@@ -8,7 +8,7 @@ pub enum RegistrationState {
     NeedsReview,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SelfHostedWorld {
     pub world_id: String,
     pub owner_id: u64,
@@ -17,4 +17,3 @@ pub struct SelfHostedWorld {
     pub discovered: bool,
     pub aot_artifact_id: Option<String>,
 }
-

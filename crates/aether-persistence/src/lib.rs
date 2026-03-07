@@ -7,6 +7,7 @@ pub mod config;
 pub mod placement;
 pub mod snapshot;
 pub mod transactions;
+pub mod runtime;
 pub mod wal;
 
 pub use config::{WorldPersistenceClass, WorldPersistenceProfile, DEFAULT_EPHEMERAL_SNAPSHOT_INTERVAL};
@@ -19,4 +20,7 @@ pub use transactions::{
 pub use wal::{
     WalAppendError, WalAppendResult, WalDurability, WalEntry, WalReplayRecord, WalSegment, WalWriteCoordinator,
 };
-
+pub use runtime::{
+    PersistenceRuntime, PersistenceRuntimeConfig, PersistenceRuntimeOutput, PersistenceRuntimeState,
+    RuntimeTickInput, WorldRecovery, WorldRuntimeInput,
+};

@@ -1,10 +1,11 @@
 ---
 id: task-026
 title: Trust & Safety Runtime Controls
-status: In Progress
-assignee: []
+status: Done
+assignee:
+  - '@codex-001'
 created_date: '2026-03-07 13:41'
-updated_date: '2026-03-07 15:04'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-005
@@ -23,11 +24,11 @@ Ref: docs/design/DESIGN.md Section 6.1
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Personal space bubble with configurable radius
-- [ ] #2 Visibility modes: visible, friends-only, invisible
-- [ ] #3 Anonymous/temporary avatar mode (no persistent identity)
-- [ ] #4 Parental controls: content filtering, time limits, social restrictions
-- [ ] #5 In-world moderation tools: mute, kick, ban for world owners
+- [x] #1 Personal space bubble with configurable radius
+- [x] #2 Visibility modes: visible, friends-only, invisible
+- [x] #3 Anonymous/temporary avatar mode (no persistent identity)
+- [x] #4 Parental controls: content filtering, time limits, social restrictions
+- [x] #5 In-world moderation tools: mute, kick, ban for world owners
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -38,3 +39,9 @@ Ref: docs/design/DESIGN.md Section 6.1
 3. Add settings and enforcement profile contracts.
 4. Add documentation for in-world controls and escalation behavior.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented trust-and-safety policy in `aether-trust-safety` with personal-space controls, visibility modes, anonymous session mode, parental limits, and in-world moderation tool actions.
+<!-- SECTION:NOTES:END -->

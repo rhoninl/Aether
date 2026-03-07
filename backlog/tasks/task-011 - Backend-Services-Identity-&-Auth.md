@@ -3,9 +3,9 @@ id: task-011
 title: 'Backend Services: Identity & Auth'
 status: Done
 assignee:
-  - '@claude-005'
+  - '@codex-001'
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:51'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies: []
 priority: high

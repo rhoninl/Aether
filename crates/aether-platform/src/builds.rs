@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WasmExecutionMode {
     ClientJit,
     ServerAot,
@@ -11,4 +11,3 @@ pub struct WasmProfile {
     pub mode: WasmExecutionMode,
     pub script_budget_ms: u32,
 }
-

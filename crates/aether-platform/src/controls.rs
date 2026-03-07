@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FidelityMode {
     Full,
     Balanced,
@@ -6,15 +6,14 @@ pub enum FidelityMode {
     Accessibility,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SceneScaleMode {
     Metres,
     Scaled,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VisualMode {
     Standard,
     Spectator,
 }
-

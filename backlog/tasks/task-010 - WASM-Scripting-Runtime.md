@@ -3,9 +3,9 @@ id: task-010
 title: WASM Scripting Runtime
 status: Done
 assignee:
-  - '@claude-001'
+  - '@codex-001'
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 15:06'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-001

@@ -1,10 +1,11 @@
 ---
 id: task-024
 title: World System Runtime
-status: In Progress
-assignee: []
+status: Done
+assignee:
+  - '@codex-001'
 created_date: '2026-03-07 13:36'
-updated_date: '2026-03-07 15:02'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-001
@@ -24,13 +25,13 @@ Ref: docs/design/DESIGN.md Section 3.9, 5.2
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 World manifest parsing and validation
-- [ ] #2 Chunk-based terrain streaming with LOD
-- [ ] #3 Prop loading and placement from manifest
-- [ ] #4 Lighting and skybox setup from manifest (.aeenv)
-- [ ] #5 Spawn point management for player entry
-- [ ] #6 World lifecycle: boot → run → shutdown with graceful cleanup
-- [ ] #7 World settings runtime enforcement (gravity, tick rate, max players)
+- [x] #1 World manifest parsing and validation
+- [x] #2 Chunk-based terrain streaming with LOD
+- [x] #3 Prop loading and placement from manifest
+- [x] #4 Lighting and skybox setup from manifest (.aeenv)
+- [x] #5 Spawn point management for player entry
+- [x] #6 World lifecycle: boot → run → shutdown with graceful cleanup
+- [x] #7 World settings runtime enforcement (gravity, tick rate, max players)
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -41,3 +42,9 @@ Ref: docs/design/DESIGN.md Section 3.9, 5.2
 3. Add world lifecycle event/state transitions and cleanup contracts.
 4. Document implementation checkpoints against all acceptance criteria.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Implemented world runtime policy in `aether-world-runtime` for manifest validation/loader, chunk and prop/lighting loading, spawn point governance, lifecycle finite-state transitions, and setting enforcement hooks.
+<!-- SECTION:NOTES:END -->

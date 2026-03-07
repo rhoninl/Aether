@@ -17,7 +17,7 @@ impl Default for JitterBufferConfig {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VoicePayload {
     pub sender_id: u64,
     pub seq: u64,

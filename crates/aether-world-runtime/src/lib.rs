@@ -5,6 +5,7 @@ pub mod lifecycle;
 pub mod manifest;
 pub mod props;
 pub mod spawn;
+pub mod runtime;
 
 pub use chunking::{ChunkDescriptor, ChunkKind, ChunkStreamingPolicy};
 pub use lifecycle::{LifecycleEvent, RuntimeState};
@@ -12,3 +13,7 @@ pub use manifest::{WorldManifestError, WorldRuntimeManifest};
 pub use props::{LightingSetup, PropInstance, SpawnPoint, TerrainChunk, TileLayer};
 pub use spawn::{RuntimeSettings, RuntimeSettingsError};
 pub use spawn::{WorldBootError, WorldLifecycle, WorldLifecycleEvent};
+pub use runtime::{
+    PerformanceSample, WorldRuntime, WorldRuntimeCommand, WorldRuntimeInput, WorldRuntimeOutput, WorldRuntimeState,
+    WorldRuntimeConfig,
+};

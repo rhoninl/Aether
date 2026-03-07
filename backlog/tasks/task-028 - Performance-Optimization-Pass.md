@@ -3,9 +3,9 @@ id: task-028
 title: Performance Optimization Pass
 status: Done
 assignee:
-  - codex-001
+  - '@codex-001'
 created_date: '2026-03-07 13:45'
-updated_date: '2026-03-07 14:51'
+updated_date: '2026-03-07 15:11'
 labels: []
 dependencies:
   - task-002

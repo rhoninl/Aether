@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UploadSession {
     pub session_id: String,
     pub owner_id: u64,
@@ -24,4 +24,3 @@ pub struct UploadRequest {
     pub mime_hint: String,
     pub chunk_count: u32,
 }
-
