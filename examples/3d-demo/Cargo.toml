@@ -1,0 +1,13 @@
+[package]
+name = "aether-3d-demo"
+version = "0.1.0"
+edition = "2021"
+description = "3D demo showcasing Aether VR engine subsystems"
+
+[dependencies]
+aether-ecs = { path = "../../crates/aether-ecs" }
+aether-physics = { path = "../../crates/aether-physics" }
+aether-renderer = { path = "../../crates/aether-renderer" }
+aether-input = { path = "../../crates/aether-input" }
+aether-world-runtime = { path = "../../crates/aether-world-runtime" }
+minifb = "0.28"

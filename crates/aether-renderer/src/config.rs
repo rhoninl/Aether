@@ -12,7 +12,7 @@ pub const LODS: [LODLevel; 4] = [
     LODLevel::L1Mid,
     LODLevel::L2Far,
     LODLevel::L3VeryFar,
-};
+];
 
 #[derive(Debug, Clone, Copy)]
 pub struct StereoConfig {
@@ -33,7 +33,7 @@ impl Default for StereoConfig {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FoveationTier {
     Off,
     Tier1,
@@ -156,7 +156,7 @@ impl LodCurve {
             return prev;
         }
 
-        if target as u8 < prev as u8 {
+        if (target as u8) < (prev as u8) {
             let boundary = boundaries[prev as usize - 1];
             let downshift = boundary * (1.0 - hysteresis);
             if distance_m < downshift {

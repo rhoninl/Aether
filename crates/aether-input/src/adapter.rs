@@ -17,7 +17,6 @@ pub struct InputFrame {
     pub events: Vec<InteractionEvent>,
 }
 
-#[derive(Debug)]
 pub trait RuntimeAdapter {
     fn backend(&self) -> InputBackend;
     fn advertised_capabilities(&self) -> InputFrameHint;

@@ -135,18 +135,19 @@ impl Default for FrameRuntime {
 
 impl FrameRuntime {
     pub fn new(cfg: FrameRuntimeConfig) -> Self {
-        let policy = cfg.policy;
+        let stream_budget = cfg.stream_budget_bytes;
         Self {
             cfg,
             state: FrameRuntimeState::default(),
-            streamer: ProgressiveMeshStreaming::new(cfg.stream_budget_bytes),
+            streamer: ProgressiveMeshStreaming::new(stream_budget),
         }
     }
 
     pub fn step(&mut self, input: FrameRuntimeInput) -> FrameOutput {
         self.state.frame_index = self.state.frame_index.saturating_add(1);
-        let mut runtime_state = self.make_base_frame_policy(&input, &self.cfg.policy);
-        runtime_state.use_eye_tracking = input.eye_tracking_distance_m.is_some_and(|d| d.is_finite());
+        let policy = self.cfg.policy;
+        let runtime_state = self.make_base_frame_policy(&input, &policy);
+        let _use_eye_tracking = input.eye_tracking_distance_m.is_some_and(|d| d.is_finite());
 
         let mode_input = FrameModeInput {
             context: input.context,
@@ -182,7 +183,7 @@ impl FrameRuntime {
                 use_multiview: runtime_state.use_multiview,
                 foveation_tier: runtime_state.foveation_tier,
                 foveation_config: runtime_state.foveation,
-                cluster_max_lights,
+                cluster_max_lights: cluster_lights,
                 cascade_resolutions: cascade,
                 stream: streaming,
                 batches: batch,

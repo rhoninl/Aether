@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "aether-3d-demo"
+version = "0.1.0"
+dependencies = [
+ "aether-ecs",
+ "aether-input",
+ "aether-physics",
+ "aether-renderer",
+ "aether-world-runtime",
+ "minifb",
+]
+
+[[package]]
 name = "aether-asset-pipeline"
 version = "0.1.0"
 

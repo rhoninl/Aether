@@ -1,7 +1,5 @@
-use std::collections::{HashMap, VecDeque};
-
 use crate::{
-    actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton},
+    actions::{ActionPhase, XRButton},
     adapter::{InputFrame, InputFrameError, RuntimeAdapter},
     capabilities::{InputActionPath, InputBackend},
     haptics::{HapticChannel, HapticEffect, HapticRequest},
@@ -115,11 +113,20 @@ impl InputRuntimeOutput {
     }
 }
 
-#[derive(Debug)]
 pub struct InputRuntime {
     cfg: InputRuntimeConfig,
     state: SimulationRuntimeState,
     adapters: Vec<Box<dyn RuntimeAdapter>>,
+}
+
+impl std::fmt::Debug for InputRuntime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("InputRuntime")
+            .field("cfg", &self.cfg)
+            .field("state", &self.state)
+            .field("adapters_count", &self.adapters.len())
+            .finish()
+    }
 }
 
 impl Default for InputRuntime {
@@ -163,30 +170,37 @@ impl InputRuntime {
     pub fn step(&mut self, request: InputRuntimeInput) -> InputRuntimeOutput {
         self.state.step_index = self.state.step_index.saturating_add(1);
         let mut output = InputRuntimeOutput::empty(request.now_ms);
-        let mut frames = Vec::with_capacity(self.adapters.len());
         let mut dropped_events = 0u64;
         let mut unsupported_inputs = 0u64;
 
-        for adapter in self.adapters.iter_mut() {
-            let frame = match adapter.poll_frame() {
-                Ok(frame) => frame,
-                Err(InputFrameError::UnsupportedFeature(_message)) => {
+        // Collect polled frames first to avoid double borrow
+        let mut polled: Vec<(InputFrame, usize)> = Vec::new();
+        for (idx, adapter) in self.adapters.iter_mut().enumerate() {
+            match adapter.poll_frame() {
+                Ok(frame) => {
+                    if frame.player_id == request.player_id || request.player_id == 0 {
+                        polled.push((frame, idx));
+                    }
+                }
+                Err(InputFrameError::UnsupportedFeature(_)) => {
                     self.state.unsupported_events = self.state.unsupported_events.saturating_add(1);
                     unsupported_inputs = unsupported_inputs.saturating_add(1);
-                    continue;
                 }
                 Err(_) => {
                     self.state.dropped_events = self.state.dropped_events.saturating_add(1);
                     dropped_events = dropped_events.saturating_add(1);
-                    continue;
                 }
-            };
-            if frame.player_id != request.player_id && request.player_id != 0 {
-                continue;
             }
+        }
+
+        let mut frames = Vec::with_capacity(polled.len());
+        for (frame, adapter_idx) in polled {
             let profile = self.cfg.locomotion.clone();
             let mut player_frame = self.consume_frame(request.now_ms, &frame, &profile);
-            player_frame.profile_session = adapter.advertised_capabilities().session_id.clone();
+            player_frame.profile_session = self.adapters[adapter_idx]
+                .advertised_capabilities()
+                .session_id
+                .clone();
             frames.push(player_frame);
         }
 
@@ -267,8 +281,8 @@ impl InputRuntime {
 
         if !self.cfg.comfort_profile.enabled {
             for intent in intents.iter_mut() {
-                if matches!(intent, SimulationIntent::Locomotion { mode, .. }) {
-                    let _ = mode;
+                if matches!(intent, SimulationIntent::Locomotion { .. }) {
+                    // No comfort adjustments when disabled
                 }
             }
         }
@@ -314,6 +328,7 @@ impl InputRuntime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::VecDeque;
     use crate::{actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton}, capabilities::{InputActionPath, InputBackend, InputBackend::OpenXr}, locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile}};
 
     use crate::adapter::{InputFrame, InputFrameError, RuntimeAdapter};

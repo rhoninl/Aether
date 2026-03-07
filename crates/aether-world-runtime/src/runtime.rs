@@ -496,7 +496,13 @@ impl WorldRuntime {
         pending.sort_by_key(|chunk| (chunk.lod, chunk.chunk_id));
         pending.dedup_by_key(|chunk| chunk.chunk_id);
 
-        let mut budget = self.stream_budget(&pending);
+        let budget_total = if pending.is_empty() {
+            0
+        } else {
+            let chunks_to_preload = pending.len().max(1) as u64;
+            self.state.cfg.stream_budget_bytes_per_tick.min(128_000 * chunks_to_preload)
+        };
+        let mut budget = budget_total;
         let mut loaded_this_tick = 0u32;
         for chunk in pending {
             if state.loaded_chunks.contains_key(&chunk.chunk_id) {
