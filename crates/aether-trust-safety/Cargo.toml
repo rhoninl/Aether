@@ -1,0 +1,8 @@
+[package]
+name = "aether-trust-safety"
+version = "0.1.0"
+edition = "2021"
+description = "Runtime trust and safety controls"
+
+[dependencies]
+

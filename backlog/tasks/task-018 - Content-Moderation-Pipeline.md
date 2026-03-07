@@ -1,10 +1,10 @@
 ---
 id: task-018
 title: Content Moderation Pipeline
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:04'
 labels: []
 dependencies:
   - task-017
@@ -31,3 +31,12 @@ Ref: docs/design/DESIGN.md Section 5.3
 - [ ] #5 Player reporting system with priority escalation
 - [ ] #6 Content rating assignment per design doc categories
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-content-moderation` crate covering ML scan, wasm static analysis, mesh heuristics, and human review queue state.
+2. Add report/escalation model with priorities and category mappings.
+3. Add content rating artifacts for moderation decisions.
+4. Add design notes for moderation service integration.
+<!-- SECTION:PLAN:END -->

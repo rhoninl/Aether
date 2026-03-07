@@ -18,4 +18,12 @@ members = [
     "crates/aether-deploy",
     "crates/aether-world-runtime",
     "crates/aether-ugc",
+    "crates/aether-asset-pipeline",
+    "crates/aether-creator-studio",
+    "crates/aether-compliance",
+    "crates/aether-content-moderation",
+    "crates/aether-federation",
+    "crates/aether-platform",
+    "crates/aether-trust-safety",
+    "crates/aether-gateway",
 ]

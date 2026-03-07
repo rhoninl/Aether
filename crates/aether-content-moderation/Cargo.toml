@@ -1,0 +1,8 @@
+[package]
+name = "aether-content-moderation"
+version = "0.1.0"
+edition = "2021"
+description = "Automated and human content moderation primitives"
+
+[dependencies]
+

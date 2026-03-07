@@ -1,0 +1,8 @@
+[package]
+name = "aether-platform"
+version = "0.1.0"
+edition = "2021"
+description = "Multi-platform client support and capability abstraction"
+
+[dependencies]
+

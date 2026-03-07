@@ -1,10 +1,10 @@
 ---
 id: task-021
 title: Federation Model
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:04'
 labels: []
 dependencies:
   - task-014
@@ -38,3 +38,12 @@ Ref: docs/design/DESIGN.md Section 6.4
 - [ ] #9 v1 centralization gates: all AEC transactions route through central Economy Service
 - [ ] #10 v1 centralization gates: discoverable worlds must pass platform moderation to appear in registry
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-federation` crate for federation registry mapping, token validation, hash policy, and moderation gate models.
+2. Add integrity verification and approval-revalidation workflows.
+3. Add world self-hosted runtime descriptors and central gating metadata.
+4. Add migration note set for interoperability with world registry and economy.
+<!-- SECTION:PLAN:END -->

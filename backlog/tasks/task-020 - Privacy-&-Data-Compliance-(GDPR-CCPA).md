@@ -1,10 +1,10 @@
 ---
 id: task-020
 title: Privacy & Data Compliance (GDPR/CCPA)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:04'
 labels: []
 dependencies:
   - task-012
@@ -32,3 +32,12 @@ Ref: docs/design/DESIGN.md Section 6.3
 - [ ] #6 7-year retention then permanent deletion of rows + salt
 - [ ] #7 Data export (Article 20) before pseudonymization
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-compliance` crate for deletion workflows, pseudonymization, export packs, keystore envelopes, and retention plans.
+2. Add consent/legal hold metadata and retention schedule primitives.
+3. Add data export and deletion manifest contracts.
+4. Add design notes covering auditability and dual-approval controls.
+<!-- SECTION:PLAN:END -->

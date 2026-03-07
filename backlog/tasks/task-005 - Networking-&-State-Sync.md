@@ -3,9 +3,9 @@ id: task-005
 title: Networking & State Sync
 status: In Progress
 assignee:
-  - '@claude-001'
+  - claude-001
 created_date: '2026-03-07 13:17'
-updated_date: '2026-03-07 14:57'
+updated_date: '2026-03-07 15:08'
 labels: []
 dependencies:
   - task-001

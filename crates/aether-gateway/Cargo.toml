@@ -1,0 +1,8 @@
+[package]
+name = "aether-gateway"
+version = "0.1.0"
+edition = "2021"
+description = "API gateway and voice relay routing contracts"
+
+[dependencies]
+

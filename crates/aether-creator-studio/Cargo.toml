@@ -1,0 +1,8 @@
+[package]
+name = "aether-creator-studio"
+version = "0.1.0"
+edition = "2021"
+description = "Creator Studio and world-editing primitives"
+
+[dependencies]
+

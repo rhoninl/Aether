@@ -1,10 +1,10 @@
 ---
 id: task-022
 title: Multi-Platform Client Support
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:04'
 labels: []
 dependencies:
   - task-010
@@ -31,3 +31,12 @@ Ref: docs/design/DESIGN.md Section 8.3
 - [ ] #5 PlayStation VR2 (planned): console certification, server-authoritative scripts
 - [ ] #6 Progressive fidelity: graceful degradation across platforms
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-platform` crate for target capabilities, input fidelity, build modes, and runtime constraints across PC VR, desktop, mobile/standalone, and consoles.
+2. Add adaptive quality profiles and script execution mode mappings.
+3. Add compliance descriptors for cert/approval target metadata.
+4. Add runtime feature toggles for progressive fidelity and compatibility profiles.
+<!-- SECTION:PLAN:END -->

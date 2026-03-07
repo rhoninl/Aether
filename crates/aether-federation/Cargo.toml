@@ -1,0 +1,8 @@
+[package]
+name = "aether-federation"
+version = "0.1.0"
+edition = "2021"
+description = "Federation and self-hosted world interoperability primitives"
+
+[dependencies]
+

@@ -1,10 +1,10 @@
 ---
 id: task-017
 title: Asset Pipeline & Bundle Format
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:04'
 labels: []
 dependencies:
   - task-002
@@ -29,3 +29,12 @@ Ref: docs/design/DESIGN.md Section 5.2
 - [ ] #5 Progressive streaming: low LOD first, refine on demand
 - [ ] #6 Asset import from FBX, glTF, OBJ
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add `aether-asset-pipeline` crate for bundle manifest, compression profiles, import translators, and LOD generation metadata.
+2. Add mesh/texture format descriptors for .aemesh/.aeenv and transcode targets.
+3. Add progressive streaming descriptors with LOD chains.
+4. Add documentation on streaming and import extension points.
+<!-- SECTION:PLAN:END -->
