@@ -453,6 +453,7 @@ graph TB
 sequenceDiagram
     participant Client as Client
     participant Server as World Server
+    participant Svc as Service Layer<br/>(Economy, Identity, etc.)
     participant DB as State Store
 
     Client->>Server: Input (Move, Interact, Speak)
@@ -464,8 +465,10 @@ sequenceDiagram
     Note over Server,DB: Every 5 seconds
     Server->>DB: Snapshot ephemeral state
 
-    Note over Server,DB: Immediately (via service RPC)
-    Server->>DB: Critical mutation (economy, inventory)
+    Note over Server,Svc: Critical mutations (economy, inventory)
+    Server->>Svc: Synchronous RPC (e.g., PostTransaction)
+    Svc->>DB: ACID transaction
+    Svc->>Server: Confirmed
 ```
 
 - **Client-side prediction**: Client predicts local player movement; server reconciles
@@ -984,22 +987,25 @@ The system does NOT rely solely on caller behavior. Exactly-once posting is enfo
 **Layer 1 — Server-side structural dedup (the hard guarantee)**:
 Every transaction request carries an **idempotency key**. The Economy Service enforces uniqueness via a `UNIQUE` constraint on `idempotency_key` in the PostgreSQL transaction table. This is the authoritative dedup mechanism — it works regardless of caller behavior, SDK usage, or crash timing. Even if a caller generates a new key by mistake, the damage is bounded: the CHECK constraint on wallet balances prevents overdraft, and velocity/anomaly detection flags unusual patterns.
 
-**Layer 2 — Deterministic key derivation (prevents accidental new keys)**:
-To eliminate the risk of callers generating new keys on crash/restart, the idempotency key is **derived deterministically** from the operation's natural key, not randomly generated:
+**Layer 2 — Caller key management (prevents accidental new keys)**:
 
-```
-idempotency_key = SHA-256(operation_type + buyer_id + seller_id + item_id + amount + request_timestamp_bucket)
-```
+The idempotency key is a **UUID v7** generated once per logical operation and **persisted by the caller before the first attempt**:
 
-- `request_timestamp_bucket` is floored to a 10-second window, so retries within the same window produce the same key even after caller crash/restart
-- The same logical operation (same buyer, same item, same amount, same time window) always produces the same key — no local state or SDK cache required
-- A genuinely new transaction (different item, different time) naturally produces a different key
-- This makes the protocol **stateless** — callers don't need to persist key-to-operation mappings
+1. World server generates `idempotency_key = UUIDv7()` for the operation
+2. World server writes `(idempotency_key, operation_details, status=PENDING)` to its local pending-transactions table (on the PVC-backed WAL volume for durable worlds, or in-memory for stateless worlds)
+3. World server sends the RPC to Economy Service with the key
+4. On success: mark local record as `COMPLETED`, confirm to client
+5. On timeout/failure: retry with the **same key** (read from local record)
+6. On world server crash/restart: scan pending-transactions for `PENDING` records and retry each with its persisted key
+
+This ensures crash recovery always reuses the original key. For stateless worlds (no PVC), in-memory pending records are lost on crash — but since the Economy Service has the UNIQUE constraint, the worst case is a transaction that was actually committed but the client doesn't get confirmation. The client sees a timeout, and the Economy Service SDK provides a `get_transaction(idempotency_key)` query to check outcome after recovery.
+
+**Collision prevention**: UUID v7 keys have 122 bits of entropy, making collisions astronomically unlikely (~10^-18 probability per billion transactions). Unlike deterministic derivation, distinct transactions always get distinct keys regardless of timing or parameters.
 
 **Caller retry contract**:
-- On timeout or ambiguous failure, callers retry with the **same deterministic key** (guaranteed by derivation formula)
-- The Economy Service SDK provides a `derive_idempotency_key()` helper, but even raw API callers produce correct keys by following the derivation spec
-- Non-compliant callers (wrong key derivation) cannot cause overdraft (balance CHECK constraint) and are detected by anomaly monitoring
+- On timeout or ambiguous failure, callers MUST retry with the **same UUID** (read from their persisted pending-transaction record)
+- The Economy Service SDK manages this lifecycle automatically via `begin_transaction()` → `commit_transaction()` with built-in retry
+- Non-compliant callers (generating new keys on retry) cannot cause overdraft (balance CHECK constraint) and are detected by anomaly monitoring
 
 **Path A — Synchronous RPC (player-facing transactions: purchases, trades, tips)**:
 
@@ -1214,11 +1220,11 @@ The immutable transaction ledger and the right to erasure create a tension. Aeth
 The Compliance Keystore is subject to strict access controls:
 - Access requires dual-approval from Compliance Officer + Legal Counsel
 - Every access is audit-logged with justification and legal basis citation
-- The salt is auto-deleted after 7 years (matching ledger retention), at which point rows become truly anonymized and are no longer personal data
+- The salt is auto-deleted after 7 years (matching ledger retention), simultaneously with the ledger rows themselves (see retention schedule below)
 
 **Legal hold path**: If the account is under active legal hold (ongoing investigation, litigation, regulatory inquiry), deletion is deferred. The user is notified that deletion is paused due to legal obligation (without disclosing investigation details, per applicable law). Once the hold is lifted, the default pseudonymization path executes.
 
-**Retention schedule**: Pseudonymized ledger rows and their corresponding salts are retained for 7 years (standard financial record-keeping), then both are permanently deleted — rows become irrecoverable.
+**Retention schedule**: After 7 years, pseudonymized ledger rows and their corresponding salts are **both permanently deleted** in the same batch operation. There is no intermediate "anonymized but retained" state — once the legal retention obligation expires, the data is destroyed entirely. This is simpler and more privacy-protective than attempting to retain anonymized rows indefinitely.
 
 **Export**: Before deletion, users can export all their data (GDPR Article 20) including a full transaction history with readable details. This export is generated before pseudonymization begins.
 
@@ -1245,7 +1251,7 @@ Self-hosted worlds can serve assets from arbitrary origins, which creates a supp
 - When the client downloads an asset, it verifies the content hash before loading. Hash mismatch → asset rejected, fallback placeholder rendered, incident reported to Moderation Service.
 - When a world is submitted to the World Registry (for discoverability), the platform's UGC Service downloads all assets, runs the moderation scan, and records the content hashes. These hashes are stored in the registry as the **approved manifest**.
 - If a self-hosted world operator updates an asset, the content hash changes, breaking the manifest's integrity. The world is automatically flagged as "modified since approval" in the registry and must be re-submitted for moderation review before regaining "approved" status.
-- WASM scripts have an additional requirement: the platform AOT-compiles scripts at submission time and stores the compiled artifact. Self-hosted worlds serve the platform-compiled artifact (signed by the platform's code-signing key), not their own compilation. The client verifies the platform signature before loading any WASM module.
+- WASM scripts have an additional requirement: the platform AOT-compiles scripts at submission time and stores the compiled artifact. Self-hosted worlds serve the platform-compiled artifact, not their own compilation. On **constrained platforms** (Quest, visionOS, console), the client verifies the platform's Ed25519 code signature on the AOT artifact before loading. On **PC/Desktop**, the client verifies the content hash (SHA-256) of the raw `.wasm` file against the approved manifest — signature verification is not required because the JIT path loads the canonical bytecode, not a platform-compiled artifact. This distinction is consistent with the WASM runtime model in Section 8.3.
 
 This ensures that moderation approval is binding — approved content cannot be silently swapped.
 
