@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS webauthn_credentials;
+DROP TABLE IF EXISTS oauth_accounts;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS users;

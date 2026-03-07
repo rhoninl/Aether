@@ -1,0 +1,11 @@
+[package]
+name = "aether-physics"
+version = "0.1.0"
+edition = "2021"
+description = "Rapier3D physics integration for the Aether VR engine"
+
+[dependencies]
+aether-ecs = { path = "../aether-ecs" }
+rapier3d = "0.22"
+
+[dev-dependencies]
