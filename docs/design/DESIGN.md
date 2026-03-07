@@ -493,7 +493,11 @@ Critical mutations **never** flow through the snapshot path. They are externaliz
 
 Ephemeral state is captured in periodic snapshots (default every 5s). On crash, up to 5 seconds of ephemeral state may be lost. This is acceptable — players reappear at their last snapshot position, and non-critical world state is reconstructed from the most recent snapshot.
 
-**Write-Ahead Log (WAL)** for high-value ephemeral state: World creators can flag specific script storage keys as `durable`, which causes writes to be appended to a local WAL that is fsynced before acknowledgment. On crash recovery, the WAL is replayed on top of the last snapshot, reducing effective loss to near-zero for flagged state.
+**Write-Ahead Log (WAL)** for high-value ephemeral state: World creators can flag specific script storage keys as `durable`, which causes writes to be appended to a WAL that is fsynced before acknowledgment. On crash recovery, the WAL is replayed on top of the last snapshot, reducing effective loss to near-zero for flagged state.
+
+**WAL storage on Kubernetes**: World server pods that host worlds with `durable` script state are scheduled on nodes with **PersistentVolumeClaims (PVCs)** backed by network-attached block storage (e.g., EBS, Persistent Disk, Azure Disk). The WAL is written to the PVC, not to the pod's ephemeral filesystem. This ensures WAL survives pod restarts and node failures. The PVC is mounted at `/data/wal/` and is provisioned via a `StatefulSet` (not a `Deployment`) so that each world server pod has a stable identity and persistent storage binding. On pod reschedule, the replacement pod reattaches the same PVC and replays the WAL.
+
+Worlds without `durable` script state run on stateless `Deployment` pods (no PVC required), keeping the common case lightweight. The Session Manager routes worlds to StatefulSet pods or Deployment pods based on their manifest's durability requirements.
 
 #### 3.5.4 Spatial Load Balancing
 
@@ -516,9 +520,43 @@ graph TB
 ```
 
 - Zones split using k-d tree partitioning along the axis of greatest player spread
-- Adjacent zones on different servers sync entities near boundaries (ghost entities)
-- Players crossing boundaries are seamlessly handed off between servers
 - Zones merge back when population drops below threshold
+
+#### 3.5.4.1 Cross-Zone Authority Model
+
+Every entity has exactly **one authoritative server** at any point in time (single-writer principle). There is no shared-write or dual-authority state.
+
+**Entity ownership**: Each entity's `NetworkIdentity` component contains an `authority_zone` field. The server managing that zone is the sole writer for that entity's state. All other servers that replicate the entity (as a ghost) treat it as read-only.
+
+**Ghost entities**: When an entity is within a configurable boundary margin (default 10m) of a zone edge, the authoritative server publishes its state to the adjacent zone server via NATS. The adjacent server creates a **ghost entity** — a read-only replica used for rendering, collision queries, and interest management. Ghosts cannot be mutated by the receiving server.
+
+**Player handoff protocol**:
+
+```mermaid
+sequenceDiagram
+    participant S1 as Zone Server A (current authority)
+    participant S2 as Zone Server B (target)
+    participant C as Client
+
+    Note over S1: Player crosses zone boundary
+    S1->>S2: HandoffRequest(entity_id, full_state, idempotency_key)
+    S2->>S2: Create entity, validate state
+    S2->>S1: HandoffAccepted(entity_id)
+    S1->>S1: Mark entity as ghost (read-only)
+    S1->>C: AuthorityTransfer(new_zone=B)
+    C->>S2: Establish primary connection
+    S2->>S1: HandoffComplete — S1 may delete ghost after timeout
+```
+
+- The handoff is atomic from the client's perspective: the client buffers inputs during transfer (typically < 50ms) and replays them to the new authority
+- If `HandoffAccepted` is not received within 200ms, the entity remains on S1 (fail-safe: no authority gap)
+- The `idempotency_key` prevents duplicate entity creation if the handoff message is retransmitted
+
+**Cross-zone physics**: Physics interactions between entities on different servers are resolved by the **server that owns the initiating entity**. Example: if Player A (Zone A) throws an object that hits Player B (Zone B), Zone A's server performs the collision detection against B's ghost, computes the result, and sends an `InteractionEvent` to Zone B. Zone B validates the event (timestamp, proximity, velocity plausibility) and applies the effect to Player B. This adds one network hop of latency to cross-zone interactions, which is acceptable given the 10m boundary margin.
+
+**Cross-zone combat/interaction arbitration**: For competitive interactions (damage, item theft), the target's authoritative server has **final say**. The initiator sends an `InteractionRequest`; the target server validates timing, range, and game rules, then either applies or rejects. This prevents a compromised or lagging zone server from unilaterally affecting entities it doesn't own.
+
+**Event ordering during handoff**: The handoff protocol uses a **sequence fence**: S1 assigns a monotonic sequence number to the last state update before handoff. S2 does not accept client inputs for the entity until it has received and applied state up to that sequence number. This prevents stale-state application.
 
 ### 3.6 Avatar System
 
@@ -883,6 +921,22 @@ graph TB
 - **Cross-region play**: Players in different regions can be in the same world (with higher latency warning)
 - **Auto-scaling**: World servers scale based on player count and CPU utilization (custom HPA)
 
+#### 4.3.1 Multi-Region Database Consistency Model
+
+The global PostgreSQL + Citus deployment uses a **single-primary topology for economy data** to guarantee ACID consistency for financial transactions:
+
+| Data Domain | Topology | Consistency | Rationale |
+|---|---|---|---|
+| **Economy (wallets, transactions)** | Single-primary region (US-West), synchronous standby in US-East | Strong consistency (linearizable) | Financial correctness requires single-writer ACID. Cross-region economy RPCs route to primary (adds ~80ms for EU/Asia players on purchase). |
+| **Identity / Auth** | Single-primary, async replicas in all regions | Read-after-write in primary region, eventual in others | Token validation uses local read replica (fast); profile updates go to primary. |
+| **Social (friends, groups)** | Citus-sharded by user_id, distributed across regions | Eventual consistency (< 1s replication lag) | Social mutations are low-frequency and tolerance for brief inconsistency is acceptable. |
+| **World Registry** | Citus-sharded, read replicas in all regions | Eventual consistency | World metadata is read-heavy, write-rare. |
+| **Telemetry / Analytics** | Region-local write, async aggregation | Eventual | No correctness requirement. |
+
+**Failover**: The economy primary has a synchronous standby. On primary failure, automatic promotion occurs via Patroni (< 30s failover). During failover, economy writes are unavailable — world servers queue transaction RPCs and retry with the same idempotency key once the new primary is reachable. No double-posting risk due to the idempotency contract.
+
+**Why not multi-primary**: Multi-primary (CockroachDB-style) was considered but rejected for economy data. The complexity of distributed transactions, conflict resolution, and the risk of split-brain balance corruption outweigh the latency benefit. The ~80ms cross-region penalty for purchases is acceptable — players experience it as a brief "processing" animation.
+
 ### 4.4 Economy System
 
 ```mermaid
@@ -923,37 +977,74 @@ graph LR
 
 NATS JetStream provides at-least-once delivery, which means economy consumers can receive duplicate messages. The ledger must guarantee **exactly-once posting** despite this.
 
-**Mechanism**: Every transaction request carries a caller-generated **idempotency key** (UUID v7, generated by the originating service — world server, UGC service, etc.). The ledger enforces uniqueness via a `UNIQUE` constraint on `idempotency_key` in the transaction table.
+**Defense in depth — two layers of dedup**:
 
-**Caller retry contract (MANDATORY)**:
-- The idempotency key is generated **once per logical operation** (e.g., "player A buys item X") and bound to that operation for its lifetime
-- On timeout or ambiguous failure, callers **MUST retry with the same idempotency key** — generating a new key on retry is a protocol violation that can cause double-posting
-- The Economy Service SDK enforces this: the `post_transaction()` method accepts an `idempotency_key` parameter and the SDK caches the key-to-operation mapping locally, returning the same key on retry automatically
-- Callers that bypass the SDK and call the API directly MUST adhere to this contract; the API documents this as a hard requirement
-- A new idempotency key is generated only for a genuinely new, distinct transaction
+The system does NOT rely solely on caller behavior. Exactly-once posting is enforced by **server-side constraints** regardless of caller compliance:
+
+**Layer 1 — Server-side structural dedup (the hard guarantee)**:
+Every transaction request carries an **idempotency key**. The Economy Service enforces uniqueness via a `UNIQUE` constraint on `idempotency_key` in the PostgreSQL transaction table. This is the authoritative dedup mechanism — it works regardless of caller behavior, SDK usage, or crash timing. Even if a caller generates a new key by mistake, the damage is bounded: the CHECK constraint on wallet balances prevents overdraft, and velocity/anomaly detection flags unusual patterns.
+
+**Layer 2 — Deterministic key derivation (prevents accidental new keys)**:
+To eliminate the risk of callers generating new keys on crash/restart, the idempotency key is **derived deterministically** from the operation's natural key, not randomly generated:
+
+```
+idempotency_key = SHA-256(operation_type + buyer_id + seller_id + item_id + amount + request_timestamp_bucket)
+```
+
+- `request_timestamp_bucket` is floored to a 10-second window, so retries within the same window produce the same key even after caller crash/restart
+- The same logical operation (same buyer, same item, same amount, same time window) always produces the same key — no local state or SDK cache required
+- A genuinely new transaction (different item, different time) naturally produces a different key
+- This makes the protocol **stateless** — callers don't need to persist key-to-operation mappings
+
+**Caller retry contract**:
+- On timeout or ambiguous failure, callers retry with the **same deterministic key** (guaranteed by derivation formula)
+- The Economy Service SDK provides a `derive_idempotency_key()` helper, but even raw API callers produce correct keys by following the derivation spec
+- Non-compliant callers (wrong key derivation) cannot cause overdraft (balance CHECK constraint) and are detected by anomaly monitoring
+
+**Path A — Synchronous RPC (player-facing transactions: purchases, trades, tips)**:
 
 ```mermaid
 sequenceDiagram
     participant WS as World Server
-    participant MQ as NATS JetStream
     participant ES as Economy Service
     participant DB as PostgreSQL
 
-    WS->>MQ: PostTransaction(idempotency_key=UUID, debit=A, credit=B, amount=100)
-    MQ->>ES: Deliver message (at-least-once)
+    WS->>ES: RPC: PostTransaction(idempotency_key, debit=A, credit=B, amount=100)
     ES->>DB: BEGIN
     ES->>DB: INSERT INTO transactions (idempotency_key, ...) — UNIQUE constraint
     ES->>DB: UPDATE wallets SET balance = balance - 100 WHERE id = A
     ES->>DB: UPDATE wallets SET balance = balance + 100 WHERE id = B
     ES->>DB: COMMIT
-    ES->>MQ: ACK
+    ES->>WS: OK (transaction_id)
 
-    Note over MQ,ES: If MQ redelivers (duplicate):
-    MQ->>ES: Deliver same message again
-    ES->>DB: INSERT → UNIQUE violation (conflict on idempotency_key)
+    Note over WS,ES: On timeout/failure, WS retries with same idempotency_key:
+    WS->>ES: RPC: PostTransaction(same idempotency_key, ...)
+    ES->>DB: INSERT → UNIQUE violation
     ES->>DB: ROLLBACK (no-op)
-    ES->>MQ: ACK (safe to discard)
+    ES->>WS: OK (idempotent — returns original transaction_id)
 ```
+
+**Path B — Async via NATS JetStream (settlement: creator payouts, platform fees)**:
+
+```mermaid
+sequenceDiagram
+    participant ES as Economy Service
+    participant MQ as NATS JetStream
+    participant Settle as Settlement Worker
+    participant DB as PostgreSQL
+
+    ES->>MQ: Publish: SettlementEvent(idempotency_key, creator=C, amount=15)
+    MQ->>Settle: Deliver (at-least-once)
+    Settle->>DB: BEGIN + INSERT (UNIQUE on idempotency_key) + UPDATE + COMMIT
+    Settle->>MQ: ACK
+
+    Note over MQ,Settle: If redelivered:
+    MQ->>Settle: Same message again
+    Settle->>DB: INSERT → UNIQUE violation → ROLLBACK
+    Settle->>MQ: ACK (no-op)
+```
+
+Player-facing transactions always use Path A (synchronous RPC) for immediate confirmation. Path B is used only for deferred settlement where slight delay is acceptable.
 
 **Key properties**:
 - The debit, credit, and balance update are in a **single PostgreSQL transaction** — no partial application
@@ -1113,10 +1204,17 @@ The immutable transaction ledger and the right to erasure create a tension. Aeth
 
 **Ledger pseudonymization**: Transaction rows are retained for financial compliance (AML, tax, fraud) but the `user_id` field is replaced with a **pseudonym token** (`SHA-256(user_id + deletion_salt)`). The process has two modes depending on legal hold status:
 
-**Default path (no legal hold)**: The deletion salt is stored in a separate **Compliance Keystore** (encrypted, access-controlled, audit-logged), NOT discarded. This allows authorized re-identification under legal compulsion (court order, regulatory investigation) while keeping ledger rows non-identifiable for all normal operations. The pseudonymized rows satisfy GDPR Article 17 — they are pseudonymized data (Recital 26) with re-identification possible only through the Compliance Keystore, which is subject to strict access controls:
+**Default path (no legal hold)**: The deletion salt is stored in a separate **Compliance Keystore** (encrypted, access-controlled, audit-logged), NOT discarded. This allows authorized re-identification under legal compulsion (court order, regulatory investigation) while keeping ledger rows non-identifiable for all normal operations.
+
+**GDPR legal basis**: Because the salt enables re-identification, the pseudonymized ledger rows remain personal data under GDPR. Retention is justified under **Article 17(3)(b)** — the right to erasure does not apply where processing is necessary for compliance with a legal obligation. Specifically:
+- Anti-Money Laundering Directive (AMLD 5/6) requires retention of financial transaction records for 5 years
+- National tax laws in operating jurisdictions require 6-7 year retention
+- These legal obligations override the right to erasure for the financial ledger specifically
+
+The Compliance Keystore is subject to strict access controls:
 - Access requires dual-approval from Compliance Officer + Legal Counsel
-- Every access is audit-logged with justification
-- The salt is auto-deleted after 7 years (matching ledger retention), at which point rows become truly anonymized
+- Every access is audit-logged with justification and legal basis citation
+- The salt is auto-deleted after 7 years (matching ledger retention), at which point rows become truly anonymized and are no longer personal data
 
 **Legal hold path**: If the account is under active legal hold (ongoing investigation, litigation, regulatory inquiry), deletion is deferred. The user is notified that deletion is paused due to legal obligation (without disclosing investigation details, per applicable law). Once the hold is lifted, the default pseudonymization path executes.
 
@@ -1132,12 +1230,24 @@ The immutable transaction ledger and the right to erasure create a tension. Aeth
 - **World hosting**: Anyone can run an Aether World Server on their own infrastructure. The world server binary is open-source and self-hostable.
 - **World discovery**: Self-hosted worlds register with the platform's World Registry via an open API, making them discoverable alongside platform-hosted worlds.
 - **Portal interoperability**: Players can portal (`aether://`) between platform-hosted and self-hosted worlds seamlessly.
-- **Asset serving**: Self-hosted worlds serve their own assets; the client fetches from whatever origin the world manifest specifies.
+- **Asset serving**: Self-hosted worlds serve their own assets from their own origin, but all assets are **content-addressed and integrity-verified** (see below).
 
 **What is centralized (v1)**:
 - **Identity / Auth**: A single identity provider (the Aether platform) issues and validates player identity. Self-hosted worlds verify player tokens against the central auth service. This is a deliberate choice — federated identity (like ActivityPub webfinger) introduces trust complexity that is deferred.
 - **Economy**: All AEC transactions go through the central Economy Service. Self-hosted worlds can trigger transactions (e.g., entry fees, item purchases) via the Economy API, but the ledger is centralized. This ensures auditability and fraud recovery.
 - **Moderation**: Content moderation policies are enforced centrally. Self-hosted worlds that are discoverable via the platform registry must comply with platform moderation standards. Worlds can opt out of the registry and operate independently (but lose discoverability and economy integration).
+
+**Federated asset integrity**:
+
+Self-hosted worlds can serve assets from arbitrary origins, which creates a supply-chain risk: assets could be modified after moderation approval. Aether mitigates this with **content-addressed asset references**:
+
+- Every asset in a world manifest is referenced by its **content hash** (SHA-256), not just a URL. Example: `terrain: { url: "https://my-server.com/terrain.aemesh", sha256: "a1b2c3..." }`
+- When the client downloads an asset, it verifies the content hash before loading. Hash mismatch → asset rejected, fallback placeholder rendered, incident reported to Moderation Service.
+- When a world is submitted to the World Registry (for discoverability), the platform's UGC Service downloads all assets, runs the moderation scan, and records the content hashes. These hashes are stored in the registry as the **approved manifest**.
+- If a self-hosted world operator updates an asset, the content hash changes, breaking the manifest's integrity. The world is automatically flagged as "modified since approval" in the registry and must be re-submitted for moderation review before regaining "approved" status.
+- WASM scripts have an additional requirement: the platform AOT-compiles scripts at submission time and stores the compiled artifact. Self-hosted worlds serve the platform-compiled artifact (signed by the platform's code-signing key), not their own compilation. The client verifies the platform signature before loading any WASM module.
+
+This ensures that moderation approval is binding — approved content cannot be silently swapped.
 
 **Federation roadmap (post-v1)**:
 - **Federated identity**: Support for external identity providers (OpenID Connect federation) so players from other platforms can join Aether worlds with their existing identity. Defined in Open Question #5.
@@ -1263,6 +1373,32 @@ graph TB
 | **Client: Console** | AOT only | Wasmtime (AOT mode) | Console platform policies prohibit JIT. Server-authoritative for all user scripts. |
 
 The scripting architecture diagram (Section 3.8.1) labels modules as "AOT or JIT" — the actual mode is determined by the table above based on deployment target. The server always runs AOT. The client runs JIT where permitted, AOT where required, and falls back to server-side execution for user scripts on constrained platforms.
+
+#### 8.3.1 WASM Multi-Architecture AOT Artifact Strategy
+
+AOT compilation produces **platform-specific native code**. The UGC Service compiles each uploaded WASM module for all supported target architectures at upload time:
+
+| Target | Architecture | AOT Output | Distribution |
+|---|---|---|---|
+| World Server (Linux) | x86_64 | `.cwasm` (Cranelift compiled module) | Stored in object storage, loaded by server at world boot |
+| World Server (Linux) | aarch64 | `.cwasm` | Same, for ARM-based server nodes |
+| Client: PC (Windows/Linux) | x86_64 | Not pre-compiled (JIT at runtime) | Raw `.wasm` served, client JIT-compiles and caches locally |
+| Client: Quest (Android) | aarch64 | `.cwasm` + platform signature | Signed by platform key; client verifies signature before loading |
+| Client: visionOS | aarch64 | `.cwasm` embedded in app bundle | Bundled into signed app update (requires app store review cycle for engine scripts) |
+| Client: Console | platform-specific | `.cwasm` | Bundled into platform-certified build |
+
+**Artifact storage**: Each WASM module in object storage is stored as a manifest pointing to per-architecture artifacts:
+```
+scripts/interact/
+├── module.wasm           # canonical WASM bytecode (source of truth)
+├── module.x86_64.cwasm   # server AOT (x86_64)
+├── module.aarch64.cwasm  # server AOT + Quest client AOT
+└── manifest.json         # maps target → artifact + SHA-256 hash
+```
+
+**Signing**: All AOT artifacts for constrained platforms (Quest, visionOS, console) are signed with the platform's Ed25519 code-signing key. The client embeds the corresponding public key and verifies the signature before loading. Unsigned or incorrectly signed modules are rejected.
+
+**Rebuild policy**: When Wasmtime is upgraded (new Cranelift codegen), all AOT artifacts are bulk-recompiled from the canonical `.wasm` source. The canonical WASM bytecode is the permanent source of truth; AOT artifacts are derived and replaceable.
 
 ---
 
