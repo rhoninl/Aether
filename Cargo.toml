@@ -4,4 +4,5 @@ members = [
     "crates/aether-ecs",
     "crates/aether-physics",
     "crates/aether-scripting",
+    "crates/aether-renderer",
 ]
