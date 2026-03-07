@@ -12,4 +12,8 @@ members = [
     "crates/aether-avatar",
     "crates/aether-input",
     "crates/aether-economy",
+    "crates/aether-registry",
+    "crates/aether-social",
+    "crates/aether-security",
+    "crates/aether-deploy",
 ]

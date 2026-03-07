@@ -1,0 +1,8 @@
+[package]
+name = "aether-deploy"
+version = "0.1.0"
+edition = "2021"
+description = "Deployment topology and infra configuration primitives"
+
+[dependencies]
+

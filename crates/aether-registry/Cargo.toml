@@ -1,0 +1,8 @@
+[package]
+name = "aether-registry"
+version = "0.1.0"
+edition = "2021"
+description = "World registry, discovery, and matchmaking primitives"
+
+[dependencies]
+

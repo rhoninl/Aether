@@ -1,0 +1,8 @@
+[package]
+name = "aether-social"
+version = "0.1.0"
+edition = "2021"
+description = "Social and chat primitives for Aether communities"
+
+[dependencies]
+

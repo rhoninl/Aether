@@ -1,10 +1,10 @@
 ---
 id: task-019
 title: Security & Anti-Cheat
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:19'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:00'
 labels: []
 dependencies:
   - task-005
@@ -31,3 +31,12 @@ Ref: docs/design/DESIGN.md Section 6.1, 6.2
 - [ ] #6 DDoS protection at network edge
 - [ ] #7 Content-addressed asset integrity (SHA-256 hash verification)
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add security crate (`aether-security`) with anti-cheat hooks, input validation, rate-limits, and hashing contracts.
+2. Add server validation enums and policy for authoritative actions.
+3. Add transport security flags and protocol negotiation placeholders for QUIC/TLS.
+4. Add edge protection models for adaptive mitigation and ban/suspension events.
+<!-- SECTION:PLAN:END -->

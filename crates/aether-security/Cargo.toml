@@ -1,0 +1,8 @@
+[package]
+name = "aether-security"
+version = "0.1.0"
+edition = "2021"
+description = "Security, anti-cheat, rate limiting, and transport hardening primitives"
+
+[dependencies]
+

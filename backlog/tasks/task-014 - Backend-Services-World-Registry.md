@@ -1,10 +1,10 @@
 ---
 id: task-014
 title: 'Backend Services: World Registry'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-03-07 13:18'
-updated_date: '2026-03-07 14:13'
+updated_date: '2026-03-07 15:00'
 labels: []
 dependencies:
   - task-011
@@ -30,3 +30,12 @@ Ref: docs/design/DESIGN.md Section 4.1, 4.2
 - [ ] #4 Session manager: spawn/despawn world server instances
 - [ ] #5 Matchmaking: route players to nearest region, balance load
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Add backend registry crate (`aether-registry`) with manifest schema, discovery filters, and portal URI resolver.
+2. Add session manager models for world instance lifecycle and region-aware routing.
+3. Add matchmaking policies (nearest region + load balancing) as policy objects.
+4. Add implementation notes and state transition markers.
+<!-- SECTION:PLAN:END -->

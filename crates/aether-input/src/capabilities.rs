@@ -50,10 +50,9 @@ pub struct HeadsetProfile {
     pub max_touch_points: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct InputFrameHint {
     pub backend: InputBackend,
     pub session_id: String,
     pub capabilities: Vec<Capability>,
 }
-
