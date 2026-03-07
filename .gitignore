@@ -1,0 +1,47 @@
+# Rust (Cargo / workspace)
+target/
+**/target/
+
+# Go / Go modules
+bin/
+*.test
+*.out
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Logs and runtime artifacts
+*.log
+*.pid
+*.seed
+*.pid.lock
+*.tmp
+*.swp
+*.swo
+*~
+
+# Node/npm (if any frontend/tooling appears later)
+node_modules/
+dist/
+coverage/
+
+# Environment / local config
+.env
+.env.*
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.user
+*.njsproj
+*.sln.docstates
+*.iml
+
+# Build outputs for macOS/Linux/Windows tooling
+*.dSYM/
+*.pyc

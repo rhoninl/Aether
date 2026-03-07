@@ -1,0 +1,10 @@
+[package]
+name = "aether-ecs"
+version = "0.1.0"
+edition = "2021"
+description = "Archetype-based Entity Component System for the Aether VR engine"
+
+[dependencies]
+rayon = "1.10"
+
+[dev-dependencies]
