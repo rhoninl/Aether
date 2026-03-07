@@ -11,6 +11,7 @@ pub mod config;
 mod rate_limit;
 pub mod artifact;
 pub mod scheduler;
+pub mod visual;
 
 pub use api::{AudioHandle, EntityApi, NetworkApi, PhysicsApi, ScriptApiError, ScriptApiResult, StorageApi, UIApi, Vec3};
 pub use config::{
@@ -19,6 +20,7 @@ pub use config::{
     DEFAULT_PER_SCRIPT_NETWORK_RPCS_PER_SECOND, DEFAULT_PER_SCRIPT_STORAGE_WRITES_PER_SECOND,
 };
 pub use artifact::{CompilationProfile, PlatformRuntimePolicy, ScriptArtifact, ScriptLanguage, WAsmArtifactManifest};
+pub use visual::{VisualScriptCompiler, VisualScriptCompileError, VisualScriptGraph, VisualScriptNode};
 pub use rate_limit::RateLimiter;
 pub use scheduler::{
     ScriptDescriptor, ScriptExecutionUsage, ScriptId, ScriptState, TickPlan, TickUsageResult,
