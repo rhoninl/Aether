@@ -239,6 +239,10 @@ dependencies = [
 [[package]]
 name = "aether-world-runtime"
 version = "0.1.0"
+dependencies = [
+ "serde",
+ "uuid",
+]
 
 [[package]]
 name = "aether-zoning"
