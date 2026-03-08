@@ -5,4 +5,4 @@ edition = "2021"
 description = "Automated and human content moderation primitives"
 
 [dependencies]
-
+uuid = { version = "1", features = ["v4"] }

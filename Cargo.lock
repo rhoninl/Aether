@@ -60,6 +60,9 @@ version = "0.1.0"
 [[package]]
 name = "aether-content-moderation"
 version = "0.1.0"
+dependencies = [
+ "uuid",
+]
 
 [[package]]
 name = "aether-creator-studio"
