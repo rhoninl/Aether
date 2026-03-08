@@ -11,6 +11,10 @@ pub mod locomotion;
 pub mod mapping;
 pub mod movement;
 pub mod openxr;
+pub mod openxr_haptics;
+pub mod openxr_session;
+pub mod openxr_swapchain;
+pub mod openxr_tracking;
 pub mod processing;
 pub mod runtime;
 
@@ -31,6 +35,21 @@ pub use movement::{
     direction_from_keys, rotate_direction_by_yaw, TeleportResult,
 };
 pub use openxr::OpenXrAdapter;
+pub use openxr_haptics::{
+    clamp_amplitude, HapticAction, HapticDispatcher, HapticTarget,
+};
+pub use openxr_session::{
+    ReferenceSpace, ReferenceSpaceType, SessionConfig, SessionManager, SessionState,
+    SessionTransitionError,
+};
+pub use openxr_swapchain::{
+    SwapchainConfig, SwapchainError, SwapchainFormat, SwapchainImageIndex, SwapchainManager,
+    SwapchainState, SwapchainUsage,
+};
+pub use openxr_tracking::{
+    ControllerAnalog, ControllerButtons, ControllerState, Hand, HandJoint, HandJointSet,
+    TrackingConfidence, TrackingPipeline, TrackingSnapshot,
+};
 pub use processing::{InputPipeline, ProcessedAxes, RawInputState};
 pub use runtime::{
     InputRuntime, InputRuntimeConfig, InputRuntimeInput, InputRuntimeOutput, PlayerInputFrame,
