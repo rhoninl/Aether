@@ -7,7 +7,7 @@ pub struct InputPlausibility {
     pub sample_ms: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CheatSignal {
     SpeedHack,
     TeleportViolation,
