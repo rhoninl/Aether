@@ -6,7 +6,7 @@ pub struct ZoneSplitPolicy {
     pub merge_check_window_ms: u64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ZoneSpec {
     pub world_id: String,
     pub shard_key: String,
@@ -27,7 +27,7 @@ pub struct LoadMetrics {
     pub cpu_pct: f32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AxisChoice {
     X,
     Y,

@@ -56,7 +56,7 @@ pub struct EntitySample {
     pub zone_id: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KdAxis {
     X,
     Y,
@@ -109,7 +109,8 @@ impl KdTree {
     }
 
     pub fn choose_axis(points: &[EntitySample], preferred: &[AxisChoice]) -> KdAxis {
-        let (spread_x, spread_y, spread_z) = KdPoint::spread(points, &[]);
+        let kd_points: Vec<KdPoint> = points.iter().map(|s| s.position).collect();
+        let (spread_x, spread_y, spread_z) = KdPoint::spread(&kd_points, &[]);
         let candidate = [
             (spread_x, KdAxis::X),
             (spread_y, KdAxis::Y),

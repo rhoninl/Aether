@@ -121,10 +121,10 @@ impl ZoningRuntime {
             let too_large = sample.players > self.cfg.split_policy.preferred_axes.len() as u32
                 && sample.players > self.cfg.merge_threshold.merge_player_threshold;
             if too_large {
-                output.split_decisions.push(self.evaluate_split(sample));
+                output.split_decisions.push(self.evaluate_split(&sample));
             } else if sample.players < self.cfg.merge_threshold.merge_player_threshold && self.state.zone_tree.len() > 1
             {
-                output.merge_decisions.push(self.evaluate_merge(sample));
+                output.merge_decisions.push(self.evaluate_merge(&sample));
             }
             self.state.zone_load.insert(sample.zone_id.clone(), sample);
         }
@@ -139,7 +139,7 @@ impl ZoningRuntime {
             local_entity: identity.entity_id,
             source_zone: identity.authority_zone.clone(),
             remote_zone: identity.authority_zone,
-            ttl_ms: identity.ttl_ms,
+            ttl_ms: self.cfg.ghost_policy.ttl_ms,
             collision_enabled: false,
             render_only: true,
         }).collect();
@@ -150,13 +150,13 @@ impl ZoningRuntime {
         self.state.pending_handoffs.push_back(decision);
     }
 
-    fn evaluate_split(&self, sample: LoadMetrics) -> SplitResult {
+    fn evaluate_split(&self, sample: &LoadMetrics) -> SplitResult {
         let axis = if let Some(axis) = self.cfg.split_policy.preferred_axes.first() {
             axis.clone()
         } else {
             AxisChoice::X
         };
-        let tree = KdTree::new(
+        let mut tree = KdTree::new(
             sample.zone_id.clone(),
             KdBoundary {
                 min: KdPoint {
@@ -196,7 +196,7 @@ impl ZoningRuntime {
         }
     }
 
-    fn evaluate_merge(&self, sample: LoadMetrics) -> SplitResult {
+    fn evaluate_merge(&self, _sample: &LoadMetrics) -> SplitResult {
         SplitResult::Unchanged
     }
 
