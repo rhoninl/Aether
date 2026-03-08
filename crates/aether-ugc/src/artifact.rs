@@ -17,7 +17,7 @@ pub enum ArtifactState {
     Archived,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArtifactDescriptor {
     pub artifact_id: String,
     pub owner_id: u64,
@@ -27,10 +27,12 @@ pub struct ArtifactDescriptor {
     pub state: ArtifactState,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArtifactUploadSession {
     pub session_id: String,
     pub artifact: ArtifactDescriptor,
+    pub total_chunks: u32,
+    pub received_chunks: u32,
     pub created_ms: u64,
     pub updated_ms: u64,
 }

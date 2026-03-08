@@ -5,4 +5,12 @@ edition = "2021"
 description = "UGC upload and content processing service primitives"
 
 [dependencies]
+sha2 = "0.10"
+serde = { version = "1", features = ["derive"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "macros"] }
 

@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{
-    ArtifactDescriptor, ArtifactState, ArtifactType, ArtifactUploadSession, ChunkUpload, ContentAddress, FileType,
-    ModerationSignal, ModerationStatus, ModerationStatusUpdate, UploadRequest, UploadSession, ValidationError,
-    ValidationReport,
-};
+use crate::artifact::{ArtifactDescriptor, ArtifactState, ArtifactType, ArtifactUploadSession};
+use crate::ingest::{ChunkUpload, UploadRequest, UploadSession};
+use crate::moderation::{ModerationSignal, ModerationStatus, ModerationStatusUpdate};
+use crate::validation::{ValidationError, ValidationReport};
 
 #[derive(Debug)]
 pub struct UgcRuntimeConfig {
@@ -137,7 +136,14 @@ impl UgcRuntime {
         }
 
         for session in self.state.sessions.values() {
-            output.sessions.push(session.clone());
+            output.sessions.push(UploadSession {
+                session_id: session.session_id.clone(),
+                owner_id: session.artifact.owner_id,
+                started_ms: session.created_ms,
+                total_chunks: session.total_chunks,
+                received_chunks: session.received_chunks,
+                checksum: Some(session.artifact.checksum_sha256.clone()),
+            });
         }
         output
     }
@@ -147,7 +153,7 @@ impl UgcRuntime {
         request: &UploadRequest,
         now_ms: u64,
     ) -> Option<(String, ValidationReport)> {
-        if request.total_chunks > self.cfg.max_chunks_per_upload {
+        if request.chunk_count > self.cfg.max_chunks_per_upload {
             let report = ValidationReport {
                 file_name: request.file_name.clone(),
                 accepted: false,
@@ -182,6 +188,8 @@ impl UgcRuntime {
         let session = ArtifactUploadSession {
             session_id: artifact_id.clone(),
             artifact,
+            total_chunks: request.chunk_count,
+            received_chunks: 0,
             created_ms: now_ms,
             updated_ms: now_ms,
         };
@@ -265,7 +273,8 @@ impl UgcRuntime {
             }
         }
 
-        if let Some(address) = self.address(session.session_id.as_str(), now_ms) {
+        let sid = session.session_id.clone();
+        if let Some(address) = self.address(&sid, now_ms) {
             output.validation_reports.push(address);
         }
     }
@@ -299,7 +308,7 @@ impl UgcRuntime {
                 {
                     ModerationStatus::Cleared
                 } else {
-                    ModerationStatus::Rejected(Some("automatic policy rejection".into()))
+                    ModerationStatus::Rejected("automatic policy rejection".into())
                 };
                 self.state.moderation.insert(request.artifact_id.clone(), status);
                 output.moderation_events.push(format!(
@@ -311,7 +320,7 @@ impl UgcRuntime {
                 let status = if approved {
                     ModerationStatus::Cleared
                 } else {
-                    ModerationStatus::Rejected(reason)
+                    ModerationStatus::Rejected(reason.unwrap_or_default())
                 };
                 self.state.moderation.insert(request.artifact_id.clone(), status);
             }
