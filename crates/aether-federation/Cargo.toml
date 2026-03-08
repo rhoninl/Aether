@@ -5,4 +5,4 @@ edition = "2021"
 description = "Federation and self-hosted world interoperability primitives"
 
 [dependencies]
-
+sha2 = "0.10"
