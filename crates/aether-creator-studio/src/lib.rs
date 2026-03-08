@@ -13,6 +13,7 @@ pub mod terrain;
 pub mod terrain_editor;
 pub mod tools;
 pub mod undo;
+pub mod visual_script;
 
 // Re-export existing contract types.
 pub use editor::{EditorEvent, EditorMode, ErrorReport, StudioManifestDraft};
@@ -40,3 +41,12 @@ pub use terrain_editor::{
     PaintCommand, PaintLayer, PlaceVegetationCommand, SculptCommand, TerrainData,
 };
 pub use undo::{CommandError, CommandResult, EditorCommand, UndoStack};
+
+// Re-export visual scripting types.
+pub use visual_script::{
+    compile, all_templates, instantiate_template, validate_graph, compute_layout, apply_layout,
+    BinaryOp, CompileError, CompiledScript, Connection, ConnectionId, DataType,
+    GraphError, IrInstruction, LayoutConfig, LayoutResult, Node, NodeGraph, NodeId, NodeKind,
+    Port, PortDirection, PortId, Severity, TemplateKind, ValidationDiagnostic,
+    ValidationResult, Value,
+};
