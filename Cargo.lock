@@ -75,6 +75,9 @@ dependencies = [
 [[package]]
 name = "aether-creator-studio"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "aether-deploy"

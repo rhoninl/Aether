@@ -5,4 +5,4 @@ edition = "2021"
 description = "Creator Studio and world-editing primitives"
 
 [dependencies]
-
+serde = { version = "1", features = ["derive"] }
