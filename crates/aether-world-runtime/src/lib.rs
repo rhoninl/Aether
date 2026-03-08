@@ -4,6 +4,7 @@
 //! entity prediction/interpolation, state synchronization, RPC, sessions,
 //! and event distribution.
 
+pub mod chunk;
 pub mod chunking;
 pub mod events;
 pub mod input_buffer;
@@ -18,6 +19,11 @@ pub mod spawn;
 pub mod state_sync;
 pub mod tick;
 
+pub use chunk::{
+    BoundaryStitch, ChunkCoord, ChunkEntry, ChunkId, ChunkManifest, ChunkManifestError,
+    ChunkReference, ChunkState, EvictionCandidate, EvictionPolicy, InvalidTransition, PlayerView,
+    PortalDefinition, PortalFace, StreamingConfig, StreamingEngine, StreamingEvent,
+};
 pub use chunking::{ChunkDescriptor, ChunkKind, ChunkStreamingPolicy};
 pub use events::{EventDispatcher, EventScope, GameEvent, EventDelivery, EntityPosition};
 pub use input_buffer::{InputAction, InputBuffer, InputBufferError, PlayerId, PlayerInput};
