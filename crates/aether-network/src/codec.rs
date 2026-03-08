@@ -15,7 +15,7 @@ impl Default for Quantization {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct QuantizedFrame {
     pub entity_id: u64,
     pub x_mm: i32,

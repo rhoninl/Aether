@@ -62,6 +62,7 @@ pub struct ClientBudget {
     pub max_bytes_per_tick: usize,
 }
 
+#[derive(Debug)]
 pub struct InterestManager {
     policy: InterestPolicy,
 }

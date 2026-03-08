@@ -32,7 +32,7 @@ impl Default for TransportProfile {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TransportMessage {
     pub to_client_id: u64,
     pub entity: NetEntity,

@@ -2,6 +2,7 @@ pub mod codec;
 pub mod delta;
 pub mod interest;
 pub mod prediction;
+pub mod quic;
 pub mod runtime;
 pub mod transport;
 pub mod types;

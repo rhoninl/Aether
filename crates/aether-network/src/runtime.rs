@@ -4,7 +4,7 @@ use std::time::Duration;
 use crate::{
     ClientBudget, ClientPrediction, ClientProfile, DatagramMode, EntitySnapshot, InputSample,
     InterestManager, InterpolationConfig, JitterBufferConfig, NetEntity, QuantizedFrame, Reconciliation,
-    Reliability, StateDiff, TransportMessage, TransportProfile, VoicePayload,
+    Reliability, StateDiff, TransportMessage, TransportProfile, VoicePayload, xor_patch,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -495,7 +495,7 @@ impl NetworkRuntime {
             };
 
             let quantized = self.quantize_snapshot(*snap);
-            let mut payload =
+            let payload =
                 self.encode_snapshot_payload(tick_input.tick, state, quantized, snap.entity_id);
 
             if payload.len() > self.config.max_packet_bytes
@@ -604,8 +604,7 @@ impl NetworkRuntime {
             return false;
         }
 
-        self.interest
-            .frustum_visible(&profile.frustum, profile.position, hint.position)
+        InterestManager::frustum_visible(&profile.frustum, profile.position, hint.position)
     }
 
     fn encode_snapshot_payload(
@@ -770,7 +769,7 @@ pub fn check_fec_window(window: Duration, required_ms: u64) -> bool {
     window.as_millis() as u64 >= required_ms
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VoiceWindow {
     queue: VecDeque<VoicePayload>,
     capacity: usize,

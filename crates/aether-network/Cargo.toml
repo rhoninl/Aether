@@ -5,3 +5,12 @@ edition = "2021"
 description = "Networking and state-sync policy primitives for the Aether engine"
 
 [dependencies]
+quinn = "0.11"
+rustls = { version = "0.23", features = ["ring"] }
+rustls-pemfile = "2"
+rcgen = "0.13"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "macros", "time", "io-util"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "macros", "time", "io-util", "test-util"] }
