@@ -6,6 +6,7 @@ description = "Rapier3D physics integration for the Aether VR engine"
 
 [dependencies]
 aether-ecs = { path = "../aether-ecs" }
+crossbeam = "0.8"
 rapier3d = "0.22"
 
 [dev-dependencies]
