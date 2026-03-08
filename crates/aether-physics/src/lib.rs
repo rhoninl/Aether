@@ -5,6 +5,7 @@ pub mod joints;
 pub mod layers;
 pub mod query;
 pub mod trigger;
+pub mod vr;
 pub mod world;
 
 pub use components::{
