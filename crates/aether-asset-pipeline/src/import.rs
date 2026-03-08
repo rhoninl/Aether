@@ -1,3 +1,5 @@
+use crate::compression::TextureTranscode;
+
 #[derive(Debug, Clone)]
 pub enum FbxImport {
     Enabled,
@@ -23,6 +25,4 @@ pub struct ImportTask {
     pub source_type: String,
     pub requested_formats: Vec<TextureTranscode>,
 }
-
-pub use crate::compression::TextureTranscode;
 
