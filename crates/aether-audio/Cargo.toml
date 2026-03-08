@@ -5,3 +5,9 @@ edition = "2021"
 description = "Spatial audio policy and routing primitives for Aether"
 
 [dependencies]
+cpal = "0.15"
+hound = "3.5"
+lewton = "0.10"
+
+[dev-dependencies]
+tempfile = "3"

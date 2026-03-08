@@ -31,7 +31,7 @@ pub enum ZoneEvent {
     Left { player_id: u64, channel_id: ChannelId },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RoutingRequest {
     pub player_id: u64,
     pub source_channel: ChannelId,
@@ -46,7 +46,7 @@ pub enum RoutingPolicy {
     Defer,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct VoiceChannelManager {
     pub channels: HashMap<ChannelId, ChannelConfig>,
     pub proximity_zones: HashMap<u64, VoiceZone>,

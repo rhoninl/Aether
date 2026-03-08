@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use crate::acoustics::{AcousticsProfile, HrtfTransportParams};
-use crate::attenuation::{AttenuationCurve, AttenuationModel, DistanceBand};
+use crate::attenuation::{AttenuationCurve, AttenuationModel};
 use crate::channel::{
-    ChannelConfig, ChannelId, ChannelKind, RoutingPolicy, RoutingRequest, VoiceChannelManager,
+    ChannelConfig, ChannelKind, RoutingPolicy, RoutingRequest, VoiceChannelManager,
 };
 use crate::opus::{OpusConfig, OpusPacket};
 use crate::types::{AudioId, AudioLod, AudioSource, ListenerState};
@@ -126,28 +126,32 @@ impl AudioRuntime {
             }
             let route = self.route_source(source.id, &input.routing_requests);
 
-            let seq = self
-                .state
-                .active_source_sequence
-                .entry(source.id)
-                .and_modify(|value| *value = value.saturating_add(1))
-                .or_insert(0);
+            let packet_size = self.estimate_packet_size(source.id, &bandwidth_profile);
+            let seq_val = {
+                let seq = self
+                    .state
+                    .active_source_sequence
+                    .entry(source.id)
+                    .and_modify(|value| *value = value.saturating_add(1))
+                    .or_insert(0);
+                *seq
+            };
             let packet = OpusPacket {
-                sequence: *seq,
-                payload: vec![0u8; self.estimate_packet_size(source.id, &bandwidth_profile)],
+                sequence: seq_val,
+                payload: vec![0u8; packet_size],
                 codec_ms: self.cfg.opus.frame_ms,
             };
             let target_gain = gain.max(0.0);
             if target_gain > 0.02 {
-                if let Some(replay) = self.state.last_encoded_seq.get(&(source.id.0, *seq)) {
-                    if *replay == *seq {
+                if let Some(replay) = self.state.last_encoded_seq.get(&(source.id.0, seq_val)) {
+                    if *replay == seq_val {
                         profiler.dropped_packets = profiler.dropped_packets.saturating_add(1);
                     }
                 }
                 packets.push(packet);
                 profiler.voice_packets = profiler.voice_packets.saturating_add(1);
                 profiler.routed_packets = profiler.routed_packets.saturating_add(1);
-                let _ = self.state.last_encoded_seq.insert((source.id.0, *seq), *seq);
+                let _ = self.state.last_encoded_seq.insert((source.id.0, seq_val), seq_val);
             } else {
                 profiler.dropped_packets = profiler.dropped_packets.saturating_add(1);
             }
@@ -217,7 +221,7 @@ impl AudioRuntime {
     }
 
     fn estimate_packet_size(&self, source_id: AudioId, profile: &str) -> usize {
-        let base = if profile == "low" {
+        let base: usize = if profile == "low" {
             90
         } else {
             180
