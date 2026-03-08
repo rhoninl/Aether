@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use crate::config::WorldPersistenceProfile;
 
 pub type SnapshotId = u64;
@@ -91,15 +89,23 @@ impl SnapshotRecorder {
         actor_count: u32,
     ) -> Option<Snapshot> {
         let policy = SnapshotPolicy::new(profile);
-        let maybe_window = self.last.get_or_insert_with(|| SnapshotWindow::new(now_ms, policy.min_interval_ms));
-        if !maybe_window.should_snapshot(now_ms) && actor_count == 0 {
+
+        // Check window timing: initialise the window if absent and test the deadline.
+        let window = self.last.get_or_insert_with(|| SnapshotWindow::new(now_ms, policy.min_interval_ms));
+        let should_snap = window.should_snapshot(now_ms);
+
+        if !should_snap && actor_count == 0 {
             return None;
         }
         if actor_count > policy.max_entity_sample_count {
             return None;
         }
+
+        // Drop the mutable borrow on `self.last` so `self.next_id()` can borrow `self`.
+        let id = self.next_id();
+
         let snapshot = Snapshot {
-            id: self.next_id(),
+            id,
             world_id: profile.world_id.clone(),
             tick,
             captured_ms: now_ms,
@@ -110,7 +116,12 @@ impl SnapshotRecorder {
             },
             actor_count,
         };
-        maybe_window.last_snapshot_ms = now_ms;
+
+        // Update the window timestamp after releasing the earlier borrow.
+        if let Some(ref mut w) = self.last {
+            w.last_snapshot_ms = now_ms;
+        }
+
         self.frames.push(snapshot.clone());
         Some(snapshot)
     }

@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CriticalStatePriority {
     Low,
     Medium,
@@ -39,7 +39,7 @@ pub struct CriticalWriteResult {
     pub sequence: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CriticalStateMutationRecord {
     pub world_id: String,
     pub mutation_id: u64,

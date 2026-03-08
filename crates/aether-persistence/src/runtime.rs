@@ -3,7 +3,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 use crate::{
-    CriticalStateKey, CriticalStatePriority, CriticalWriteResult, PodPlacementHint, Snapshot,
+    CriticalStatePriority, CriticalWriteResult, PodPlacementHint, Snapshot,
     SnapshotRecorder, SyncStateMutation, WorldManifest, WorldPersistenceProfile, WalAppendError,
     WalAppendResult, WalDurability, WalReplayRecord, WalWriteCoordinator,
 };
@@ -111,7 +111,7 @@ impl RuntimeWorldState {
 
     fn restore_from_snapshot_and_wal(
         &mut self,
-        now_ms: u64,
+        _now_ms: u64,
         max_replay_records: usize,
     ) -> WorldRecovery {
         let mut recovered_snapshot = self
@@ -151,7 +151,7 @@ impl RuntimeWorldState {
 
         WorldRecovery {
             restored: recovered_snapshot.is_some(),
-            restored_snapshot,
+            restored_snapshot: recovered_snapshot,
             restored_scripts,
             replay_records: replays,
         }
@@ -207,7 +207,7 @@ impl PersistenceRuntime {
             }
 
             if world.request_recovery {
-                let mut recovery = world_state
+                let recovery = world_state
                     .restore_from_snapshot_and_wal(input.now_ms, self.cfg.script_state_max_events);
                 let recovered_snapshot_id = recovery
                     .restored_snapshot
@@ -329,11 +329,12 @@ fn crc32_simple(data: &[u8]) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transactions::CriticalStateKey;
 
     #[test]
     fn snapshot_and_recovery_roundtrip() {
         let profile = WorldPersistenceProfile::from_defaults("world-1");
-        let mut runtime = PersistenceRuntime::new(PersistenceRuntimeConfig {
+        let runtime = PersistenceRuntime::new(PersistenceRuntimeConfig {
             snapshot_keep_ms: 1000,
             ..Default::default()
         });
@@ -368,6 +369,7 @@ mod tests {
                     actor_count: 0,
                     critical_mutations: vec![],
                     wal_ack_upto: None,
+                    request_recovery: false,
                 }
             }],
             &mut state,
@@ -378,7 +380,7 @@ mod tests {
     #[test]
     fn wal_append_and_replay_with_idempotence() {
         let profile = WorldPersistenceProfile::from_defaults("world-2");
-        let mut runtime = PersistenceRuntime::new(PersistenceRuntimeConfig::default());
+        let runtime = PersistenceRuntime::new(PersistenceRuntimeConfig::default());
         let mut state = PersistenceRuntimeState::default();
 
         let mutation = SyncStateMutation {

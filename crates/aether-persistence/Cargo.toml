@@ -5,4 +5,22 @@ edition = "2021"
 description = "Persistence policies and WAL/snapshot primitives for Aether"
 
 [dependencies]
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres"], optional = true }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"], optional = true }
+async-nats = { version = "0.38", optional = true }
+async-trait = "0.1"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tracing = "0.1"
 
+[features]
+default = []
+postgres = ["dep:sqlx"]
+redis-backend = ["dep:redis"]
+nats = ["dep:async-nats"]
+full = ["postgres", "redis-backend", "nats"]
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "test-util"] }

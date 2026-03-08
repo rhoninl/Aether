@@ -21,7 +21,7 @@ pub struct WalSegment {
     pub entries: Vec<WalEntry>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WalAppendResult {
     pub segment_id: u64,
     pub sequence: u64,
