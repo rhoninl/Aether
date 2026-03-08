@@ -11,6 +11,7 @@ pub mod config;
 mod rate_limit;
 pub mod artifact;
 pub mod scheduler;
+pub mod server_runtime;
 pub mod visual;
 pub mod wasm;
 
