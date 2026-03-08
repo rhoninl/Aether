@@ -135,7 +135,7 @@ impl PlatformRuntime {
             let (effective_mode, forced) = self.enforce_script_mode(&selected, requested_mode);
             if forced {
                 output.script_mode_overrides.push(format!(
-                    "session:{}:{}->{:?}:{:?}",
+                    "session:{}:{:?}->{:?}:{:?}",
                     intent.session_id, requested_mode, effective_mode, selected.kind
                 ));
             }
@@ -183,7 +183,7 @@ impl PlatformRuntime {
 
         match self.sessions.get_mut(&session_id) {
             Some(existing) => {
-                if !Self::profile_equals(&existing.profile, &profile)
+                if !Self::same_profile(&existing.profile, &profile)
                     || existing.script_mode != script_mode
                     || existing.fidelity != fidelity
                     || existing.scene_scale != scene_scale
@@ -236,7 +236,7 @@ impl PlatformRuntime {
         }
 
         for profile in available_profiles {
-            if Self::same_kind(profile, &intent.requested_profile.kind) {
+            if Self::same_kind(&profile.kind, &intent.requested_profile.kind) {
                 output.diagnostics.push(format!(
                     "fallback_profile:{}:{:?}",
                     intent.session_id, intent.requested_profile.quality

@@ -5,4 +5,4 @@ edition = "2021"
 description = "Multi-platform client support and capability abstraction"
 
 [dependencies]
-
+serde = { version = "1", features = ["derive"] }
