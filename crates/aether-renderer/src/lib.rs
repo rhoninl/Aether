@@ -1,5 +1,6 @@
 pub mod batching;
 pub mod config;
+pub mod gpu;
 pub mod scheduler;
 pub mod stream;
 pub mod runtime;

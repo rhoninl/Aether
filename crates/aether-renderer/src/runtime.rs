@@ -419,7 +419,7 @@ mod tests {
         });
         assert_eq!(out.decision.foveation_tier, FoveationTier::Adaptive);
         assert!(matches!(out.decision.foveation_tier, FoveationTier::Adaptive));
-        assert_eq!(out.decision.foveation.tier, FoveationTier::Adaptive);
+        assert_eq!(out.decision.foveation_config.tier, FoveationTier::Adaptive);
         assert_eq!(policy.shadow_cascades.num_cascades > 0, true);
         let _ = policy; // no-op to avoid lint warnings
     }
