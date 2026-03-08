@@ -411,7 +411,7 @@ mod tests {
     fn step_routes_to_simulation_events() {
         let mut runtime = InputRuntime::new(InputRuntimeConfig {
             locomotion: LocomotionProfile {
-                allowed_modes: vec![LocomotionMode::Teleport],
+                allowed_modes: vec![LocomotionMode::Teleport, LocomotionMode::Smooth],
                 active: LocomotionMode::Smooth,
                 comfort: ComfortProfile {
                     enabled: true,
