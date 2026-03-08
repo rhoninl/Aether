@@ -12,6 +12,7 @@ mod rate_limit;
 pub mod artifact;
 pub mod scheduler;
 pub mod visual;
+pub mod wasm;
 
 pub use api::{AudioApi, AudioHandle, EntityApi, NetworkApi, PhysicsApi, ScriptApiError, ScriptApiResult, StorageApi, UIApi, Vec3};
 pub use config::{
