@@ -1,17 +1,25 @@
-//! Economy and ledger helper types for sync/async transaction pipelines.
+//! Economy and ledger service for Aether: double-entry ledger, wallet
+//! management, fraud detection, idempotent transaction processing, and
+//! settlement/payout lifecycle.
 
 pub mod fraud;
 pub mod ledger;
-pub mod payout;
+pub mod service;
+pub mod settlement;
 pub mod transaction;
 pub mod wallet;
 
-pub use fraud::{AnomalySignal, FraudScore, FraudSignal, VelocityWindow};
-pub use ledger::{CurrencyLedger, LedgerEntry, LedgerKind, LedgerRecord};
-pub use payout::{PayoutDestination, PayoutRecord, SettlementState, SettlementStream};
-pub use transaction::{
-    EconomyTransaction, IdempotencyRecord, TransactionDirection, TransactionError, TransactionKind,
-    TransactionState,
+pub use fraud::{AnomalySignal, FraudDetector, FraudScore, FraudSignal, VelocityWindow};
+pub use ledger::{CurrencyLedger, LedgerEntry, LedgerError, LedgerKind, LedgerRecord};
+pub use service::{EconomyService, ServiceError, ServiceResult, TransactionRequest};
+pub use settlement::{
+    PayoutDestination, PayoutRecord, SettlementError, SettlementProcessor, SettlementState,
 };
-pub use wallet::{WalletAccount, WalletConstraint, WalletOperation, WalletSummary};
-
+pub use transaction::{
+    EconomyTransaction, IdempotencyGuard, IdempotencyRecord, TransactionCoordinator,
+    TransactionDirection, TransactionError, TransactionKind, TransactionState,
+};
+pub use wallet::{
+    WalletAccount, WalletConstraint, WalletError, WalletManager, WalletOperation, WalletStatus,
+    WalletSummary,
+};
