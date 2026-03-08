@@ -1,18 +1,27 @@
 use crate::archetype::{ArchetypeId, ArchetypeStorage, EntityLocation};
 use crate::component::{Component, ComponentId, ComponentRegistry};
 use crate::entity::{Entity, EntityAllocator};
+use crate::event::{EventQueue, Events};
 use crate::network::{replicated_component_ids, server_only_component_ids};
 use crate::query::{self, AccessDescriptor, QueryResult};
+use crate::resource::Resources;
 use crate::schedule::{RuntimeAlert, Schedule, ScheduleDiagnostics, ScheduleMetrics};
 use crate::system::System;
 
+/// A type-erased swap function for event buffers.
+type EventSwapFn = fn(&mut Resources);
+
 /// The World is the central data structure of the ECS.
-/// It owns all entities, components, archetypes, and the system schedule.
+/// It owns all entities, components, archetypes, the system schedule,
+/// and typed resources.
 pub struct World {
     entities: EntityAllocator,
     pub(crate) storage: ArchetypeStorage,
     pub(crate) registry: ComponentRegistry,
     schedule: Schedule,
+    resources: Resources,
+    /// Swap functions for registered event channels, called after each tick.
+    event_swap_fns: Vec<EventSwapFn>,
 }
 
 impl World {
@@ -22,6 +31,8 @@ impl World {
             storage: ArchetypeStorage::new(),
             registry: ComponentRegistry::new(),
             schedule: Schedule::new(),
+            resources: Resources::new(),
+            event_swap_fns: Vec::new(),
         }
     }
 
@@ -482,6 +493,82 @@ impl World {
     pub fn server_only_components(&self, ids: &[ComponentId]) -> Vec<ComponentId> {
         server_only_component_ids(&self.registry, ids)
     }
+
+    // -- Resource methods --
+
+    /// Insert a typed resource into the world. Returns the previous value if any.
+    pub fn insert_resource<T: 'static + Send + Sync>(&mut self, value: T) -> Option<T> {
+        self.resources.insert(value)
+    }
+
+    /// Get an immutable reference to a resource.
+    pub fn resource<T: 'static + Send + Sync>(&self) -> Option<&T> {
+        self.resources.get::<T>()
+    }
+
+    /// Get a mutable reference to a resource.
+    pub fn resource_mut<T: 'static + Send + Sync>(&mut self) -> Option<&mut T> {
+        self.resources.get_mut::<T>()
+    }
+
+    /// Remove a resource from the world and return it.
+    pub fn remove_resource<T: 'static + Send + Sync>(&mut self) -> Option<T> {
+        self.resources.remove::<T>()
+    }
+
+    /// Check whether a resource of type T exists.
+    pub fn has_resource<T: 'static + Send + Sync>(&self) -> bool {
+        self.resources.contains::<T>()
+    }
+
+    /// Get an immutable reference to the resources container.
+    pub fn resources(&self) -> &Resources {
+        &self.resources
+    }
+
+    /// Get a mutable reference to the resources container.
+    pub fn resources_mut(&mut self) -> &mut Resources {
+        &mut self.resources
+    }
+
+    // -- Event methods --
+
+    /// Register a double-buffered event channel for type T.
+    pub fn insert_events<T: Send + Sync + 'static>(&mut self) {
+        self.resources.insert(Events::<T>::new());
+        // Register a monomorphized swap function for this event type
+        self.event_swap_fns.push(swap_events::<T>);
+    }
+
+    /// Send an event of type T. The event channel must have been registered
+    /// with `insert_events::<T>()` first.
+    pub fn send_event<T: Send + Sync + 'static>(&mut self, event: T) {
+        if let Some(events) = self.resources.get_mut::<Events<T>>() {
+            events.send(event);
+        }
+    }
+
+    /// Read events of type T from the previous tick.
+    /// Returns None if the event channel has not been registered.
+    pub fn read_events<T: Send + Sync + 'static>(&self) -> Option<&[T]> {
+        self.resources.get::<Events<T>>().map(|e| e.read())
+    }
+
+    /// Swap all registered event buffers. Called by the tick runner after each tick.
+    pub(crate) fn swap_event_buffers(&mut self) {
+        // Clone the function pointers to avoid borrow issues
+        let swap_fns: Vec<EventSwapFn> = self.event_swap_fns.clone();
+        for swap_fn in &swap_fns {
+            swap_fn(&mut self.resources);
+        }
+    }
+}
+
+/// Monomorphized event swap function: downcasts the Events<T> resource and swaps its buffers.
+fn swap_events<T: Send + Sync + 'static>(resources: &mut Resources) {
+    if let Some(events) = resources.get_mut::<Events<T>>() {
+        events.swap_buffers();
+    }
 }
 
 impl Default for World {
@@ -496,6 +583,7 @@ mod tests {
     use crate::component::ReplicationMode;
     use crate::network::Authority;
     use crate::network::NetworkIdentity;
+    use crate::stage::Stage;
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     struct Transform {
