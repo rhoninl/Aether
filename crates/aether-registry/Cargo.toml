@@ -5,4 +5,8 @@ edition = "2021"
 description = "World registry, discovery, and matchmaking primitives"
 
 [dependencies]
+uuid = { version = "1", features = ["v4"] }
+serde = { version = "1", features = ["derive"] }
 
+[dev-dependencies]
+uuid = { version = "1", features = ["v4"] }

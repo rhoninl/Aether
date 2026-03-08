@@ -1,13 +1,18 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WorldStatus {
     Draft,
     Published,
     Deprecated,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WorldCategory {
     Social,
+    Game,
+    Education,
+    Commerce,
+    Art,
+    Music,
     PvE,
     PvP,
     Simulation,
@@ -54,4 +59,3 @@ pub fn validate_manifest(manifest: &WorldManifest) -> Result<(), WorldManifestEr
     }
     Ok(())
 }
-

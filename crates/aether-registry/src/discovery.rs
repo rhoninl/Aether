@@ -1,6 +1,6 @@
 use crate::manifest::WorldManifest;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DiscoverySort {
     FeaturedFirst,
     PlayerCountDesc,
@@ -32,4 +32,3 @@ pub struct DiscoveryResult {
     pub page_size: u32,
     pub total: usize,
 }
-
