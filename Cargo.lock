@@ -56,6 +56,14 @@ version = "0.1.0"
 [[package]]
 name = "aether-compliance"
 version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rand",
+ "serde",
+ "serde_json",
+ "sha2",
+ "uuid",
+]
 
 [[package]]
 name = "aether-content-moderation"
