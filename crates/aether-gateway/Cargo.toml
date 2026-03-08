@@ -5,10 +5,4 @@ edition = "2021"
 description = "API gateway and voice relay routing contracts"
 
 [dependencies]
-aether-economy = { path = "../aether-economy" }
-aether-federation = { path = "../aether-federation" }
-aether-security = { path = "../aether-security" }
-aether-compliance = { path = "../aether-compliance" }
-aether-trust-safety = { path = "../aether-trust-safety" }
-aether-registry = { path = "../aether-registry" }
-aether-social = { path = "../aether-social" }
+serde = { version = "1", features = ["derive"] }

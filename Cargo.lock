@@ -111,13 +111,7 @@ dependencies = [
 name = "aether-gateway"
 version = "0.1.0"
 dependencies = [
- "aether-compliance",
- "aether-economy",
- "aether-federation",
- "aether-registry",
- "aether-security",
- "aether-social",
- "aether-trust-safety",
+ "serde",
 ]
 
 [[package]]
