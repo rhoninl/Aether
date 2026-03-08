@@ -19,7 +19,7 @@ pub struct WorldOwnerToolset {
     pub can_ban: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum KickAction {
     Evict,
     Warn,

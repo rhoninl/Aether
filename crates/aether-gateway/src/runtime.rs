@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 use aether_economy::{
     CurrencyLedger, EconomyTransaction, IdempotencyRecord, LedgerEntry, LedgerKind, SettlementState,
-    SettlementStream, TransactionCoordinator, TransactionDirection, TransactionKind, TransactionState,
+    SettlementStream, TransactionCoordinator, TransactionDirection, TransactionState,
     WalletAccount, WalletOperation, WalletSummary,
 };
 use aether_economy::{PayoutDestination, PayoutRecord};
@@ -20,11 +20,11 @@ use aether_trust_safety::{
 };
 use aether_social::{
     ChatChannel, ChatMessage, ChatType, FriendRequest, FriendState, FriendStatus, Group, GroupConfig, GroupInvite,
-    GroupInvite::Accepted, GroupInvite::Sent, GroupStatus, InWorldLocation, PresenceKind, PresenceState,
+    GroupInvite::Accepted, GroupInvite::Sent, GroupStatus, InWorldLocation, MessageKind, PresenceState,
     PresenceVisibility, ShardMapPolicy,
 };
 use aether_registry::{
-    DiscoveryFilter, DiscoveryResult, DiscoverySort, MatchCriteria, MatchOutcome, PortalResolver, PortalRoute,
+    DiscoveryFilter, DiscoveryResult, DiscoverySort, MatchOutcome, PortalResolver, PortalRoute,
     ServerInstance, SessionManager, SessionManagerPolicy, SessionState, WorldManifest, validate_manifest,
 };
 use crate::auth::{AuthValidationPolicy, AuthzResult, Token};
@@ -179,7 +179,7 @@ impl Default for BackendRuntimeConfig {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ScriptExecutionRequest {
     pub user_id: u64,
     pub request_id: String,
@@ -191,7 +191,7 @@ pub struct ScriptExecutionRequest {
     pub net_calls_per_sec: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ModerationCommand {
     Mute {
         actor_id: u64,
@@ -222,7 +222,7 @@ pub enum ModerationCommand {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TrustSettingsUpdate {
     pub user_id: u64,
     pub safety: SafetySettings,
@@ -231,20 +231,20 @@ pub struct TrustSettingsUpdate {
     pub moderation_tools: WorldOwnerToolset,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum KeystoreCommandMode {
     Add,
     Remove,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct KeystoreCommand {
     pub requested_by: u64,
     pub mode: KeystoreCommandMode,
     pub entry: KeystoreEntry,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PseudonymizationRequest {
     pub requested_by: u64,
     pub user_id: u64,
@@ -259,7 +259,7 @@ struct RuntimeTrustProfile {
     moderation_tools: WorldOwnerToolset,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct AbuseState {
     violation_count: u32,
     violation_window_start_ms: u64,
@@ -520,8 +520,8 @@ impl BackendRuntime {
             &input.presence_updates,
             &input.chat_messages,
             &mut output,
-            state,
             policy,
+            state,
         );
         self.process_moderation(
             input.now_ms,
@@ -747,7 +747,7 @@ impl BackendRuntime {
             let abuse = self.record_abuse(now_ms, actor_id, state);
             output
                 .rate_limit_denials
-                .push(format!("rl:{action:?}:{actor_id}:{limit.per_user_per_minute}/{limit.burst}"));
+                .push(format!("rl:{action:?}:{actor_id}:{}/{}", limit.per_user_per_minute, limit.burst));
             output
                 .abuse_mitigations
                 .push(format!("user:{actor_id}:rate:{abuse}"));
@@ -790,11 +790,11 @@ impl BackendRuntime {
         state: &mut BackendRuntimeState,
         output: &mut BackendStepOutput,
     ) -> bool {
-        if let Some(abuse) = state.abuse_states.get(&actor_id)
-            && abuse.blocked_until_ms > now_ms
-        {
-            self.note_action_denial(output, actor_id, action_name, "abuse_lockout");
-            return false;
+        if let Some(abuse) = state.abuse_states.get(&actor_id) {
+            if abuse.blocked_until_ms > now_ms {
+                self.note_action_denial(output, actor_id, action_name, "abuse_lockout");
+                return false;
+            }
         }
 
         if !self.has_active_session(now_ms, actor_id, policy, state) {
@@ -1097,7 +1097,11 @@ impl BackendRuntime {
             let wallet = state
                 .wallets
                 .entry(tx.player_id)
-                .or_insert_with(|| WalletAccount::new(format!("wallet-{}", tx.player_id), tx.player_id));
+                .or_insert_with(|| {
+                    let mut w = WalletAccount::new(format!("wallet-{}", tx.player_id), tx.player_id);
+                    w.constraint.min_balance_minor = i128::MIN;
+                    w
+                });
             if !wallet.apply(&operation) {
                 output.transactions_rejected.push(tx.tx_id.clone());
                 state
@@ -1447,7 +1451,7 @@ impl BackendRuntime {
                     .push(format!("anonymous_chat:{}:{}", message.from_user, self.pseudonym_for(message.from_user, state)));
             }
             let mut message = message.clone();
-            if profile.visibility.mode == VisibilityMode::Invisible && !matches!(message.kind, ChatType::SystemAnnouncement(_)) {
+            if profile.visibility.mode == VisibilityMode::Invisible && !matches!(message.kind, MessageKind::SystemAnnouncement(_)) {
                 self.note_action_denial(output, message.from_user, "chat.send", "invisible");
             } else {
                 message.server_ts_ms = now_ms;
@@ -1617,7 +1621,7 @@ impl BackendRuntime {
                     if !profile.moderation_tools.can_mute {
                         output
                             .trust_rejections
-                            .push(format!("mute_denied:{}:{}:tool"));
+                            .push(format!("mute_denied:{}:{}:tool", actor_id, target_id));
                         continue;
                     }
                     let until = duration_ms.unwrap_or(0);
@@ -1764,7 +1768,7 @@ impl BackendRuntime {
         for request in delete_requests {
             if !self.is_action_allowed(
                 now_ms,
-                request.requested_by,
+                request.user_id,
                 ActionKey::InventoryAction,
                 "delete.request",
                 policy,
@@ -1787,7 +1791,7 @@ impl BackendRuntime {
                 user_id: request.user_id,
                 scope: request.scope.clone(),
                 started_ms: now_ms,
-                requested_by: request.requested_by,
+                requested_by: request.user_id,
                 status: "completed".into(),
             };
             state.friend_state.retain(|pair, _| !pair.0.eq(&request.user_id) && !pair.1.eq(&request.user_id));
@@ -1881,7 +1885,7 @@ impl BackendRuntime {
 
     fn route_social_shards(&self, users: Vec<u64>) -> HashMap<u64, u32> {
         let shard_count = if self.cfg.social_shard_bits > 0 {
-            1u32.saturating_shl(self.cfg.social_shard_bits.min(31).into())
+            1u32.wrapping_shl(self.cfg.social_shard_bits.min(31) as u32)
         } else {
             self.cfg.social_target_shards.max(1)
         };
@@ -2054,7 +2058,7 @@ impl BackendRuntime {
         policy: &SessionManagerPolicy,
     ) -> Option<String> {
         let instance_capacity = (128.0_f32 * policy.scale_up_threshold.max(0.1)).max(1.0).round() as u32;
-        let mut best_instance = None;
+        let mut best_instance: Option<String> = None;
         let mut best_load = u32::MAX;
 
         for (instance_id, instance) in manager.instances.iter() {
@@ -2242,6 +2246,9 @@ impl InviteStatusExt for GroupInvite {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aether_economy::TransactionKind;
+    use aether_registry::MatchCriteria;
+    use aether_social::PresenceKind;
 
     #[test]
     fn auth_and_federation_flow() {

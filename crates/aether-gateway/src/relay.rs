@@ -5,7 +5,7 @@ pub enum NatMode {
     Direct,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RelayProfile {
     pub service_name: String,
     pub tls_terminated: bool,

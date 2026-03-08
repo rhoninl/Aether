@@ -1,11 +1,11 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AuthCheckMode {
     CentralToken,
     LocalFallback,
     Disabled,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FederationAuthRequest {
     pub world_id: String,
     pub player_id: u64,
