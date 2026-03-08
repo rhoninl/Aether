@@ -13,7 +13,7 @@ pub mod artifact;
 pub mod scheduler;
 pub mod visual;
 
-pub use api::{AudioHandle, EntityApi, NetworkApi, PhysicsApi, ScriptApiError, ScriptApiResult, StorageApi, UIApi, Vec3};
+pub use api::{AudioApi, AudioHandle, EntityApi, NetworkApi, PhysicsApi, ScriptApiError, ScriptApiResult, StorageApi, UIApi, Vec3};
 pub use config::{
     ScriptResourceLimits, ScriptRuntimeLimits, WorldScriptLimits, DEFAULT_PER_SCRIPT_CPU_LIMIT,
     DEFAULT_PER_SCRIPT_ENTITY_SPAWNS_PER_SECOND, DEFAULT_PER_SCRIPT_MEMORY_BYTES,
@@ -23,6 +23,6 @@ pub use artifact::{CompilationProfile, PlatformRuntimePolicy, ScriptArtifact, Sc
 pub use visual::{VisualScriptCompiler, VisualScriptCompileError, VisualScriptGraph, VisualScriptNode};
 pub use rate_limit::RateLimiter;
 pub use scheduler::{
-    ScriptDescriptor, ScriptExecutionUsage, ScriptId, ScriptState, TickPlan, TickUsageResult,
-    WorldScriptScheduler, WorldTick,
+    ScriptDescriptor, ScriptExecutionUsage, ScriptId, ScriptRuntime, ScriptState,
+    TickUsageResult, WorldScriptScheduler, WorldTick,
 };

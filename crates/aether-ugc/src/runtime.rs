@@ -398,9 +398,11 @@ impl UgcRuntime {
             (mime, _) if mime.contains("image") || mime.contains("png") => ArtifactType::AvatarModel,
             (mime, _) if mime.contains("wav") || mime.contains("mp3") => ArtifactType::VoicePack,
             (mime, _) if mime.contains("wasm") => ArtifactType::WorldScript,
+            (mime, _) if mime.contains("lua") => ArtifactType::WorldScript,
             (_, name) if name.ends_with(".glb") || name.ends_with(".gltf") => ArtifactType::AssetBundle,
             (_, name) if name.ends_with(".png") => ArtifactType::AvatarModel,
             (_, name) if name.ends_with(".wasm") => ArtifactType::WorldScript,
+            (_, name) if name.ends_with(".lua") => ArtifactType::WorldScript,
             (_, name) if name.ends_with(".wav") || name.ends_with(".mp3") => ArtifactType::VoicePack,
             _ => ArtifactType::AssetBundle,
         }

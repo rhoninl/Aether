@@ -1,0 +1,10 @@
+[package]
+name = "aether-lua-demo"
+version = "0.1.0"
+edition = "2021"
+description = "Interactive demo showcasing Lua scripting in the Aether VR engine"
+
+[dependencies]
+aether-lua = { path = "../../crates/aether-lua" }
+aether-scripting = { path = "../../crates/aether-scripting" }
+minifb = "0.28"

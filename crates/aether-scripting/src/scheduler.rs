@@ -1,10 +1,22 @@
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
-use crate::config::{ScriptResourceLimits, ScriptRuntimeLimits, WorldScriptLimits};
+use crate::config::ScriptRuntimeLimits;
 use crate::rate_limit::RateLimiter;
 
 pub type ScriptId = u64;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScriptRuntime {
+    Wasm,
+    Lua,
+}
+
+impl Default for ScriptRuntime {
+    fn default() -> Self {
+        ScriptRuntime::Wasm
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ScriptDescriptor {
@@ -14,6 +26,7 @@ pub struct ScriptDescriptor {
     pub cpu_budget_per_tick: Duration,
     pub memory_bytes: u64,
     pub initial_entities: u32,
+    pub runtime: ScriptRuntime,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -159,8 +172,8 @@ impl WorldScriptScheduler {
         if self.running_world_entities + descriptor.initial_entities > self.limits.per_world.max_scripted_entities {
             return Err(SchedulerError::WorldLimitExceeded(SchedulerLimitsError {
                 reason: "script entities",
-                used: self.running_world_entities + descriptor.initial_entities,
-                limit: self.limits.per_world.max_scripted_entities,
+                used: (self.running_world_entities + descriptor.initial_entities) as u64,
+                limit: self.limits.per_world.max_scripted_entities as u64,
             }));
         }
 
@@ -336,8 +349,8 @@ impl WorldScriptScheduler {
         if self.running_world_entities + count > self.limits.per_world.max_scripted_entities {
             return Err(SchedulerError::WorldLimitExceeded(SchedulerLimitsError {
                 reason: "global scripted entity cap",
-                used: self.running_world_entities + count,
-                limit: self.limits.per_world.max_scripted_entities,
+                used: (self.running_world_entities + count) as u64,
+                limit: self.limits.per_world.max_scripted_entities as u64,
             }));
         }
 
@@ -366,6 +379,13 @@ impl WorldScriptScheduler {
             });
         }
         Ok(())
+    }
+
+    pub fn script_cpu_budget(&self, id: ScriptId) -> Duration {
+        self.scripts
+            .get(&id)
+            .map(|s| s.cpu_budget_per_tick)
+            .unwrap_or(Duration::from_millis(5))
     }
 
     pub fn try_write_storage(
@@ -412,6 +432,7 @@ mod tests {
             cpu_budget_per_tick: Duration::from_millis(3),
             memory_bytes: 1024,
             initial_entities: 0,
+            runtime: ScriptRuntime::Wasm,
         };
         let p2 = ScriptDescriptor {
             id: 2,
@@ -420,6 +441,7 @@ mod tests {
             cpu_budget_per_tick: Duration::from_millis(3),
             memory_bytes: 1024,
             initial_entities: 0,
+            runtime: ScriptRuntime::Wasm,
         };
         let p3 = ScriptDescriptor {
             id: 3,
@@ -428,6 +450,7 @@ mod tests {
             cpu_budget_per_tick: Duration::from_millis(3),
             memory_bytes: 1024,
             initial_entities: 0,
+            runtime: ScriptRuntime::Wasm,
         };
         scheduler.register_script(p1, now).unwrap();
         scheduler.register_script(p2, now).unwrap();
@@ -454,6 +477,7 @@ mod tests {
             cpu_budget_per_tick: Duration::from_millis(3),
             memory_bytes: 1024,
             initial_entities: 0,
+            runtime: ScriptRuntime::Wasm,
         };
         scheduler.register_script(descriptor, now).unwrap();
 
@@ -485,6 +509,7 @@ mod tests {
             cpu_budget_per_tick: Duration::from_millis(3),
             memory_bytes: 1024,
             initial_entities: 0,
+            runtime: ScriptRuntime::Wasm,
         };
         scheduler.register_script(descriptor, now).unwrap();
 

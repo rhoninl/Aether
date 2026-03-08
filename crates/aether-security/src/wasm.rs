@@ -14,3 +14,22 @@ pub enum WasmSurfaceError {
     ModuleTampered,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SandboxCapability {
+    EntitySpawn,
+    EntityDespawn,
+    PhysicsForce,
+    NetworkEmit,
+    NetworkRpc,
+    StorageRead,
+    StorageWrite,
+    AudioPlay,
+    UiOpen,
+}
+
+#[derive(Debug, Clone)]
+pub struct ScriptSandboxPolicy {
+    pub allowed: Vec<SandboxCapability>,
+    pub denied: Vec<SandboxCapability>,
+}
+

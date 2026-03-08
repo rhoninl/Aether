@@ -6,6 +6,7 @@ pub enum FileType {
     Wav,
     Mp3,
     Wasm,
+    Lua,
     Txt,
     Unknown,
 }

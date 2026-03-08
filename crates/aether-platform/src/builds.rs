@@ -3,6 +3,7 @@ pub enum WasmExecutionMode {
     ClientJit,
     ServerAot,
     ServerAotOnly,
+    LuaInterpreted,
 }
 
 #[derive(Debug)]

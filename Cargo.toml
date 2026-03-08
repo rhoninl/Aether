@@ -26,5 +26,7 @@ members = [
     "crates/aether-platform",
     "crates/aether-trust-safety",
     "crates/aether-gateway",
+    "crates/aether-lua",
     "examples/3d-demo",
+    "examples/lua-scripting",
 ]
