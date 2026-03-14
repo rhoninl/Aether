@@ -1,0 +1,12 @@
+[package]
+name = "aether-vr-emulator"
+version = "0.1.0"
+edition = "2021"
+description = "PC-based VR emulator for development and testing without a headset"
+
+[dependencies]
+aether-ecs = { path = "../aether-ecs" }
+aether-input = { path = "../aether-input" }
+aether-renderer = { path = "../aether-renderer" }
+serde = { version = "1.0", features = ["derive"] }
+minifb = "0.28"
