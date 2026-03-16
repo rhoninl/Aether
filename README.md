@@ -98,23 +98,29 @@ aether/
 
 ## Quick Start
 
-### Prerequisites
+### Option A: Pre-built Binaries (no Rust required)
 
-- [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
+Download the latest release for your platform from [GitHub Releases](../../releases), or install with:
 
-### Build
+```bash
+curl -fsSL https://raw.githubusercontent.com/<org>/aether/main/install.sh | sh
+```
+
+Then run:
+
+```bash
+aether run --list        # See available examples
+aether run 3d-demo       # Launch the 3D demo
+```
+
+### Option B: Build from Source
+
+**Prerequisites:** [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
 
 ```bash
 cargo build
+cargo test    # 3,074 tests across all crates, 0 failures
 ```
-
-### Run Tests
-
-```bash
-cargo test
-```
-
-3,074 tests across all crates, 0 failures.
 
 ### Examples
 
@@ -123,7 +129,8 @@ cargo test
 Interactive scene with software renderer, physics, and keyboard controls:
 
 ```bash
-cargo run -p aether-3d-demo
+aether run 3d-demo            # using pre-built binary
+cargo run -p aether-3d-demo   # from source
 ```
 
 <p align="center">
@@ -142,21 +149,17 @@ cargo run -p aether-3d-demo
 NPC patrol, day/night cycle, and interactive scripts driven by Lua:
 
 ```bash
-cargo run -p aether-lua-demo
+aether run lua-scripting          # using pre-built binary
+cargo run -p aether-lua-demo      # from source
 ```
 
 #### Visual Scripting Editor
 
-A web-based node editor for building game logic visually. Open in your browser:
+A web-based node editor for building game logic visually:
 
 ```bash
-open examples/visual-scripting/index.html
-```
-
-Or run the CLI version:
-
-```bash
-cargo run -p aether-visual-scripting-demo
+aether run visual-editor                    # using pre-built binary
+cargo run -p aether-visual-scripting-demo   # from source
 ```
 
 The visual editor supports 33 node types across 6 categories (events, flow control, actions, math, logic, variables), type-safe connections, graph validation, cycle detection, and compilation to an IR instruction set. Drag nodes from the sidebar, connect ports, and click Compile to see the generated output.

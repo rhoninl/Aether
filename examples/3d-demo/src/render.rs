@@ -313,19 +313,21 @@ pub fn render_sphere(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], radius: 
     if let Some((sx, sy, z)) = vp.project(pos) {
         if let Some(sr) = vp.project_radius(pos, radius) {
             let r = sr.max(2.0) as i32;
-            // Shaded fill
             let cx = sx as i32;
             let cy = sy as i32;
             for dy in -r..=r {
                 let half_w = ((r * r - dy * dy) as f32).sqrt() as i32;
                 for dx in -half_w..=half_w {
                     let dist = ((dx * dx + dy * dy) as f32).sqrt() / r as f32;
+                    // Per-pixel depth: front of sphere is closer to camera
+                    let depth_offset = (1.0 - dist * dist).max(0.0).sqrt() * radius;
+                    let pixel_z = z - depth_offset;
                     let shade = (1.0 - dist * 0.5).max(0.3);
                     let c = darken(SPHERE_COLOR, shade);
-                    fb.set_pixel_depth(cx + dx, cy + dy, z, c);
+                    fb.set_pixel_depth(cx + dx, cy + dy, pixel_z, c);
                 }
             }
-            draw_circle(fb, cx, cy, r, z - 0.01, darken(SPHERE_COLOR, 1.3));
+            draw_circle(fb, cx, cy, r, z - radius - 0.01, darken(SPHERE_COLOR, 1.3));
         }
     }
 }
@@ -348,21 +350,49 @@ pub fn render_cube(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], half: f32)
         (4, 5), (5, 6), (6, 7), (7, 4),
         (0, 4), (1, 5), (2, 6), (3, 7),
     ];
-    // Fill visible faces
+    // Face normals for backface culling
     let faces: [[usize; 4]; 6] = [
-        [0, 1, 2, 3], // front
-        [5, 4, 7, 6], // back
-        [4, 0, 3, 7], // left
-        [1, 5, 6, 2], // right
-        [3, 2, 6, 7], // top
-        [4, 5, 1, 0], // bottom
+        [0, 1, 2, 3], // front  (−Z)
+        [5, 4, 7, 6], // back   (+Z)
+        [4, 0, 3, 7], // left   (−X)
+        [1, 5, 6, 2], // right  (+X)
+        [3, 2, 6, 7], // top    (+Y)
+        [4, 5, 1, 0], // bottom (−Y)
     ];
     let face_shades = [0.9, 0.7, 0.75, 0.85, 1.0, 0.6];
+    let view_dir = normalize(sub(pos, cam.eye));
+
+    // Sort faces back-to-front by average depth, skip back-facing
+    let mut face_order: Vec<(usize, f32)> = Vec::new();
     for (fi, face) in faces.iter().enumerate() {
+        // Compute face normal from two edges
+        let v0 = corners[face[0]];
+        let v1 = corners[face[1]];
+        let v2 = corners[face[2]];
+        let edge1 = sub(v1, v0);
+        let edge2 = sub(v2, v1);
+        let normal = normalize(cross(edge1, edge2));
+
+        // Backface cull: skip faces pointing away from camera
+        if dot(normal, view_dir) > 0.1 {
+            continue;
+        }
+
         let projected: Vec<_> = face.iter().filter_map(|&i| vp.project(corners[i])).collect();
         if projected.len() == 4 {
             let avg_z = projected.iter().map(|p| p.2).sum::<f32>() / 4.0;
-            fill_quad(fb, &projected, avg_z, darken(CUBE_COLOR, face_shades[fi]));
+            face_order.push((fi, avg_z));
+        }
+    }
+    // Draw back-to-front (largest z first)
+    face_order.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+    for &(fi, _) in &face_order {
+        let face = &faces[fi];
+        let projected: Vec<_> = face.iter().filter_map(|&i| vp.project(corners[i])).collect();
+        if projected.len() == 4 {
+            let min_z = projected.iter().map(|p| p.2).fold(f32::MAX, f32::min);
+            fill_quad(fb, &projected, min_z, darken(CUBE_COLOR, face_shades[fi]));
         }
     }
     // Wireframe

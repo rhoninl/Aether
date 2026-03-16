@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive: zip
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo registry and build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ matrix.target }}-cargo-
+
+      - name: Build release binaries
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Get version from tag
+        id: version
+        shell: bash
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Package (Unix)
+        if: matrix.archive == 'tar.gz'
+        shell: bash
+        run: |
+          STAGING="aether-${{ steps.version.outputs.version }}-${{ matrix.target }}"
+          mkdir -p "$STAGING"
+
+          # Copy all built binaries
+          for bin in aether aether-3d-demo aether-lua-demo aether-vr-emulator-demo visual-editor-demo; do
+            if [ -f "target/${{ matrix.target }}/release/$bin" ]; then
+              cp "target/${{ matrix.target }}/release/$bin" "$STAGING/"
+            fi
+          done
+
+          # Include license and readme
+          cp LICENSE README.md "$STAGING/"
+
+          tar czf "$STAGING.tar.gz" "$STAGING"
+          echo "ARCHIVE=$STAGING.tar.gz" >> "$GITHUB_ENV"
+
+      - name: Package (Windows)
+        if: matrix.archive == 'zip'
+        shell: bash
+        run: |
+          STAGING="aether-${{ steps.version.outputs.version }}-${{ matrix.target }}"
+          mkdir -p "$STAGING"
+
+          for bin in aether.exe aether-3d-demo.exe aether-lua-demo.exe aether-vr-emulator-demo.exe visual-editor-demo.exe; do
+            if [ -f "target/${{ matrix.target }}/release/$bin" ]; then
+              cp "target/${{ matrix.target }}/release/$bin" "$STAGING/"
+            fi
+          done
+
+          cp LICENSE README.md "$STAGING/"
+
+          7z a "$STAGING.zip" "$STAGING"
+          echo "ARCHIVE=$STAGING.zip" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: ${{ env.ARCHIVE }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Get version from tag
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Aether ${{ steps.version.outputs.version }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+          generate_release_notes: true
+          files: artifacts/*
