@@ -7,6 +7,7 @@ pub mod bundle_writer;
 pub mod compression;
 pub mod gltf_import;
 pub mod hash;
+pub mod hot_reload;
 pub mod import;
 pub mod lod;
 pub mod manifest;
@@ -35,3 +36,10 @@ pub use mesh::{ImportedMesh, LodChain, LodLevel, MeshOptimizer, SimpleMeshOptimi
 pub use texture::{
     CompressedTexture, PassthroughCompressor, TextureCompressor, TextureError, TextureInput,
 };
+
+// Re-export hot-reload types
+pub use hot_reload::asset_type::AssetType;
+pub use hot_reload::debouncer::Debouncer;
+pub use hot_reload::dependency::DependencyGraph;
+pub use hot_reload::events::{ChangeKind, ReloadEvent};
+pub use hot_reload::{should_ignore, HotReloadConfig, HotReloadWatcher};

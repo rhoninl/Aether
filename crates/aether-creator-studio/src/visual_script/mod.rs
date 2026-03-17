@@ -8,6 +8,7 @@ pub mod compiler;
 pub mod graph;
 pub mod layout;
 pub mod node;
+pub mod runtime;
 pub mod templates;
 pub mod types;
 pub mod validation;
@@ -19,6 +20,7 @@ pub use layout::{apply_layout, compute_layout, LayoutConfig, LayoutResult};
 pub use node::{build_ports, Node, NodeId, NodeKind, Port, PortDirection, PortId};
 pub use templates::{all_templates, instantiate_template, TemplateKind};
 pub use types::{DataType, Value};
+pub use runtime::{EngineApi, NoOpApi, RecordingApi, RuntimeError, ScriptVm, VmConfig};
 pub use validation::{
     topological_sort_flow, validate_graph, Severity, ValidationDiagnostic, ValidationResult,
 };

@@ -46,7 +46,7 @@ pub use undo::{CommandError, CommandResult, EditorCommand, UndoStack};
 pub use visual_script::{
     compile, all_templates, instantiate_template, validate_graph, compute_layout, apply_layout,
     BinaryOp, CompileError, CompiledScript, Connection, ConnectionId, DataType,
-    GraphError, IrInstruction, LayoutConfig, LayoutResult, Node, NodeGraph, NodeId, NodeKind,
-    Port, PortDirection, PortId, Severity, TemplateKind, ValidationDiagnostic,
-    ValidationResult, Value,
+    EngineApi, GraphError, IrInstruction, LayoutConfig, LayoutResult, NoOpApi, Node, NodeGraph,
+    NodeId, NodeKind, Port, PortDirection, PortId, RecordingApi, RuntimeError, ScriptVm,
+    Severity, TemplateKind, ValidationDiagnostic, ValidationResult, Value, VmConfig,
 };

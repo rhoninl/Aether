@@ -189,10 +189,10 @@ Design documentation lives in [`docs/design/`](docs/design/) with 62 documents c
 - [x] World chunk streaming system
 - [x] Portal system with cross-world navigation
 - [x] Server-side WASM runtime with hot-reload
-- [ ] GPU-accelerated rendering (wgpu)
-- [ ] Networked multiplayer prototype
-- [ ] Visual script runtime execution
-- [ ] Asset hot-reloading
+- [x] GPU-accelerated rendering (wgpu)
+- [x] Networked multiplayer prototype
+- [x] Visual script runtime execution
+- [x] Asset hot-reloading
 - [ ] First public release
 
 ## Contributing

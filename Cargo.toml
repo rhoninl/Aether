@@ -30,8 +30,11 @@ members = [
     "crates/aether-vr-emulator",
     "crates/aether-visual-editor",
     "crates/aether-cli",
+    "crates/aether-multiplayer",
     "examples/3d-demo",
     "examples/lua-scripting",
     "examples/vr-emulator-demo",
     "examples/visual-editor-demo",
+    "examples/gpu-demo",
+    "examples/multiplayer-demo",
 ]
