@@ -164,6 +164,38 @@ cargo run -p aether-visual-scripting-demo   # from source
 
 The visual editor supports 33 node types across 6 categories (events, flow control, actions, math, logic, variables), type-safe connections, graph validation, cycle detection, and compilation to an IR instruction set. Drag nodes from the sidebar, connect ports, and click Compile to see the generated output.
 
+#### GPU Rendering Demo
+
+PBR scene rendered with wgpu (shadows, MSAA, metallic-roughness materials):
+
+```bash
+cargo run -p gpu-demo
+```
+
+#### Multiplayer Demo
+
+Server-authoritative multiplayer with QUIC transport and avatar sync:
+
+```bash
+cargo run -p multiplayer-demo --bin mp-server   # Terminal 1: start server
+cargo run -p multiplayer-demo --bin mp-client   # Terminal 2: connect client
+```
+
+#### Single-World Integrated Demo
+
+The Phase 1 milestone demo — ties together GPU rendering, physics, multiplayer networking, visual scripting, and asset hot-reloading through the ECS:
+
+```bash
+cargo run -p single-world-demo
+```
+
+| Key | Action |
+|-----|--------|
+| `W` `A` `S` `D` | Move camera |
+| Arrow keys | Rotate camera |
+| `Space` / `Shift` | Move up / down |
+| `ESC` | Quit |
+
 ## Documentation
 
 Design documentation lives in [`docs/design/`](docs/design/) with 62 documents covering architecture decisions, data models, and implementation plans for every subsystem. Key documents:

@@ -1,0 +1,25 @@
+[package]
+name = "single-world-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "single-world-demo"
+path = "src/main.rs"
+
+[dependencies]
+aether-ecs = { path = "../../crates/aether-ecs" }
+aether-physics = { path = "../../crates/aether-physics" }
+aether-input = { path = "../../crates/aether-input" }
+aether-renderer = { path = "../../crates/aether-renderer" }
+aether-multiplayer = { path = "../../crates/aether-multiplayer" }
+aether-creator-studio = { path = "../../crates/aether-creator-studio" }
+aether-asset-pipeline = { path = "../../crates/aether-asset-pipeline" }
+winit = "0.30"
+wgpu = "24"
+pollster = "0.4"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "macros", "time"] }
+log = "0.4"
+env_logger = "0.11"
+uuid = { version = "1", features = ["v4"] }

@@ -37,4 +37,5 @@ members = [
     "examples/visual-editor-demo",
     "examples/gpu-demo",
     "examples/multiplayer-demo",
+    "examples/single-world-demo",
 ]
