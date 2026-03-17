@@ -116,18 +116,14 @@ impl GpuContext {
 
     /// Create a GPU context with a surface from a window target.
     ///
-    /// # Safety
+    /// The `instance` must be the same one used to create the `surface`.
     /// The `window` must live at least as long as the returned `GpuContext`.
     pub async fn new_with_surface(
+        instance: wgpu::Instance,
         surface: wgpu::Surface<'static>,
         width: u32,
         height: u32,
     ) -> Result<Self, GpuError> {
-        let backends = backend_from_env();
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
-            backends,
-            ..Default::default()
-        });
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {

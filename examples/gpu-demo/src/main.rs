@@ -195,9 +195,9 @@ impl ApplicationHandler for App {
             }
         };
 
-        // Create GPU renderer
+        // Create GPU renderer (pass same instance that created the surface)
         let mut renderer =
-            match pollster::block_on(GpuRenderer::new_with_surface(surface, size.width, size.height))
+            match pollster::block_on(GpuRenderer::new_with_surface(instance, surface, size.width, size.height))
             {
                 Ok(r) => r,
                 Err(e) => {

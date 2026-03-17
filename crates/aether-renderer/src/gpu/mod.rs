@@ -44,12 +44,15 @@ impl GpuRenderer {
     }
 
     /// Create a GPU renderer with a surface.
+    ///
+    /// The `instance` must be the same one used to create the `surface`.
     pub async fn new_with_surface(
+        instance: wgpu::Instance,
         surface: wgpu::Surface<'static>,
         width: u32,
         height: u32,
     ) -> Result<Self, GpuError> {
-        let ctx = GpuContext::new_with_surface(surface, width, height).await?;
+        let ctx = GpuContext::new_with_surface(instance, surface, width, height).await?;
         Self::from_context(ctx)
     }
 

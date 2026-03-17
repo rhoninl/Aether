@@ -116,7 +116,7 @@ impl ApplicationHandler for App {
 
         let size = window.inner_size();
 
-        // Create wgpu surface + renderer
+        // Create wgpu surface + renderer (instance and surface must use the same instance)
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
         let surface = match instance.create_surface(window.clone()) {
             Ok(s) => s,
@@ -128,6 +128,7 @@ impl ApplicationHandler for App {
         };
 
         let mut renderer = match pollster::block_on(GpuRenderer::new_with_surface(
+            instance,
             surface,
             size.width,
             size.height,
