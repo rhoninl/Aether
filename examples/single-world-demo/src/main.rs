@@ -432,27 +432,28 @@ impl ApplicationHandler for App {
 
 /// Apply input state to camera position and orientation.
 fn apply_input_to_camera(input: &InputState, camera: &mut CameraState, dt: f32) {
-    let (sy, cy) = camera.yaw.sin_cos();
+    let fwd = camera.forward_xz();
+    let right = camera.right_xz();
 
     let mut dx = 0.0f32;
     let mut dy = 0.0f32;
     let mut dz = 0.0f32;
 
     if input.forward {
-        dx += cy * CAMERA_MOVE_SPEED * dt;
-        dz += sy * CAMERA_MOVE_SPEED * dt;
+        dx += fwd[0] * CAMERA_MOVE_SPEED * dt;
+        dz += fwd[2] * CAMERA_MOVE_SPEED * dt;
     }
     if input.backward {
-        dx -= cy * CAMERA_MOVE_SPEED * dt;
-        dz -= sy * CAMERA_MOVE_SPEED * dt;
+        dx -= fwd[0] * CAMERA_MOVE_SPEED * dt;
+        dz -= fwd[2] * CAMERA_MOVE_SPEED * dt;
     }
     if input.right {
-        dx += -sy * CAMERA_MOVE_SPEED * dt;
-        dz += cy * CAMERA_MOVE_SPEED * dt;
+        dx += right[0] * CAMERA_MOVE_SPEED * dt;
+        dz += right[2] * CAMERA_MOVE_SPEED * dt;
     }
     if input.left {
-        dx -= -sy * CAMERA_MOVE_SPEED * dt;
-        dz -= cy * CAMERA_MOVE_SPEED * dt;
+        dx -= right[0] * CAMERA_MOVE_SPEED * dt;
+        dz -= right[2] * CAMERA_MOVE_SPEED * dt;
     }
     if input.up {
         dy += CAMERA_MOVE_SPEED * dt;
@@ -534,8 +535,8 @@ mod tests {
             ..CameraState::default()
         };
         apply_input_to_camera(&input, &mut camera, 1.0);
-        // With yaw=0, forward should increase x (cos(0)=1)
-        assert!(camera.position[0] > 0.0);
+        // With yaw=0, forward is -Z
+        assert!(camera.position[2] < 0.0);
     }
 
     #[test]
@@ -549,7 +550,8 @@ mod tests {
             ..CameraState::default()
         };
         apply_input_to_camera(&input, &mut camera, 1.0);
-        assert!(camera.position[0] < 0.0);
+        // With yaw=0, backward is +Z
+        assert!(camera.position[2] > 0.0);
     }
 
     #[test]

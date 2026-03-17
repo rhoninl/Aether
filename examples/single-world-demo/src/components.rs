@@ -182,44 +182,84 @@ impl Default for CameraState {
 }
 
 impl CameraState {
-    /// Build a view matrix (column-major, right-handed look-at).
-    pub fn view_matrix(&self) -> [f32; 16] {
+    /// Compute the forward direction vector (in XZ plane, for movement).
+    /// At yaw=0, looks along -Z (standard right-handed convention).
+    pub fn forward_xz(&self) -> [f32; 3] {
+        let (sy, cy) = self.yaw.sin_cos();
+        [sy, 0.0, -cy]
+    }
+
+    /// Compute the right direction vector (in XZ plane).
+    pub fn right_xz(&self) -> [f32; 3] {
+        let (sy, cy) = self.yaw.sin_cos();
+        [cy, 0.0, sy]
+    }
+
+    /// Compute the look direction (includes pitch).
+    fn look_direction(&self) -> [f32; 3] {
         let (sy, cy) = self.yaw.sin_cos();
         let (sp, cp) = self.pitch.sin_cos();
+        [sy * cp, sp, -cy * cp]
+    }
 
-        let forward = [cy * cp, sp, sy * cp];
-        let right = [-sy, 0.0, cy];
-        let up = [
-            -(cy * sp),
-            cp,
-            -(sy * sp),
+    /// Build a view matrix (column-major, right-handed look-at).
+    pub fn view_matrix(&self) -> [f32; 16] {
+        let look = self.look_direction();
+        let target = [
+            self.position[0] + look[0],
+            self.position[1] + look[1],
+            self.position[2] + look[2],
         ];
+        // look_at: eye, target, world-up
+        let f = normalize_vec3([
+            target[0] - self.position[0],
+            target[1] - self.position[1],
+            target[2] - self.position[2],
+        ]);
+        let s = normalize_vec3(cross_vec3(f, [0.0, 1.0, 0.0]));
+        let u = cross_vec3(s, f);
 
-        let p = self.position;
-        let dot_r = -(right[0] * p[0] + right[1] * p[1] + right[2] * p[2]);
-        let dot_u = -(up[0] * p[0] + up[1] * p[1] + up[2] * p[2]);
-        let dot_f = -(forward[0] * p[0] + forward[1] * p[1] + forward[2] * p[2]);
+        let eye = self.position;
+        let dot_s = -(s[0] * eye[0] + s[1] * eye[1] + s[2] * eye[2]);
+        let dot_u = -(u[0] * eye[0] + u[1] * eye[1] + u[2] * eye[2]);
+        let dot_f = f[0] * eye[0] + f[1] * eye[1] + f[2] * eye[2];
 
         [
-            right[0],   up[0],   forward[0],  0.0,
-            right[1],   up[1],   forward[1],  0.0,
-            right[2],   up[2],   forward[2],  0.0,
-            dot_r,       dot_u,   dot_f,       1.0,
+            s[0],  u[0],  -f[0], 0.0,
+            s[1],  u[1],  -f[1], 0.0,
+            s[2],  u[2],  -f[2], 0.0,
+            dot_s, dot_u, dot_f, 1.0,
         ]
     }
 
-    /// Build a perspective projection matrix (column-major).
+    /// Build a perspective projection matrix (column-major, wgpu depth 0..1).
     pub fn projection_matrix(&self) -> [f32; 16] {
         let f = 1.0 / (self.fov_y / 2.0).tan();
-        let range = self.near - self.far;
+        let range_inv = 1.0 / (self.near - self.far);
 
         [
-            f / self.aspect, 0.0, 0.0,                              0.0,
-            0.0,             f,   0.0,                              0.0,
-            0.0,             0.0, (self.far + self.near) / range,  -1.0,
-            0.0,             0.0, 2.0 * self.far * self.near / range, 0.0,
+            f / self.aspect, 0.0, 0.0,                           0.0,
+            0.0,             f,   0.0,                           0.0,
+            0.0,             0.0, self.far * range_inv,         -1.0,
+            0.0,             0.0, self.near * self.far * range_inv, 0.0,
         ]
     }
+}
+
+fn normalize_vec3(v: [f32; 3]) -> [f32; 3] {
+    let len = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    if len < 1e-10 {
+        return [0.0, 0.0, 0.0];
+    }
+    [v[0] / len, v[1] / len, v[2] / len]
+}
+
+fn cross_vec3(a: [f32; 3], b: [f32; 3]) -> [f32; 3] {
+    [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
 }
 
 /// Whether we're running in offline (no network) or online mode.
