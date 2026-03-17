@@ -147,6 +147,32 @@ impl MultiplayerClient {
             .map_err(|e| ClientError::Send(e.to_string()))
     }
 
+    /// Poll for an incoming datagram from the server and process it.
+    ///
+    /// Returns `Ok(Some(msg))` if a datagram was available, `Ok(None)` if no
+    /// datagram was ready, or an error if not connected or decoding fails.
+    /// The message is automatically applied to the local remote state.
+    pub async fn recv_datagram(&mut self) -> Result<Option<ServerMessage>, ClientError> {
+        if !self.quic.is_connected() {
+            return Err(ClientError::NotConnected);
+        }
+
+        let conn = self
+            .quic
+            .connection_mut()
+            .ok_or(ClientError::NotConnected)?;
+
+        match conn.try_recv_datagram() {
+            Some(data) => {
+                let msg = decode_server_message(&data)
+                    .map_err(|e| ClientError::Encoding(e.to_string()))?;
+                self.apply_server_message(&msg).await;
+                Ok(Some(msg))
+            }
+            None => Ok(None),
+        }
+    }
+
     /// Receive and process the next server message.
     pub async fn recv(&self) -> Result<ServerMessage, ClientError> {
         if !self.quic.is_connected() {

@@ -133,6 +133,11 @@ impl QuicClient {
         self.connection.as_ref()
     }
 
+    /// Get a mutable reference to the underlying connection (if connected).
+    pub fn connection_mut(&mut self) -> Option<&mut QuicConnection> {
+        self.connection.as_mut()
+    }
+
     /// Disconnect from the server.
     pub fn disconnect(&mut self, reason: &str) {
         if let Some(mut conn) = self.connection.take() {

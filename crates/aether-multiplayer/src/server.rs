@@ -16,7 +16,7 @@ use aether_world_runtime::tick::TickScheduler;
 
 use crate::avatar::AvatarState;
 use crate::config::MultiplayerConfig;
-use crate::protocol::{encode_server_message, PlayerId, ServerMessage};
+use crate::protocol::{decode_client_message, encode_server_message, ClientMessage, PlayerId, ServerMessage};
 use crate::simulation::WorldState;
 
 /// Internal message from per-client receive tasks to the main tick loop.
@@ -59,8 +59,24 @@ impl MultiplayerServer {
         Arc::clone(&self.shutdown)
     }
 
+    /// Run the server until shutdown is signaled, sending the bound address
+    /// back through the provided channel once the server is listening.
+    pub async fn run_with_addr_tx(
+        &self,
+        addr_tx: tokio::sync::oneshot::Sender<std::net::SocketAddr>,
+    ) -> Result<(), ServerError> {
+        self.run_inner(Some(addr_tx)).await
+    }
+
     /// Run the server until shutdown is signaled.
     pub async fn run(&self) -> Result<(), ServerError> {
+        self.run_inner(None).await
+    }
+
+    async fn run_inner(
+        &self,
+        addr_tx: Option<tokio::sync::oneshot::Sender<std::net::SocketAddr>>,
+    ) -> Result<(), ServerError> {
         let quic_config = QuicConfig {
             bind_addr: self.config.bind_addr,
             ..QuicConfig::default()
@@ -75,6 +91,10 @@ impl MultiplayerServer {
             .map_err(|e| ServerError::Bind(e.to_string()))?;
 
         tracing::info!(addr = %local_addr, "multiplayer server started");
+
+        if let Some(tx) = addr_tx {
+            let _ = tx.send(local_addr);
+        }
 
         let (event_tx, _) = broadcast::channel::<ServerMessage>(256);
 
@@ -232,8 +252,31 @@ async fn tick_loop(
 
                 let ticks = scheduler.update(elapsed_us);
 
-                // Drain incoming inputs
+                // Poll for incoming client datagrams
                 let mut pending_inputs = Vec::new();
+                let datagrams = shared.quic.recv_datagrams().await;
+                for (client_id, data) in datagrams {
+                    match decode_client_message(&data) {
+                        Ok(ClientMessage::InputUpdate { tick, avatar }) => {
+                            let conn_map = shared.connection_map.lock().await;
+                            if let Some(&player_id) = conn_map.get(&client_id) {
+                                pending_inputs.push(IncomingInput {
+                                    player_id,
+                                    tick,
+                                    avatar,
+                                });
+                            }
+                        }
+                        Ok(_) => {
+                            tracing::debug!(client_id = client_id, "ignoring non-input datagram");
+                        }
+                        Err(e) => {
+                            tracing::debug!(client_id = client_id, error = %e, "failed to decode client datagram");
+                        }
+                    }
+                }
+
+                // Drain inputs from channel (if any sent via accept_loop)
                 while let Ok(input) = input_rx.try_recv() {
                     pending_inputs.push(input);
                 }

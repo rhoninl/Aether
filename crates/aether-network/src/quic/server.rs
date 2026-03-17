@@ -169,6 +169,20 @@ impl QuicServer {
         conn.send_datagram(data).map_err(ServerError::from)
     }
 
+    /// Poll all connected clients for incoming datagrams.
+    ///
+    /// Returns a vec of `(client_id, data)` for each datagram received.
+    pub async fn recv_datagrams(&self) -> Vec<(u64, Vec<u8>)> {
+        let mut conns = self.connections.lock().await;
+        let mut result = Vec::new();
+        for (&client_id, conn) in conns.iter_mut() {
+            while let Some(data) = conn.try_recv_datagram() {
+                result.push((client_id, data));
+            }
+        }
+        result
+    }
+
     /// Accept a bi-directional stream from a specific client and read one message.
     pub async fn recv_reliable(&self, client_id: u64) -> Result<Vec<u8>, ServerError> {
         let conns = self.connections.lock().await;

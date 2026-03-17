@@ -5641,6 +5641,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "single-world-demo"
+version = "0.1.0"
+dependencies = [
+ "aether-asset-pipeline",
+ "aether-creator-studio",
+ "aether-ecs",
+ "aether-input",
+ "aether-multiplayer",
+ "aether-physics",
+ "aether-renderer",
+ "env_logger",
+ "log",
+ "pollster",
+ "tokio",
+ "uuid",
+ "wgpu",
+ "winit",
+]
+
+[[package]]
 name = "siphasher"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
