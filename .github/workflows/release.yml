@@ -67,7 +67,7 @@ jobs:
           mkdir -p "$STAGING"
 
           # Copy all built binaries
-          for bin in aether aether-3d-demo aether-lua-demo aether-vr-emulator-demo visual-editor-demo; do
+          for bin in aether aether-3d-demo aether-lua-demo aether-vr-emulator-demo; do
             if [ -f "target/${{ matrix.target }}/release/$bin" ]; then
               cp "target/${{ matrix.target }}/release/$bin" "$STAGING/"
             fi
@@ -86,7 +86,7 @@ jobs:
           STAGING="aether-${{ steps.version.outputs.version }}-${{ matrix.target }}"
           mkdir -p "$STAGING"
 
-          for bin in aether.exe aether-3d-demo.exe aether-lua-demo.exe aether-vr-emulator-demo.exe visual-editor-demo.exe; do
+          for bin in aether.exe aether-3d-demo.exe aether-lua-demo.exe aether-vr-emulator-demo.exe; do
             if [ -f "target/${{ matrix.target }}/release/$bin" ]; then
               cp "target/${{ matrix.target }}/release/$bin" "$STAGING/"
             fi

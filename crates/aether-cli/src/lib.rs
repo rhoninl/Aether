@@ -5,7 +5,6 @@ pub const AVAILABLE_EXAMPLES: &[&str] = &[
     "3d-demo",
     "lua-scripting",
     "vr-emulator",
-    "visual-editor",
 ];
 
 /// Map a user-facing example name to the actual binary name.
@@ -14,7 +13,6 @@ pub fn example_binary_name(example: &str) -> Option<&'static str> {
         "3d-demo" => Some("aether-3d-demo"),
         "lua-scripting" => Some("aether-lua-demo"),
         "vr-emulator" => Some("aether-vr-emulator-demo"),
-        "visual-editor" => Some("visual-editor-demo"),
         _ => None,
     }
 }
@@ -43,7 +41,6 @@ mod tests {
         assert_eq!(example_binary_name("3d-demo"), Some("aether-3d-demo"));
         assert_eq!(example_binary_name("lua-scripting"), Some("aether-lua-demo"));
         assert_eq!(example_binary_name("vr-emulator"), Some("aether-vr-emulator-demo"));
-        assert_eq!(example_binary_name("visual-editor"), Some("visual-editor-demo"));
     }
 
     #[test]
