@@ -1,0 +1,15 @@
+[package]
+name = "aether-world-editor"
+version = "0.1.0"
+edition = "2021"
+description = "In-world editor for Aether — edit 2D and 3D worlds from within"
+
+[dependencies]
+aether-creator-studio = { path = "../aether-creator-studio" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

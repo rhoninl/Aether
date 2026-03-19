@@ -30,16 +30,14 @@ Aether is organized as a Rust workspace with 26 crates spanning six domains:
 aether/
 ├── crates/
 │   ├── Core Engine ──── aether-ecs, aether-physics, aether-renderer, aether-audio, aether-input
-│   ├── Scripting ────── aether-scripting, aether-lua
+│   ├── Scripting ────── aether-scripting
 │   ├── World ────────── aether-world-runtime, aether-network, aether-zoning, aether-federation
 │   ├── Social ───────── aether-avatar, aether-social, aether-economy, aether-ugc
 │   ├── Platform ─────── aether-gateway, aether-registry, aether-asset-pipeline, aether-platform
 │   └── Safety ───────── aether-security, aether-trust-safety, aether-compliance,
 │                        aether-content-moderation, aether-deploy, aether-persistence
 ├── examples/
-│   ├── 3d-demo ──────── Interactive 3D scene with software renderer
-│   ├── lua-scripting ── Lua scripting with NPC patrol and day/night cycle
-│   └── visual-scripting  Web-based visual node editor
+│   └── 3d-demo ──────── Interactive 3D scene with software renderer
 └── docs/design/ ─────── 62 design documents
 ```
 
@@ -60,7 +58,6 @@ aether/
 | Crate | Description |
 |-------|-------------|
 | **aether-scripting** | WASM script runtime with per-script resource caps, rate limiting, priority scheduling, and world-level orchestration |
-| **aether-lua** | Lua scripting runtime with sandboxed VMs, memory/CPU budgets, hot-reloading, and bridge APIs for entity/physics/audio |
 | **aether-creator-studio** | Creator tools: terrain/prop/lighting editors, undo/redo, and a visual scripting editor with node graph, type system, validation, and IR compiler |
 
 ### World & Networking
@@ -144,15 +141,6 @@ cargo run -p aether-3d-demo   # from source
 | `Q` / `E` | Zoom in / out |
 | `ESC` | Quit |
 
-#### Lua Scripting Demo
-
-NPC patrol, day/night cycle, and interactive scripts driven by Lua:
-
-```bash
-aether run lua-scripting          # using pre-built binary
-cargo run -p aether-lua-demo      # from source
-```
-
 #### Visual Scripting Editor
 
 A web-based node editor for building game logic visually:
@@ -213,7 +201,6 @@ Design documentation lives in [`docs/design/`](docs/design/) with 62 documents c
 - [x] Rapier3D physics integration
 - [x] Software renderer and interactive 3D demo
 - [x] Input handling with OpenXR integration
-- [x] Lua scripting runtime with sandboxed VMs
 - [x] Visual scripting editor (node graph + IR compiler)
 - [x] VR interaction physics (grab, throw, haptics)
 - [x] Avatar rendering pipeline (skinning, blend shapes, LOD)

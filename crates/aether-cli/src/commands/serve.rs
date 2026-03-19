@@ -3,6 +3,7 @@ use std::net::TcpListener;
 use std::path::Path;
 
 use crate::manifest;
+use crate::manifest::WorldManifest;
 
 const DEFAULT_PORT: u16 = 3000;
 
@@ -10,19 +11,20 @@ pub fn serve_project(path: &str, port: Option<u16>) -> Result<(), String> {
     let dir = Path::new(path);
     let port = port.unwrap_or(DEFAULT_PORT);
 
-    let m = manifest::load_manifest(dir)?;
-    let errors = manifest::validate_manifest(dir, &m);
+    let world_toml = manifest::load_manifest(dir)?;
+    let errors = manifest::validate_manifest(dir, &world_toml);
     if !errors.is_empty() {
         for err in &errors {
             eprintln!("  warning: {err}");
         }
     }
 
+    let m = &world_toml.world;
     let addr = format!("127.0.0.1:{port}");
     let listener = TcpListener::bind(&addr)
         .map_err(|e| format!("failed to bind to {addr}: {e}"))?;
 
-    println!("Serving '{}' v{}", m.name, m.version);
+    println!("Serving '{}' v{} ({})", m.name, m.version, m.dimension);
     println!("  http://{addr}");
     println!("  Press Ctrl+C to stop");
 
@@ -42,7 +44,7 @@ pub fn serve_project(path: &str, port: Option<u16>) -> Result<(), String> {
         let first_line = request.lines().next().unwrap_or("");
         let req_path = first_line.split_whitespace().nth(1).unwrap_or("/");
 
-        let (status, content_type, body) = route(dir, &m, req_path);
+        let (status, content_type, body) = route(dir, m, req_path);
 
         let response = format!(
             "HTTP/1.1 {status}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
@@ -54,19 +56,24 @@ pub fn serve_project(path: &str, port: Option<u16>) -> Result<(), String> {
     Ok(())
 }
 
-fn route(dir: &Path, manifest: &manifest::WorldManifest, path: &str) -> (&'static str, &'static str, String) {
+fn route(
+    dir: &Path,
+    manifest: &WorldManifest,
+    path: &str,
+) -> (&'static str, &'static str, String) {
     match path {
         "/" => {
             let body = format!(
-                r#"{{"name":"{}","version":"{}","description":"{}","scripts":{}}}"#,
-                manifest.name,
-                manifest.version,
-                manifest.description,
-                serde_json::array(&manifest.scripts),
+                r#"{{"name":"{}","version":"{}","dimension":"{}","description":"{}"}}"#,
+                manifest.name, manifest.version, manifest.dimension, manifest.description,
             );
             ("200 OK", "application/json", body)
         }
-        "/health" => ("200 OK", "application/json", r#"{"status":"ok"}"#.to_string()),
+        "/health" => (
+            "200 OK",
+            "application/json",
+            r#"{"status":"ok"}"#.to_string(),
+        ),
         _ if path.starts_with("/assets/") => {
             let file_path = dir.join(&path[1..]); // strip leading /
             match std::fs::read_to_string(&file_path) {
@@ -78,25 +85,18 @@ fn route(dir: &Path, manifest: &manifest::WorldManifest, path: &str) -> (&'stati
     }
 }
 
-mod serde_json {
-    pub fn array(items: &[String]) -> String {
-        let inner: Vec<String> = items.iter().map(|s| format!(r#""{}""#, s)).collect();
-        format!("[{}]", inner.join(","))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::fs;
     use tempfile::TempDir;
 
-    fn test_manifest() -> manifest::WorldManifest {
-        manifest::WorldManifest {
+    fn test_manifest() -> WorldManifest {
+        WorldManifest {
             name: "test".to_string(),
             version: "0.1.0".to_string(),
+            dimension: "3D".to_string(),
             description: "A test world".to_string(),
-            scripts: vec!["scripts/main.lua".to_string()],
         }
     }
 
@@ -109,6 +109,7 @@ mod tests {
         assert_eq!(ct, "application/json");
         assert!(body.contains(r#""name":"test""#));
         assert!(body.contains(r#""version":"0.1.0""#));
+        assert!(body.contains(r#""dimension":"3D""#));
     }
 
     #[test]
@@ -152,17 +153,5 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let result = serve_project(tmp.path().to_str().unwrap(), Some(0));
         assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_serde_json_array() {
-        let items = vec!["a.lua".to_string(), "b.lua".to_string()];
-        assert_eq!(serde_json::array(&items), r#"["a.lua","b.lua"]"#);
-    }
-
-    #[test]
-    fn test_serde_json_array_empty() {
-        let items: Vec<String> = vec![];
-        assert_eq!(serde_json::array(&items), "[]");
     }
 }

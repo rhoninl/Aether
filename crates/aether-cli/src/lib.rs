@@ -3,7 +3,6 @@ pub mod manifest;
 
 pub const AVAILABLE_EXAMPLES: &[&str] = &[
     "3d-demo",
-    "lua-scripting",
     "vr-emulator",
 ];
 
@@ -11,7 +10,6 @@ pub const AVAILABLE_EXAMPLES: &[&str] = &[
 pub fn example_binary_name(example: &str) -> Option<&'static str> {
     match example {
         "3d-demo" => Some("aether-3d-demo"),
-        "lua-scripting" => Some("aether-lua-demo"),
         "vr-emulator" => Some("aether-vr-emulator-demo"),
         _ => None,
     }
@@ -39,7 +37,6 @@ mod tests {
     #[test]
     fn test_example_binary_names() {
         assert_eq!(example_binary_name("3d-demo"), Some("aether-3d-demo"));
-        assert_eq!(example_binary_name("lua-scripting"), Some("aether-lua-demo"));
         assert_eq!(example_binary_name("vr-emulator"), Some("aether-vr-emulator-demo"));
     }
 
@@ -47,5 +44,14 @@ mod tests {
     fn test_unknown_example_returns_none() {
         assert_eq!(example_binary_name("nonexistent"), None);
         assert_eq!(example_binary_name(""), None);
+    }
+
+    #[test]
+    fn test_lua_scripting_removed() {
+        assert!(
+            !AVAILABLE_EXAMPLES.contains(&"lua-scripting"),
+            "lua-scripting example should be removed"
+        );
+        assert_eq!(example_binary_name("lua-scripting"), None);
     }
 }
