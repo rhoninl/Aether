@@ -176,8 +176,7 @@ impl BundleWriter {
         }
 
         // Read manifest length
-        let manifest_len =
-            u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
+        let manifest_len = u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
 
         if bytes.len() < 12 + manifest_len {
             return Err(BundleWriteError::InvalidBundle(
@@ -428,10 +427,7 @@ mod tests {
             data: vec![2],
         }])
         .unwrap();
-        assert_ne!(
-            bundle1.manifest.content_hash,
-            bundle2.manifest.content_hash
-        );
+        assert_ne!(bundle1.manifest.content_hash, bundle2.manifest.content_hash);
     }
 
     #[test]

@@ -203,8 +203,7 @@ impl PortBuilder {
     }
 
     fn add_out(&mut self, name: impl Into<String>, dt: DataType) {
-        self.outputs
-            .push(Port::new_output(self.next_id, name, dt));
+        self.outputs.push(Port::new_output(self.next_id, name, dt));
         self.next_id += 1;
     }
 
@@ -468,12 +467,10 @@ mod tests {
         assert!(!NodeKind::Branch.is_event());
         assert!(!NodeKind::Add.is_event());
         assert!(!NodeKind::SetPosition.is_event());
-        assert!(
-            !NodeKind::GetVariable {
-                var_name: "x".into()
-            }
-            .is_event()
-        );
+        assert!(!NodeKind::GetVariable {
+            var_name: "x".into()
+        }
+        .is_event());
     }
 
     #[test]

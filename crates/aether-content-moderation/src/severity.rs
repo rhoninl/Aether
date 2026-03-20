@@ -1,4 +1,4 @@
-/// Content severity levels and enforcement action mappings.
+//! Content severity levels and enforcement action mappings.
 
 /// Severity classification for scanned content.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

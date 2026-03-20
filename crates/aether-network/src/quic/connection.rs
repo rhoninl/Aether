@@ -3,8 +3,8 @@ use std::collections::VecDeque;
 use quinn::{Connection, RecvStream, SendStream};
 
 use super::config::{
-    MAX_DATAGRAM_SIZE, MAX_STREAM_CHUNK_SIZE, STREAM_FRAME_HEADER_SIZE,
-    HANDSHAKE_MAGIC, HANDSHAKE_VERSION,
+    HANDSHAKE_MAGIC, HANDSHAKE_VERSION, MAX_DATAGRAM_SIZE, MAX_STREAM_CHUNK_SIZE,
+    STREAM_FRAME_HEADER_SIZE,
 };
 
 /// Errors from QUIC connection operations.
@@ -252,20 +252,23 @@ impl QuicConnection {
             )));
         }
 
-        let status = HandshakeStatus::from_byte(response[5])
-            .ok_or_else(|| ConnectionError::HandshakeFailed(
-                format!("unknown status byte: {}", response[5]),
-            ))?;
+        let status = HandshakeStatus::from_byte(response[5]).ok_or_else(|| {
+            ConnectionError::HandshakeFailed(format!("unknown status byte: {}", response[5]))
+        })?;
 
         match status {
             HandshakeStatus::Ok => {}
             HandshakeStatus::Rejected => {
                 self.state = ConnectionState::Disconnected;
-                return Err(ConnectionError::HandshakeFailed("server rejected".to_string()));
+                return Err(ConnectionError::HandshakeFailed(
+                    "server rejected".to_string(),
+                ));
             }
             HandshakeStatus::VersionMismatch => {
                 self.state = ConnectionState::Disconnected;
-                return Err(ConnectionError::HandshakeFailed("version mismatch".to_string()));
+                return Err(ConnectionError::HandshakeFailed(
+                    "version mismatch".to_string(),
+                ));
             }
         }
 
@@ -426,8 +429,14 @@ mod tests {
     #[test]
     fn handshake_status_from_byte_roundtrips() {
         assert_eq!(HandshakeStatus::from_byte(0), Some(HandshakeStatus::Ok));
-        assert_eq!(HandshakeStatus::from_byte(1), Some(HandshakeStatus::Rejected));
-        assert_eq!(HandshakeStatus::from_byte(2), Some(HandshakeStatus::VersionMismatch));
+        assert_eq!(
+            HandshakeStatus::from_byte(1),
+            Some(HandshakeStatus::Rejected)
+        );
+        assert_eq!(
+            HandshakeStatus::from_byte(2),
+            Some(HandshakeStatus::VersionMismatch)
+        );
         assert_eq!(HandshakeStatus::from_byte(255), None);
     }
 
@@ -444,7 +453,10 @@ mod tests {
 
     #[test]
     fn connection_error_displays() {
-        let err = ConnectionError::MessageTooLarge { size: 2000, max: 1200 };
+        let err = ConnectionError::MessageTooLarge {
+            size: 2000,
+            max: 1200,
+        };
         let msg = format!("{err}");
         assert!(msg.contains("2000"));
         assert!(msg.contains("1200"));

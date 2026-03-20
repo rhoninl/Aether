@@ -50,11 +50,12 @@ impl PhysicsWorld {
         let (contact_force_send, contact_force_recv) = channel::unbounded();
         let event_collector = ChannelEventCollector::new(collision_send, contact_force_send);
 
-        let mut integration_parameters = IntegrationParameters::default();
-        integration_parameters.dt = config.time_step;
-        integration_parameters.num_solver_iterations =
-            std::num::NonZero::new(config.solver_iterations as usize)
-                .unwrap_or(std::num::NonZero::new(4).unwrap());
+        let integration_parameters = IntegrationParameters {
+            dt: config.time_step,
+            num_solver_iterations: std::num::NonZero::new(config.solver_iterations as usize)
+                .unwrap_or(std::num::NonZero::new(4).unwrap()),
+            ..Default::default()
+        };
 
         let gravity = nalgebra::vector![config.gravity[0], config.gravity[1], config.gravity[2]];
 
@@ -116,6 +117,7 @@ impl PhysicsWorld {
     /// Add a collider to the rigid body associated with the given entity.
     ///
     /// Returns the `ColliderHandle` or `None` if the entity has no rigid body.
+    #[allow(clippy::too_many_arguments)]
     pub fn add_collider(
         &mut self,
         entity: Entity,
@@ -265,14 +267,13 @@ impl PhysicsWorld {
                             transform.position[1],
                             transform.position[2]
                         ];
-                        let rotation = nalgebra::UnitQuaternion::from_quaternion(
-                            nalgebra::Quaternion::new(
+                        let rotation =
+                            nalgebra::UnitQuaternion::from_quaternion(nalgebra::Quaternion::new(
                                 transform.rotation[3],
                                 transform.rotation[0],
                                 transform.rotation[1],
                                 transform.rotation[2],
-                            ),
-                        );
+                            ));
                         body.set_next_kinematic_translation(translation);
                         body.set_next_kinematic_rotation(rotation);
                     }
@@ -349,7 +350,11 @@ impl PhysicsWorld {
             Some(RaycastHit {
                 entity,
                 point: [point.x, point.y, point.z],
-                normal: [intersection.normal.x, intersection.normal.y, intersection.normal.z],
+                normal: [
+                    intersection.normal.x,
+                    intersection.normal.y,
+                    intersection.normal.z,
+                ],
                 distance: intersection.time_of_impact,
             })
         })
@@ -417,9 +422,7 @@ impl PhysicsWorld {
         let &handle2 = self.entity_to_body.get(&entity2)?;
 
         let joint = build_rapier_joint(joint_type);
-        let joint_handle = self
-            .impulse_joint_set
-            .insert(handle1, handle2, joint, true);
+        let joint_handle = self.impulse_joint_set.insert(handle1, handle2, joint, true);
         Some(joint_handle)
     }
 
@@ -432,10 +435,7 @@ impl PhysicsWorld {
     pub fn apply_force(&mut self, entity: Entity, force: [f32; 3]) -> bool {
         if let Some(&handle) = self.entity_to_body.get(&entity) {
             if let Some(body) = self.rigid_body_set.get_mut(handle) {
-                body.add_force(
-                    nalgebra::vector![force[0], force[1], force[2]],
-                    true,
-                );
+                body.add_force(nalgebra::vector![force[0], force[1], force[2]], true);
                 return true;
             }
         }
@@ -446,10 +446,7 @@ impl PhysicsWorld {
     pub fn apply_impulse(&mut self, entity: Entity, impulse: [f32; 3]) -> bool {
         if let Some(&handle) = self.entity_to_body.get(&entity) {
             if let Some(body) = self.rigid_body_set.get_mut(handle) {
-                body.apply_impulse(
-                    nalgebra::vector![impulse[0], impulse[1], impulse[2]],
-                    true,
-                );
+                body.apply_impulse(nalgebra::vector![impulse[0], impulse[1], impulse[2]], true);
                 return true;
             }
         }
@@ -539,8 +536,7 @@ fn quat_to_axis_angle(q: [f32; 4]) -> nalgebra::Vector3<f32> {
     let unit_quat = nalgebra::UnitQuaternion::from_quaternion(nalgebra::Quaternion::new(
         q[3], q[0], q[1], q[2],
     ));
-    let axis_angle = unit_quat.scaled_axis();
-    axis_angle
+    unit_quat.scaled_axis()
 }
 
 /// Convert a `ColliderShape` to a Rapier `SharedShape`.
@@ -597,9 +593,8 @@ fn build_rapier_joint(joint_type: &JointType) -> GenericJoint {
             anchor1,
             anchor2,
         } => {
-            let unit_axis = nalgebra::Unit::new_normalize(nalgebra::vector![
-                axis[0], axis[1], axis[2]
-            ]);
+            let unit_axis =
+                nalgebra::Unit::new_normalize(nalgebra::vector![axis[0], axis[1], axis[2]]);
             RevoluteJointBuilder::new(unit_axis)
                 .local_anchor1(nalgebra::point![anchor1[0], anchor1[1], anchor1[2]])
                 .local_anchor2(nalgebra::point![anchor2[0], anchor2[1], anchor2[2]])
@@ -612,9 +607,8 @@ fn build_rapier_joint(joint_type: &JointType) -> GenericJoint {
             anchor2,
             limits,
         } => {
-            let unit_axis = nalgebra::Unit::new_normalize(nalgebra::vector![
-                axis[0], axis[1], axis[2]
-            ]);
+            let unit_axis =
+                nalgebra::Unit::new_normalize(nalgebra::vector![axis[0], axis[1], axis[2]]);
             let mut builder = PrismaticJointBuilder::new(unit_axis)
                 .local_anchor1(nalgebra::point![anchor1[0], anchor1[1], anchor1[2]])
                 .local_anchor2(nalgebra::point![anchor2[0], anchor2[1], anchor2[2]]);

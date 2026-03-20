@@ -35,7 +35,7 @@ impl JointConstraint {
     pub fn human_elbow() -> Self {
         Self {
             min_angle: [0.0, -0.1, -0.1],
-            max_angle: [2.6, 0.1, 0.1],    // ~150 degrees flexion
+            max_angle: [2.6, 0.1, 0.1], // ~150 degrees flexion
             twist_limit: PI * 0.5,
         }
     }
@@ -44,7 +44,7 @@ impl JointConstraint {
     pub fn human_knee() -> Self {
         Self {
             min_angle: [0.0, -0.05, -0.05],
-            max_angle: [2.4, 0.05, 0.05],    // ~140 degrees flexion
+            max_angle: [2.4, 0.05, 0.05], // ~140 degrees flexion
             twist_limit: 0.05,
         }
     }

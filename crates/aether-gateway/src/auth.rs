@@ -18,4 +18,3 @@ pub enum AuthzResult {
     Denied(String),
     Expired,
 }
-

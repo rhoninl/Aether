@@ -199,13 +199,7 @@ mod tests {
     #[test]
     fn zero_distance_pushes_along_fallback() {
         let bubble = make_bubble(true, 1.0);
-        let result = compute_push(
-            &bubble,
-            DEFAULT_PUSH_FORCE,
-            &Vec3::zero(),
-            1,
-            &Vec3::zero(),
-        );
+        let result = compute_push(&bubble, DEFAULT_PUSH_FORCE, &Vec3::zero(), 1, &Vec3::zero());
         let push = result.expect("should push");
         // Should push along +X fallback
         assert!((push.displacement.x - 1.0).abs() < 0.01);
@@ -215,13 +209,7 @@ mod tests {
     #[test]
     fn push_force_scales_displacement() {
         let bubble = make_bubble(true, 1.0);
-        let result = compute_push(
-            &bubble,
-            3.0,
-            &Vec3::zero(),
-            1,
-            &Vec3::new(0.5, 0.0, 0.0),
-        );
+        let result = compute_push(&bubble, 3.0, &Vec3::zero(), 1, &Vec3::new(0.5, 0.0, 0.0));
         let push = result.expect("should push");
         // magnitude = 3.0 * (1.0 - 0.5) / 1.0 = 1.5
         let mag = push.displacement.length();
@@ -243,9 +231,9 @@ mod tests {
     fn compute_pushes_filters_multiple() {
         let bubble = make_bubble(true, 1.0);
         let others = vec![
-            (1, Vec3::new(0.5, 0.0, 0.0)),  // inside
-            (2, Vec3::new(2.0, 0.0, 0.0)),  // outside
-            (3, Vec3::new(0.0, 0.3, 0.0)),  // inside
+            (1, Vec3::new(0.5, 0.0, 0.0)), // inside
+            (2, Vec3::new(2.0, 0.0, 0.0)), // outside
+            (3, Vec3::new(0.0, 0.3, 0.0)), // inside
         ];
         let results = compute_pushes(&bubble, 1.0, &Vec3::zero(), &others);
         assert_eq!(results.len(), 2);

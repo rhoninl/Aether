@@ -160,8 +160,8 @@ impl HotReloadWatcher {
         // Create file watcher
         let watcher_ignore = ignore_patterns.clone();
         let raw_tx_clone = raw_tx.clone();
-        let mut watcher = notify::recommended_watcher(move |res: Result<Event, notify::Error>| {
-            match res {
+        let mut watcher =
+            notify::recommended_watcher(move |res: Result<Event, notify::Error>| match res {
                 Ok(event) => {
                     if let Some(change_kind) = event_kind_to_change_kind(&event.kind) {
                         for path in event.paths {
@@ -174,9 +174,8 @@ impl HotReloadWatcher {
                 Err(e) => {
                     error!(target: "hot_reload", "File watcher error: {}", e);
                 }
-            }
-        })
-        .map_err(|e| format!("Failed to create file watcher: {}", e))?;
+            })
+            .map_err(|e| format!("Failed to create file watcher: {}", e))?;
 
         // Start watching paths
         for watch_path in &config.watch_paths {
@@ -230,12 +229,7 @@ impl HotReloadWatcher {
                         dependents.len()
                     );
 
-                    let event = ReloadEvent::new(
-                        path,
-                        asset_type,
-                        change_kind,
-                        dependents,
-                    );
+                    let event = ReloadEvent::new(path, asset_type, change_kind, dependents);
 
                     if reload_tx.send(event).is_err() {
                         // Receiver dropped, exit thread
@@ -354,11 +348,7 @@ mod tests {
 
     #[test]
     fn ignore_multiple_patterns() {
-        let patterns = vec![
-            "*.tmp".to_string(),
-            "*.swp".to_string(),
-            "*~".to_string(),
-        ];
+        let patterns = vec!["*.tmp".to_string(), "*.swp".to_string(), "*~".to_string()];
         assert!(should_ignore(Path::new("x.tmp"), &patterns));
         assert!(should_ignore(Path::new("x.swp"), &patterns));
         assert!(should_ignore(Path::new("x~"), &patterns));
@@ -430,10 +420,7 @@ mod tests {
         let kind = EventKind::Modify(notify::event::ModifyKind::Data(
             notify::event::DataChange::Any,
         ));
-        assert_eq!(
-            event_kind_to_change_kind(&kind),
-            Some(ChangeKind::Modified)
-        );
+        assert_eq!(event_kind_to_change_kind(&kind), Some(ChangeKind::Modified));
     }
 
     #[test]
@@ -515,7 +502,10 @@ mod tests {
         // Should not receive any event for the .tmp file
         // Wait long enough for debounce to expire
         let event = watcher.recv_timeout(Duration::from_millis(500));
-        assert!(event.is_none(), "Should not receive events for ignored files");
+        assert!(
+            event.is_none(),
+            "Should not receive events for ignored files"
+        );
     }
 
     #[test]

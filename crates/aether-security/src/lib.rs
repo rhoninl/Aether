@@ -21,15 +21,13 @@ pub use action_rate_limiter::{ActionRateConfig, ActionRateLimiter, RateLimitResu
 pub use anti_cheat::{CheatSignal, CheatVerdict, InputPlausibility};
 pub use auth::{AuthError, AuthService, LoginResult, RegisterResult, UserStore};
 pub use encryption::{TlsMode, TransportSecurityPolicy};
-pub use hit_validation::{
-    HitClaim, HitResult, HitValidationConfig, ServerHitState, validate_hit,
-};
+pub use hit_validation::{validate_hit, HitClaim, HitResult, HitValidationConfig, ServerHitState};
 pub use interest_management::{
     FilterReason, InterestConfig, InterestManager, TrackedEntity, Visibility, VisibilityResult,
 };
 pub use jwt::{Claims, JwtConfig, JwtError, JwtProvider, TokenPair};
 pub use movement_validator::{
-    MovementConfig, MovementResult, Vec3, validate_movement, validate_movement_with_acceleration,
+    validate_movement, validate_movement_with_acceleration, MovementConfig, MovementResult, Vec3,
 };
 pub use oauth::{
     DiscordOAuthProvider, GoogleOAuthProvider, OAuthConfig, OAuthProvider, OAuthUserInfo,

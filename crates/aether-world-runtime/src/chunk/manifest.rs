@@ -100,7 +100,11 @@ impl ChunkManifest {
     pub fn new(world_id: String, chunk_size: f32) -> Self {
         Self {
             world_id,
-            chunk_size: if chunk_size <= 0.0 { super::coord::DEFAULT_CHUNK_SIZE } else { chunk_size },
+            chunk_size: if chunk_size <= 0.0 {
+                super::coord::DEFAULT_CHUNK_SIZE
+            } else {
+                chunk_size
+            },
             chunks: Vec::new(),
             portals: Vec::new(),
             stitches: Vec::new(),
@@ -175,9 +179,7 @@ impl ChunkManifest {
             if !chunk.size_per_lod.is_empty()
                 && chunk.size_per_lod.len() != chunk.available_lods.len()
             {
-                return Err(ChunkManifestError::LodSizeMismatch {
-                    chunk_id: chunk.id,
-                });
+                return Err(ChunkManifestError::LodSizeMismatch { chunk_id: chunk.id });
             }
         }
 
@@ -405,7 +407,9 @@ mod tests {
         });
         assert_eq!(
             manifest.validate(),
-            Err(ChunkManifestError::PortalReferencesUnknownChunk(ChunkId(999)))
+            Err(ChunkManifestError::PortalReferencesUnknownChunk(ChunkId(
+                999
+            )))
         );
     }
 
@@ -420,7 +424,9 @@ mod tests {
         });
         assert_eq!(
             manifest.validate(),
-            Err(ChunkManifestError::PortalReferencesUnknownChunk(ChunkId(999)))
+            Err(ChunkManifestError::PortalReferencesUnknownChunk(ChunkId(
+                999
+            )))
         );
     }
 
@@ -436,7 +442,9 @@ mod tests {
         });
         assert_eq!(
             manifest.validate(),
-            Err(ChunkManifestError::StitchReferencesUnknownChunk(ChunkId(999)))
+            Err(ChunkManifestError::StitchReferencesUnknownChunk(ChunkId(
+                999
+            )))
         );
     }
 

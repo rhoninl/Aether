@@ -44,9 +44,7 @@ impl RoutingTable {
     /// Add a new portal route. Returns error if portal_id already exists or fields are invalid.
     pub fn add_route(&mut self, route: PortalRoute) -> Result<(), RoutingError> {
         if route.portal_id.is_empty() {
-            return Err(RoutingError::InvalidRoute(
-                "portal_id is empty".to_string(),
-            ));
+            return Err(RoutingError::InvalidRoute("portal_id is empty".to_string()));
         }
         if route.source_server.is_empty() || route.destination_server.is_empty() {
             return Err(RoutingError::InvalidRoute(
@@ -94,11 +92,7 @@ impl RoutingTable {
     }
 
     /// Set a route's active status. Returns error if not found.
-    pub fn set_active(
-        &mut self,
-        portal_id: &str,
-        active: bool,
-    ) -> Result<(), RoutingError> {
+    pub fn set_active(&mut self, portal_id: &str, active: bool) -> Result<(), RoutingError> {
         let route = self
             .routes
             .get_mut(portal_id)
@@ -117,9 +111,7 @@ impl RoutingTable {
             .get(portal_id)
             .ok_or(RoutingError::RouteNotFound)?;
         if !route.active {
-            return Err(RoutingError::InvalidRoute(
-                "route is inactive".to_string(),
-            ));
+            return Err(RoutingError::InvalidRoute("route is inactive".to_string()));
         }
         Ok(ResolvedDestination {
             portal_id: route.portal_id.clone(),

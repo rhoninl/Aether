@@ -27,7 +27,15 @@ pub struct QuantizedFrame {
 }
 
 impl QuantizedFrame {
-    pub fn from_floats(entity_id: u64, x: f32, y: f32, z: f32, pitch: f32, yaw: f32, roll: f32) -> Self {
+    pub fn from_floats(
+        entity_id: u64,
+        x: f32,
+        y: f32,
+        z: f32,
+        pitch: f32,
+        yaw: f32,
+        roll: f32,
+    ) -> Self {
         let cfg = Quantization::default();
         Self {
             entity_id,

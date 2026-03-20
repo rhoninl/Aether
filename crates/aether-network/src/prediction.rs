@@ -21,13 +21,19 @@ pub struct ClientPrediction {
     pub last_authoritative_tick: u64,
 }
 
-impl ClientPrediction {
-    pub fn new() -> Self {
+impl Default for ClientPrediction {
+    fn default() -> Self {
         Self {
             pending_inputs: Vec::new(),
             max_reconcile_ms: 150,
             last_authoritative_tick: 0,
         }
+    }
+}
+
+impl ClientPrediction {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn queue_input(&mut self, input: InputSample) {
@@ -40,7 +46,8 @@ impl ClientPrediction {
             return Reconciliation::Rejected;
         }
         self.last_authoritative_tick = snapshot.tick;
-        self.pending_inputs.retain(|s| s.client_tick > snapshot.tick);
+        self.pending_inputs
+            .retain(|s| s.client_tick > snapshot.tick);
         Reconciliation::Accepted
     }
 }

@@ -24,4 +24,3 @@ pub struct CheatVerdict {
     pub reason: String,
     pub block_seconds: u64,
 }
-

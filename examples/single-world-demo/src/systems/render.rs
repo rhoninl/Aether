@@ -1,8 +1,6 @@
 //! Render system: queries entities with Renderable + Transform and submits
 //! draw commands to the GpuRenderer.
 
-use aether_renderer::gpu::material::MaterialId;
-use aether_renderer::gpu::mesh::MeshId;
 use aether_renderer::gpu::pass::{CameraUniforms, DrawCommand, ModelUniforms};
 use aether_renderer::gpu::shadow::LightUniforms;
 use aether_renderer::gpu::GpuRenderer;
@@ -103,6 +101,8 @@ pub fn build_light_uniforms() -> LightUniforms {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aether_renderer::gpu::material::MaterialId;
+    use aether_renderer::gpu::mesh::MeshId;
 
     #[test]
     fn mat4_to_columns_identity() {

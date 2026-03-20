@@ -66,10 +66,7 @@ impl FabrikSolver {
         target: [f32; 3],
         constraints: Option<&ConstraintSet>,
     ) -> FabrikResult {
-        assert!(
-            positions.len() >= 2,
-            "FABRIK requires at least 2 joints"
-        );
+        assert!(positions.len() >= 2, "FABRIK requires at least 2 joints");
         assert_eq!(
             bone_lengths.len(),
             positions.len() - 1,
@@ -189,7 +186,7 @@ fn direction_to_euler(parent_dir: [f32; 3], child_dir: [f32; 3]) -> [f32; 3] {
     let dot = (parent_dir[0] * child_dir[0]
         + parent_dir[1] * child_dir[1]
         + parent_dir[2] * child_dir[2])
-    .clamp(-1.0, 1.0);
+        .clamp(-1.0, 1.0);
     let angle = dot.acos();
 
     // Project to approximate Euler components
@@ -315,8 +312,7 @@ mod tests {
         let result = solver.solve(&positions, &lengths, target, None);
 
         for i in 0..lengths.len() {
-            let actual_len =
-                vec3_distance(result.positions[i], result.positions[i + 1]);
+            let actual_len = vec3_distance(result.positions[i], result.positions[i + 1]);
             assert!(
                 (actual_len - lengths[i]).abs() < EPSILON,
                 "bone {} length should be {}, got {}",
@@ -351,8 +347,7 @@ mod tests {
 
         // Verify bone lengths
         for i in 0..lengths.len() {
-            let actual_len =
-                vec3_distance(result.positions[i], result.positions[i + 1]);
+            let actual_len = vec3_distance(result.positions[i], result.positions[i + 1]);
             assert!(
                 (actual_len - lengths[i]).abs() < EPSILON,
                 "bone {} length mismatch",
@@ -381,10 +376,7 @@ mod tests {
             tolerance: 0.01,
         });
         let mut constraints = ConstraintSet::new();
-        constraints.add(
-            1,
-            crate::constraints::JointConstraint::symmetric(0.5, 0.5),
-        );
+        constraints.add(1, crate::constraints::JointConstraint::symmetric(0.5, 0.5));
         let target = [0.0, 2.0, 0.0];
         let result = solver.solve(&positions, &lengths, target, Some(&constraints));
 
@@ -400,8 +392,7 @@ mod tests {
         let solver = FabrikSolver::default();
         let root_target = [0.0, 0.0, 0.0];
         let end_target = [2.0, 1.5, 0.0];
-        let result =
-            solver.solve_two_target(&positions, &lengths, root_target, end_target, None);
+        let result = solver.solve_two_target(&positions, &lengths, root_target, end_target, None);
 
         assert!((result.positions[0][0]).abs() < EPSILON);
         assert!((result.positions[0][1]).abs() < EPSILON);

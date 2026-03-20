@@ -125,7 +125,10 @@ impl PresenceTracker {
         user_id: u64,
         visibility: PresenceVisibility,
     ) -> SocialResult<()> {
-        let state = self.states.get_mut(&user_id).ok_or(SocialError::UserNotFound)?;
+        let state = self
+            .states
+            .get_mut(&user_id)
+            .ok_or(SocialError::UserNotFound)?;
         self.current_ts_ms += 1;
         state.visibility = visibility;
         state.updated_ms = self.current_ts_ms;

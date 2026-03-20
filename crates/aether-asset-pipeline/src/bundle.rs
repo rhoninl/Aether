@@ -25,4 +25,3 @@ pub enum BundleFormat {
     AEenv,
     Legacy,
 }
-

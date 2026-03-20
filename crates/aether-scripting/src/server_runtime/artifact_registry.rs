@@ -59,7 +59,10 @@ impl std::fmt::Display for RegistryError {
                 hex::encode(actual),
             ),
             Self::NotFound { script_id, version } => {
-                write!(f, "artifact not found: script={script_id} version={version}")
+                write!(
+                    f,
+                    "artifact not found: script={script_id} version={version}"
+                )
             }
             Self::VersionConflict { script_id, version } => {
                 write!(
@@ -229,11 +232,7 @@ impl ArtifactRegistry {
     /// Retrieves the native artifact bytes for a script at a specific version.
     ///
     /// Verifies the artifact hash before returning.
-    pub fn get_artifact_bytes(
-        &self,
-        script_id: u64,
-        version: u32,
-    ) -> Result<&[u8], RegistryError> {
+    pub fn get_artifact_bytes(&self, script_id: u64, version: u32) -> Result<&[u8], RegistryError> {
         let entry = self
             .scripts
             .get(&script_id)

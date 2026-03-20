@@ -98,11 +98,7 @@ impl TopologyConfig {
 
         // Zone spread: preferredDuringSchedulingIgnoredDuringExecution
         if self.spread_across_zones {
-            let term = self.build_preferred_anti_affinity_term(
-                app_name,
-                ZONE_TOPOLOGY_KEY,
-                100,
-            );
+            let term = self.build_preferred_anti_affinity_term(app_name, ZONE_TOPOLOGY_KEY, 100);
             pod_anti_affinity.insert(
                 Value::String("preferredDuringSchedulingIgnoredDuringExecution".to_string()),
                 Value::Sequence(vec![term]),
@@ -111,10 +107,7 @@ impl TopologyConfig {
 
         // Node anti-affinity: requiredDuringSchedulingIgnoredDuringExecution
         if self.anti_affinity_per_node {
-            let term = self.build_required_anti_affinity_term(
-                app_name,
-                HOSTNAME_TOPOLOGY_KEY,
-            );
+            let term = self.build_required_anti_affinity_term(app_name, HOSTNAME_TOPOLOGY_KEY);
             pod_anti_affinity.insert(
                 Value::String("requiredDuringSchedulingIgnoredDuringExecution".to_string()),
                 Value::Sequence(vec![term]),
@@ -131,11 +124,7 @@ impl TopologyConfig {
         // Co-location preference
         if let Some(label) = &self.preferred_colocate_label {
             let mut pod_affinity = serde_yaml::Mapping::new();
-            let term = self.build_preferred_affinity_term(
-                label,
-                ZONE_TOPOLOGY_KEY,
-                50,
-            );
+            let term = self.build_preferred_affinity_term(label, ZONE_TOPOLOGY_KEY, 50);
             pod_affinity.insert(
                 Value::String("preferredDuringSchedulingIgnoredDuringExecution".to_string()),
                 Value::Sequence(vec![term]),
@@ -304,8 +293,7 @@ mod tests {
         };
         let rules = cfg.affinity_rules("world-server");
         assert!(rules.iter().any(|r| {
-            r.rule_type == AffinityRuleType::PreferredAffinity
-                && r.label_selector.contains("cache")
+            r.rule_type == AffinityRuleType::PreferredAffinity && r.label_selector.contains("cache")
         }));
     }
 

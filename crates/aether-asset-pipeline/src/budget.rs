@@ -168,7 +168,7 @@ mod tests {
             polygon_count: 10_000,
             material_count: 5,
             texture_memory_bytes: 1024 * 1024, // 1 MB
-            total_size_bytes: 2 * 1024 * 1024,  // 2 MB
+            total_size_bytes: 2 * 1024 * 1024, // 2 MB
         }
     }
 

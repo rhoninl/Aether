@@ -37,17 +37,12 @@ pub enum Collider2D {
 }
 
 /// 2D rigid body type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum BodyType2D {
+    #[default]
     Static,
     Dynamic,
     Kinematic,
-}
-
-impl Default for BodyType2D {
-    fn default() -> Self {
-        BodyType2D::Static
-    }
 }
 
 /// 2D rigid body configuration.
@@ -64,16 +59,11 @@ pub struct RigidBody2D {
 // ---------------------------------------------------------------------------
 
 /// Falloff model for 2D point lights.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum Falloff2D {
+    #[default]
     Linear,
     Quadratic,
-}
-
-impl Default for Falloff2D {
-    fn default() -> Self {
-        Falloff2D::Linear
-    }
 }
 
 /// 2D light types.
@@ -264,7 +254,11 @@ mod tests {
 
     #[test]
     fn test_body_type2d_round_trip() {
-        for bt in [BodyType2D::Static, BodyType2D::Dynamic, BodyType2D::Kinematic] {
+        for bt in [
+            BodyType2D::Static,
+            BodyType2D::Dynamic,
+            BodyType2D::Kinematic,
+        ] {
             let json = serde_json::to_string(&bt).unwrap();
             let back: BodyType2D = serde_json::from_str(&json).unwrap();
             assert_eq!(bt, back);

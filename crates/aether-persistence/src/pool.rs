@@ -51,8 +51,7 @@ impl ConnectionConfig {
             std::env::var(ENV_DATABASE_URL).unwrap_or_else(|_| DEFAULT_DATABASE_URL.to_string());
         let redis_url =
             std::env::var(ENV_REDIS_URL).unwrap_or_else(|_| DEFAULT_REDIS_URL.to_string());
-        let nats_url =
-            std::env::var(ENV_NATS_URL).unwrap_or_else(|_| DEFAULT_NATS_URL.to_string());
+        let nats_url = std::env::var(ENV_NATS_URL).unwrap_or_else(|_| DEFAULT_NATS_URL.to_string());
         let pool_size = std::env::var(ENV_DB_POOL_SIZE)
             .ok()
             .and_then(|v| v.parse::<u32>().ok())
@@ -112,7 +111,10 @@ mod tests {
         assert_eq!(cfg.redis_url, DEFAULT_REDIS_URL);
         assert_eq!(cfg.nats_url, DEFAULT_NATS_URL);
         assert_eq!(cfg.pool_size, DEFAULT_POOL_SIZE);
-        assert_eq!(cfg.connect_timeout, Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS));
+        assert_eq!(
+            cfg.connect_timeout,
+            Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS)
+        );
     }
 
     #[test]
@@ -159,7 +161,10 @@ mod tests {
     fn connect_timeout_ignores_non_numeric_env() {
         std::env::set_var(ENV_DB_CONNECT_TIMEOUT_SECS, "abc");
         let cfg = ConnectionConfig::from_env();
-        assert_eq!(cfg.connect_timeout, Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS));
+        assert_eq!(
+            cfg.connect_timeout,
+            Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS)
+        );
         std::env::remove_var(ENV_DB_CONNECT_TIMEOUT_SECS);
     }
 

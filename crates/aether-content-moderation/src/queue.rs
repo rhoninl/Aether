@@ -1,5 +1,4 @@
 /// Human review queue with priority ordering and approve/reject workflow.
-
 use crate::severity::ContentSeverity;
 use uuid::Uuid;
 
@@ -293,10 +292,7 @@ mod tests {
     #[test]
     fn test_claim_next_empty_queue() {
         let mut queue = ReviewQueue::new();
-        assert_eq!(
-            queue.claim_next("mod-1", 2000),
-            Err(QueueError::EmptyQueue)
-        );
+        assert_eq!(queue.claim_next("mod-1", 2000), Err(QueueError::EmptyQueue));
     }
 
     #[test]
@@ -349,10 +345,7 @@ mod tests {
         assert_eq!(third, low_id);
 
         // Queue empty
-        assert_eq!(
-            queue.claim_next("mod-4", 7000),
-            Err(QueueError::EmptyQueue)
-        );
+        assert_eq!(queue.claim_next("mod-4", 7000), Err(QueueError::EmptyQueue));
     }
 
     #[test]

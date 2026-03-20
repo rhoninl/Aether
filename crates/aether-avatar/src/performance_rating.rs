@@ -411,34 +411,52 @@ mod tests {
     fn test_budget_for_tier() {
         let table = default_table();
         assert_eq!(
-            table.budget_for_tier(&AvatarRatingBucket::TierS).max_polygons,
+            table
+                .budget_for_tier(&AvatarRatingBucket::TierS)
+                .max_polygons,
             TIER_S_MAX_POLYGONS
         );
         assert_eq!(
-            table.budget_for_tier(&AvatarRatingBucket::TierA).max_polygons,
+            table
+                .budget_for_tier(&AvatarRatingBucket::TierA)
+                .max_polygons,
             TIER_A_MAX_POLYGONS
         );
         assert_eq!(
-            table.budget_for_tier(&AvatarRatingBucket::TierB).max_polygons,
+            table
+                .budget_for_tier(&AvatarRatingBucket::TierB)
+                .max_polygons,
             TIER_B_MAX_POLYGONS
         );
         assert_eq!(
-            table.budget_for_tier(&AvatarRatingBucket::TierC).max_polygons,
+            table
+                .budget_for_tier(&AvatarRatingBucket::TierC)
+                .max_polygons,
             TIER_C_MAX_POLYGONS
         );
     }
 
     #[test]
     fn test_tier_ordinal_ordering() {
-        assert!(tier_ordinal(&AvatarRatingBucket::TierS) < tier_ordinal(&AvatarRatingBucket::TierA));
-        assert!(tier_ordinal(&AvatarRatingBucket::TierA) < tier_ordinal(&AvatarRatingBucket::TierB));
-        assert!(tier_ordinal(&AvatarRatingBucket::TierB) < tier_ordinal(&AvatarRatingBucket::TierC));
+        assert!(
+            tier_ordinal(&AvatarRatingBucket::TierS) < tier_ordinal(&AvatarRatingBucket::TierA)
+        );
+        assert!(
+            tier_ordinal(&AvatarRatingBucket::TierA) < tier_ordinal(&AvatarRatingBucket::TierB)
+        );
+        assert!(
+            tier_ordinal(&AvatarRatingBucket::TierB) < tier_ordinal(&AvatarRatingBucket::TierC)
+        );
     }
 
     #[test]
     fn test_classify_boundary_single_constraint_over() {
         // Polygons at S limit, but materials just over S limit
-        let stats = make_stats(TIER_S_MAX_POLYGONS, TIER_S_MAX_MATERIALS + 1, TIER_S_MAX_BONES);
+        let stats = make_stats(
+            TIER_S_MAX_POLYGONS,
+            TIER_S_MAX_MATERIALS + 1,
+            TIER_S_MAX_BONES,
+        );
         let tier = classify_avatar(&stats, &default_table());
         assert!(matches!(tier, AvatarRatingBucket::TierA));
     }

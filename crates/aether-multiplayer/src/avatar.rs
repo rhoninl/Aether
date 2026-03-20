@@ -66,11 +66,7 @@ impl AvatarState {
     }
 
     /// Convert avatar state to an EntityState for use with StateSyncManager.
-    pub fn to_entity_state(
-        &self,
-        entity_id: u64,
-        tick: u64,
-    ) -> aether_world_runtime::EntityState {
+    pub fn to_entity_state(&self, entity_id: u64, tick: u64) -> aether_world_runtime::EntityState {
         aether_world_runtime::EntityState {
             entity_id,
             position: self.head_position,
@@ -172,7 +168,12 @@ mod tests {
         avatar.head_rotation = [0.0, 0.0, 0.0, 2.0]; // not unit length
         let clamped = avatar.validate_and_clamp();
         assert!(clamped);
-        let len = avatar.head_rotation.iter().map(|x| x * x).sum::<f32>().sqrt();
+        let len = avatar
+            .head_rotation
+            .iter()
+            .map(|x| x * x)
+            .sum::<f32>()
+            .sqrt();
         assert!((len - 1.0).abs() < 0.01);
     }
 

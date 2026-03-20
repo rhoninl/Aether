@@ -148,10 +148,11 @@ fn create_light_uniforms() -> LightUniforms {
     let dz: f32 = -0.3;
     let len = (dx * dx + dy * dy + dz * dz).sqrt();
 
-    let mut light = LightUniforms::default();
-    light.direction = [dx / len, dy / len, dz / len, 0.0];
-    light.color = [1.0, 0.95, 0.9, 1.5]; // warm sunlight, w = intensity
-    light
+    LightUniforms {
+        direction: [dx / len, dy / len, dz / len, 0.0],
+        color: [1.0, 0.95, 0.9, 1.5], // warm sunlight, w = intensity
+        ..Default::default()
+    }
 }
 
 /// Update model transforms for all scene objects.
@@ -274,11 +275,13 @@ mod tests {
     #[test]
     fn light_uniforms_direction_normalized() {
         let light = create_light_uniforms();
-        let len = (light.direction[0].powi(2)
-            + light.direction[1].powi(2)
-            + light.direction[2].powi(2))
-        .sqrt();
-        assert!((len - 1.0).abs() < 1e-4, "light direction not normalized: len={len}");
+        let len =
+            (light.direction[0].powi(2) + light.direction[1].powi(2) + light.direction[2].powi(2))
+                .sqrt();
+        assert!(
+            (len - 1.0).abs() < 1e-4,
+            "light direction not normalized: len={len}"
+        );
     }
 
     #[test]

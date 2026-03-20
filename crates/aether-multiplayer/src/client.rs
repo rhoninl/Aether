@@ -47,21 +47,12 @@ impl std::fmt::Display for ClientError {
 impl std::error::Error for ClientError {}
 
 /// State received from the server, maintained locally.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct RemoteWorldState {
     /// The most recently received server tick.
     pub last_tick: u64,
     /// Current avatar states of all players in the world.
     pub avatars: HashMap<PlayerId, AvatarState>,
-}
-
-impl Default for RemoteWorldState {
-    fn default() -> Self {
-        Self {
-            last_tick: 0,
-            avatars: HashMap::new(),
-        }
-    }
 }
 
 /// Multiplayer client that connects to a server and syncs state.
@@ -116,8 +107,7 @@ impl MultiplayerClient {
             tick: self.local_tick,
             avatar,
         };
-        let data =
-            encode_client_message(&msg).map_err(|e| ClientError::Encoding(e.to_string()))?;
+        let data = encode_client_message(&msg).map_err(|e| ClientError::Encoding(e.to_string()))?;
 
         self.quic
             .send_datagram(&data)
@@ -138,8 +128,7 @@ impl MultiplayerClient {
         let msg = ClientMessage::Ping {
             client_time_ms: now_ms,
         };
-        let data =
-            encode_client_message(&msg).map_err(|e| ClientError::Encoding(e.to_string()))?;
+        let data = encode_client_message(&msg).map_err(|e| ClientError::Encoding(e.to_string()))?;
 
         self.quic
             .send_reliable(&data)
@@ -185,8 +174,7 @@ impl MultiplayerClient {
             .await
             .map_err(|e| ClientError::Recv(e.to_string()))?;
 
-        let msg =
-            decode_server_message(&data).map_err(|e| ClientError::Encoding(e.to_string()))?;
+        let msg = decode_server_message(&data).map_err(|e| ClientError::Encoding(e.to_string()))?;
 
         // Update local state
         self.apply_server_message(&msg).await;

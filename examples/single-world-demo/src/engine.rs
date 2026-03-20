@@ -52,8 +52,8 @@ impl EngineConfig {
     pub fn from_env() -> Self {
         let window_width = env_var_or("AETHER_WINDOW_WIDTH", DEFAULT_WINDOW_WIDTH);
         let window_height = env_var_or("AETHER_WINDOW_HEIGHT", DEFAULT_WINDOW_HEIGHT);
-        let server_addr = std::env::var("AETHER_SERVER_ADDR")
-            .unwrap_or_else(|_| DEFAULT_SERVER_ADDR.to_string());
+        let server_addr =
+            std::env::var("AETHER_SERVER_ADDR").unwrap_or_else(|_| DEFAULT_SERVER_ADDR.to_string());
         let offline_mode = std::env::var("AETHER_OFFLINE")
             .map(|v| v == "true" || v == "1")
             .unwrap_or(true);
@@ -186,11 +186,7 @@ pub fn generate_cube_vertices(size: f32) -> (Vec<Vertex>, Vec<u32>) {
 ///
 /// `radius` scales the sphere. `stacks` and `sectors` control tessellation
 /// (clamped to minimums of 2 and 3 respectively).
-pub fn generate_sphere_vertices(
-    radius: f32,
-    stacks: u32,
-    sectors: u32,
-) -> (Vec<Vertex>, Vec<u32>) {
+pub fn generate_sphere_vertices(radius: f32, stacks: u32, sectors: u32) -> (Vec<Vertex>, Vec<u32>) {
     let stacks = stacks.max(2);
     let sectors = sectors.max(3);
 
@@ -331,10 +327,7 @@ mod tests {
 
     #[test]
     fn env_var_or_returns_default_for_string() {
-        let val: String = env_var_or(
-            "AETHER_TEST_NONEXISTENT_STR_12345",
-            "fallback".to_string(),
-        );
+        let val: String = env_var_or("AETHER_TEST_NONEXISTENT_STR_12345", "fallback".to_string());
         assert_eq!(val, "fallback");
     }
 

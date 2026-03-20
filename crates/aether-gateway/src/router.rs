@@ -142,10 +142,7 @@ fn split_path(path: &str) -> Vec<&str> {
 /// Try to match `pattern` segments against `request` segments.
 ///
 /// Returns extracted parameters on success.
-fn match_segments<'a>(
-    pattern: &[&str],
-    request: &[&'a str],
-) -> Option<HashMap<String, String>> {
+fn match_segments(pattern: &[&str], request: &[&str]) -> Option<HashMap<String, String>> {
     let mut params = HashMap::new();
     let mut p_idx = 0;
 
@@ -283,10 +280,7 @@ mod tests {
             .match_request(HttpMethod::Post, "/api/v1/ugc/uploads/images/avatar.png")
             .expect("should match ugc wildcard");
         assert_eq!(m.service, ServiceTarget::UgcService);
-        assert_eq!(
-            m.params.get("*").unwrap(),
-            "uploads/images/avatar.png"
-        );
+        assert_eq!(m.params.get("*").unwrap(), "uploads/images/avatar.png");
     }
 
     #[test]

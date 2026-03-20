@@ -315,10 +315,7 @@ mod tests {
     #[test]
     fn test_raw_tier_culled() {
         let config = AvatarLodConfig::default();
-        assert_eq!(
-            raw_tier_for_distance(&config, 500.1),
-            AvatarLodTier::Culled
-        );
+        assert_eq!(raw_tier_for_distance(&config, 500.1), AvatarLodTier::Culled);
         assert_eq!(
             raw_tier_for_distance(&config, 1000.0),
             AvatarLodTier::Culled

@@ -162,10 +162,7 @@ impl SessionManager {
 
     /// Check if the session is in a state where rendering should occur.
     pub fn should_render(&self) -> bool {
-        matches!(
-            self.state,
-            SessionState::Visible | SessionState::Focused
-        )
+        matches!(self.state, SessionState::Visible | SessionState::Focused)
     }
 
     /// Check if the session has input focus.
@@ -180,10 +177,7 @@ impl SessionManager {
 
     /// Check if the session is running (not idle or terminal).
     pub fn is_running(&self) -> bool {
-        !matches!(
-            self.state,
-            SessionState::Idle | SessionState::Exiting
-        )
+        !matches!(self.state, SessionState::Idle | SessionState::Exiting)
     }
 
     /// Request to begin the session (Idle -> Ready).
@@ -233,9 +227,7 @@ impl SessionManager {
     /// Request to end the session (Synchronized|Visible|Focused -> Stopping).
     pub fn request_end(&mut self) -> Result<SessionState, SessionTransitionError> {
         match self.state {
-            SessionState::Synchronized
-            | SessionState::Visible
-            | SessionState::Focused => {
+            SessionState::Synchronized | SessionState::Visible | SessionState::Focused => {
                 self.state = SessionState::Stopping;
                 Ok(self.state)
             }
@@ -311,10 +303,7 @@ impl SessionManager {
     }
 
     /// Validate and execute a state transition.
-    fn transition(
-        &mut self,
-        target: SessionState,
-    ) -> Result<SessionState, SessionTransitionError> {
+    fn transition(&mut self, target: SessionState) -> Result<SessionState, SessionTransitionError> {
         if self.state == SessionState::Exiting {
             return Err(SessionTransitionError::SessionTerminated);
         }
@@ -774,20 +763,14 @@ mod tests {
     #[test]
     fn default_reference_space_is_local() {
         let mgr = make_manager();
-        assert_eq!(
-            mgr.reference_space().space_type,
-            ReferenceSpaceType::Local
-        );
+        assert_eq!(mgr.reference_space().space_type, ReferenceSpaceType::Local);
     }
 
     #[test]
     fn set_reference_space_changes_type() {
         let mut mgr = make_manager();
         mgr.set_reference_space(ReferenceSpaceType::Stage).unwrap();
-        assert_eq!(
-            mgr.reference_space().space_type,
-            ReferenceSpaceType::Stage
-        );
+        assert_eq!(mgr.reference_space().space_type, ReferenceSpaceType::Stage);
     }
 
     #[test]
@@ -852,10 +835,7 @@ mod tests {
         };
         let mgr = SessionManager::new(config);
         assert_eq!(mgr.config().application_name, "TestApp");
-        assert_eq!(
-            mgr.config().reference_space,
-            ReferenceSpaceType::Stage
-        );
+        assert_eq!(mgr.config().reference_space, ReferenceSpaceType::Stage);
         assert!(mgr.config().enable_hand_tracking);
         assert!(!mgr.config().enable_haptics);
     }

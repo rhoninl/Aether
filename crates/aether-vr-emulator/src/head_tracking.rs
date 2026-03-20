@@ -100,6 +100,7 @@ impl EmulatedHeadTracker {
     /// - `forward` / `backward`: move along the facing direction
     /// - `left` / `right`: strafe perpendicular to facing
     /// - `up` / `down`: move vertically
+    #[allow(clippy::too_many_arguments)]
     pub fn apply_movement(
         &mut self,
         forward: bool,
@@ -418,7 +419,10 @@ mod tests {
         };
 
         // Diagonal should be same speed as cardinal
-        assert!(approx_eq(dist1, dist2), "cardinal={dist1}, diagonal={dist2}");
+        assert!(
+            approx_eq(dist1, dist2),
+            "cardinal={dist1}, diagonal={dist2}"
+        );
     }
 
     #[test]
@@ -564,7 +568,10 @@ mod tests {
         tracker.set_rotation(1.234, 0.567);
         let pose = tracker.to_pose();
         let len_sq = quaternion_length_sq(pose.rotation);
-        assert!(approx_eq(len_sq, 1.0), "quaternion length squared = {len_sq}");
+        assert!(
+            approx_eq(len_sq, 1.0),
+            "quaternion length squared = {len_sq}"
+        );
     }
 
     #[test]

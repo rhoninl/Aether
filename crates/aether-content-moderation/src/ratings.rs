@@ -1,5 +1,4 @@
 /// Content rating categories and decisions for age-appropriate classification.
-
 use crate::severity::ContentSeverity;
 
 /// Content rating categories for age-appropriate access control.
@@ -57,27 +56,42 @@ mod tests {
 
     #[test]
     fn test_suggested_rating_clean() {
-        assert_eq!(suggested_rating(ContentSeverity::Clean), RatingCategory::General);
+        assert_eq!(
+            suggested_rating(ContentSeverity::Clean),
+            RatingCategory::General
+        );
     }
 
     #[test]
     fn test_suggested_rating_low() {
-        assert_eq!(suggested_rating(ContentSeverity::Low), RatingCategory::Teens);
+        assert_eq!(
+            suggested_rating(ContentSeverity::Low),
+            RatingCategory::Teens
+        );
     }
 
     #[test]
     fn test_suggested_rating_medium() {
-        assert_eq!(suggested_rating(ContentSeverity::Medium), RatingCategory::Mature);
+        assert_eq!(
+            suggested_rating(ContentSeverity::Medium),
+            RatingCategory::Mature
+        );
     }
 
     #[test]
     fn test_suggested_rating_high() {
-        assert_eq!(suggested_rating(ContentSeverity::High), RatingCategory::Adult);
+        assert_eq!(
+            suggested_rating(ContentSeverity::High),
+            RatingCategory::Adult
+        );
     }
 
     #[test]
     fn test_suggested_rating_critical() {
-        assert_eq!(suggested_rating(ContentSeverity::Critical), RatingCategory::Adult);
+        assert_eq!(
+            suggested_rating(ContentSeverity::Critical),
+            RatingCategory::Adult
+        );
     }
 
     #[test]

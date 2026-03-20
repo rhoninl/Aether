@@ -310,7 +310,7 @@ mod tests {
     fn rate_limit_refills_over_time() {
         let mut limiter = RateLimiter::new();
         let rule = default_rule(); // 10 req/s = 1 token per 100ms
-        // Exhaust all tokens at t=1000.
+                                   // Exhaust all tokens at t=1000.
         for _ in 0..5 {
             limiter.check(1, "route_a", &rule, 1000);
         }

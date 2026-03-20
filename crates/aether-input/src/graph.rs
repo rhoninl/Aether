@@ -98,12 +98,7 @@ impl GestureDetector {
     }
 
     /// Register a binding for gesture tracking.
-    pub fn register(
-        &mut self,
-        action_name: &str,
-        source: InputSource,
-        gesture: &InputGesture,
-    ) {
+    pub fn register(&mut self, action_name: &str, source: InputSource, gesture: &InputGesture) {
         let tracker = match gesture {
             InputGesture::Press => GestureTracker::Press { pressed: false },
             InputGesture::Release => GestureTracker::Release { was_pressed: false },
@@ -130,12 +125,7 @@ impl GestureDetector {
     }
 
     /// Process a raw input event (source pressed/released) and return any triggered actions.
-    pub fn update(
-        &mut self,
-        source: &InputSource,
-        pressed: bool,
-        now_ms: u64,
-    ) -> Vec<ActionEvent> {
+    pub fn update(&mut self, source: &InputSource, pressed: bool, now_ms: u64) -> Vec<ActionEvent> {
         self.source_state.insert(source.clone(), pressed);
         let mut events = Vec::new();
 
@@ -200,35 +190,31 @@ impl GestureDetector {
                 GestureTracker::DoubleTap {
                     max_interval_ms,
                     state,
-                } => {
-                    match state {
-                        DoubleTapState::Idle => {
-                            if pressed {
-                                *state = DoubleTapState::FirstPressed { _start_ms: now_ms };
-                            }
-                        }
-                        DoubleTapState::FirstPressed { .. } => {
-                            if !pressed {
-                                *state = DoubleTapState::WaitingSecond {
-                                    release_ms: now_ms,
-                                };
-                            }
-                        }
-                        DoubleTapState::WaitingSecond { release_ms } => {
-                            if pressed {
-                                if now_ms - *release_ms <= *max_interval_ms as u64 {
-                                    events.push(ActionEvent {
-                                        action_name: binding.action_name.clone(),
-                                        phase: ActionEventPhase::Started,
-                                        value: 1.0,
-                                        timestamp_ms: now_ms,
-                                    });
-                                }
-                                *state = DoubleTapState::Idle;
-                            }
+                } => match state {
+                    DoubleTapState::Idle => {
+                        if pressed {
+                            *state = DoubleTapState::FirstPressed { _start_ms: now_ms };
                         }
                     }
-                }
+                    DoubleTapState::FirstPressed { .. } => {
+                        if !pressed {
+                            *state = DoubleTapState::WaitingSecond { release_ms: now_ms };
+                        }
+                    }
+                    DoubleTapState::WaitingSecond { release_ms } => {
+                        if pressed {
+                            if now_ms - *release_ms <= *max_interval_ms as u64 {
+                                events.push(ActionEvent {
+                                    action_name: binding.action_name.clone(),
+                                    phase: ActionEventPhase::Started,
+                                    value: 1.0,
+                                    timestamp_ms: now_ms,
+                                });
+                            }
+                            *state = DoubleTapState::Idle;
+                        }
+                    }
+                },
             }
         }
 
@@ -244,21 +230,20 @@ impl GestureDetector {
             match &mut binding.tracker {
                 GestureTracker::Hold {
                     min_duration_ms,
-                    press_start_ms,
+                    press_start_ms: Some(start),
                     fired,
                 } => {
-                    if let Some(start) = press_start_ms {
-                        if !*fired && now_ms - *start >= *min_duration_ms as u64 {
-                            *fired = true;
-                            events.push(ActionEvent {
-                                action_name: binding.action_name.clone(),
-                                phase: ActionEventPhase::Started,
-                                value: 1.0,
-                                timestamp_ms: now_ms,
-                            });
-                        }
+                    if !*fired && now_ms - *start >= *min_duration_ms as u64 {
+                        *fired = true;
+                        events.push(ActionEvent {
+                            action_name: binding.action_name.clone(),
+                            phase: ActionEventPhase::Started,
+                            value: 1.0,
+                            timestamp_ms: now_ms,
+                        });
                     }
                 }
+                GestureTracker::Hold { .. } => {}
                 GestureTracker::DoubleTap {
                     max_interval_ms,
                     state,

@@ -120,9 +120,7 @@ impl RetentionSchedule {
 
     /// Place a legal hold on a record, freezing its retention.
     pub fn freeze_record(&mut self, row_id: &str) -> bool {
-        if let Some(record) =
-            self.records.iter_mut().find(|r| r.row_id == row_id)
-        {
+        if let Some(record) = self.records.iter_mut().find(|r| r.row_id == row_id) {
             record.state = RetentionState::Frozen;
             record.has_legal_hold = true;
             true
@@ -133,9 +131,7 @@ impl RetentionSchedule {
 
     /// Release a legal hold on a record, returning it to active state.
     pub fn unfreeze_record(&mut self, row_id: &str) -> bool {
-        if let Some(record) =
-            self.records.iter_mut().find(|r| r.row_id == row_id)
-        {
+        if let Some(record) = self.records.iter_mut().find(|r| r.row_id == row_id) {
             record.has_legal_hold = false;
             record.state = RetentionState::Active;
             true
@@ -185,8 +181,7 @@ impl RetentionSchedule {
     /// Remove all expired records and return the count removed.
     pub fn purge_expired(&mut self) -> usize {
         let before = self.records.len();
-        self.records
-            .retain(|r| r.state != RetentionState::Expired);
+        self.records.retain(|r| r.state != RetentionState::Expired);
         before - self.records.len()
     }
 
@@ -231,12 +226,7 @@ mod tests {
     #[test]
     fn add_record_sets_correct_expiry() {
         let mut schedule = RetentionSchedule::default_financial();
-        schedule.add_record(
-            "ledger".into(),
-            "r1".into(),
-            "pseudo1".into(),
-            1000,
-        );
+        schedule.add_record("ledger".into(), "r1".into(), "pseudo1".into(), 1000);
         let records = schedule.collect_active();
         assert_eq!(records.len(), 1);
         assert_eq!(records[0].until_ms, 1000 + 7 * YEAR_MS);
@@ -246,12 +236,7 @@ mod tests {
     #[test]
     fn record_expires_after_retention_period() {
         let mut schedule = RetentionSchedule::default_financial();
-        schedule.add_record(
-            "ledger".into(),
-            "r1".into(),
-            "pseudo1".into(),
-            0,
-        );
+        schedule.add_record("ledger".into(), "r1".into(), "pseudo1".into(), 0);
 
         // Before expiry
         schedule.update_states(6 * YEAR_MS);
@@ -267,12 +252,7 @@ mod tests {
     #[test]
     fn frozen_record_does_not_expire() {
         let mut schedule = RetentionSchedule::default_financial();
-        schedule.add_record(
-            "ledger".into(),
-            "r1".into(),
-            "pseudo1".into(),
-            0,
-        );
+        schedule.add_record("ledger".into(), "r1".into(), "pseudo1".into(), 0);
         schedule.freeze_record("r1");
 
         // Well past expiry
@@ -284,12 +264,7 @@ mod tests {
     #[test]
     fn unfreeze_record_returns_to_active() {
         let mut schedule = RetentionSchedule::default_financial();
-        schedule.add_record(
-            "ledger".into(),
-            "r1".into(),
-            "pseudo1".into(),
-            0,
-        );
+        schedule.add_record("ledger".into(), "r1".into(), "pseudo1".into(), 0);
         schedule.freeze_record("r1");
         assert_eq!(schedule.collect_frozen().len(), 1);
 
@@ -301,12 +276,7 @@ mod tests {
     #[test]
     fn unfrozen_record_can_expire() {
         let mut schedule = RetentionSchedule::default_financial();
-        schedule.add_record(
-            "ledger".into(),
-            "r1".into(),
-            "pseudo1".into(),
-            0,
-        );
+        schedule.add_record("ledger".into(), "r1".into(), "pseudo1".into(), 0);
         schedule.freeze_record("r1");
         schedule.update_states(100 * YEAR_MS);
         assert_eq!(schedule.collect_expired().len(), 0);
@@ -321,12 +291,7 @@ mod tests {
         let mut schedule = RetentionSchedule::default_financial();
         schedule.add_record("ledger".into(), "r1".into(), "p1".into(), 0);
         schedule.add_record("ledger".into(), "r2".into(), "p2".into(), 0);
-        schedule.add_record(
-            "ledger".into(),
-            "r3".into(),
-            "p3".into(),
-            5 * YEAR_MS,
-        );
+        schedule.add_record("ledger".into(), "r3".into(), "p3".into(), 5 * YEAR_MS);
 
         schedule.update_states(8 * YEAR_MS);
         assert_eq!(schedule.collect_expired().len(), 2);

@@ -66,11 +66,7 @@ impl LodChain {
     ///
     /// Ratios should be in descending order (e.g., [1.0, 0.5, 0.25]).
     /// The first ratio is typically 1.0 for the original mesh.
-    pub fn generate(
-        mesh: &ImportedMesh,
-        ratios: &[f32],
-        optimizer: &dyn MeshOptimizer,
-    ) -> Self {
+    pub fn generate(mesh: &ImportedMesh, ratios: &[f32], optimizer: &dyn MeshOptimizer) -> Self {
         let levels = ratios
             .iter()
             .enumerate()
@@ -134,17 +130,14 @@ impl MeshOptimizer for SimpleMeshOptimizer {
         let mut vertex_map = std::collections::HashMap::new();
         let mut new_vertices = Vec::new();
         for &old_idx in &new_indices {
-            if !vertex_map.contains_key(&old_idx) {
+            if let std::collections::hash_map::Entry::Vacant(e) = vertex_map.entry(old_idx) {
                 let new_idx = new_vertices.len() as u32;
-                vertex_map.insert(old_idx, new_idx);
+                e.insert(new_idx);
                 new_vertices.push(mesh.vertices[old_idx as usize].clone());
             }
         }
 
-        let remapped_indices: Vec<u32> = new_indices
-            .iter()
-            .map(|idx| vertex_map[idx])
-            .collect();
+        let remapped_indices: Vec<u32> = new_indices.iter().map(|idx| vertex_map[idx]).collect();
 
         ImportedMesh {
             name: format!("{}_lod", mesh.name),
@@ -190,8 +183,16 @@ mod tests {
             let base = (i * 3) as u32;
             let x = i as f32;
             vertices.push(Vertex::new([x, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0]));
-            vertices.push(Vertex::new([x + 1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0]));
-            vertices.push(Vertex::new([x + 0.5, 1.0, 0.0], [0.0, 1.0, 0.0], [0.5, 1.0]));
+            vertices.push(Vertex::new(
+                [x + 1.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [1.0, 0.0],
+            ));
+            vertices.push(Vertex::new(
+                [x + 0.5, 1.0, 0.0],
+                [0.0, 1.0, 0.0],
+                [0.5, 1.0],
+            ));
             indices.push(base);
             indices.push(base + 1);
             indices.push(base + 2);
@@ -315,8 +316,7 @@ mod tests {
 
         for i in 1..chain.levels.len() {
             assert!(
-                chain.levels[i].mesh.triangle_count()
-                    <= chain.levels[i - 1].mesh.triangle_count(),
+                chain.levels[i].mesh.triangle_count() <= chain.levels[i - 1].mesh.triangle_count(),
                 "LOD level {} should have fewer or equal triangles than level {}",
                 i,
                 i - 1
@@ -340,10 +340,7 @@ mod tests {
         let optimizer = SimpleMeshOptimizer;
         let ratios = vec![1.0, 0.5];
         let chain = LodChain::generate(&mesh, &ratios, &optimizer);
-        assert_eq!(
-            chain.levels[0].mesh.triangle_count(),
-            mesh.triangle_count()
-        );
+        assert_eq!(chain.levels[0].mesh.triangle_count(), mesh.triangle_count());
     }
 
     #[test]

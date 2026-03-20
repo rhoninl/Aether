@@ -56,7 +56,10 @@ impl ValidationResult {
     }
 
     pub fn is_valid(&self) -> bool {
-        !self.diagnostics.iter().any(|d| d.severity == Severity::Error)
+        !self
+            .diagnostics
+            .iter()
+            .any(|d| d.severity == Severity::Error)
     }
 
     pub fn errors(&self) -> Vec<&ValidationDiagnostic> {
@@ -141,13 +144,19 @@ fn check_connection_types(graph: &NodeGraph, result: &mut ValidationResult) {
             }
             (None, _) => {
                 result.push_error(
-                    format!("source port {} not found for connection {}", conn.from_port, conn.id),
+                    format!(
+                        "source port {} not found for connection {}",
+                        conn.from_port, conn.id
+                    ),
                     Some(conn.from_node),
                 );
             }
             (_, None) => {
                 result.push_error(
-                    format!("target port {} not found for connection {}", conn.to_port, conn.id),
+                    format!(
+                        "target port {} not found for connection {}",
+                        conn.to_port, conn.id
+                    ),
                     Some(conn.to_node),
                 );
             }
@@ -187,7 +196,10 @@ fn check_flow_cycles(graph: &NodeGraph, result: &mut ValidationResult) {
             .unwrap_or(false);
 
         if is_flow {
-            adjacency.entry(conn.from_node).or_default().push(conn.to_node);
+            adjacency
+                .entry(conn.from_node)
+                .or_default()
+                .push(conn.to_node);
             *in_degree.entry(conn.to_node).or_insert(0) += 1;
         }
     }
@@ -216,10 +228,7 @@ fn check_flow_cycles(graph: &NodeGraph, result: &mut ValidationResult) {
     }
 
     if sorted_count < flow_nodes.len() {
-        result.push_error(
-            "cycle detected in execution flow",
-            None,
-        );
+        result.push_error("cycle detected in execution flow", None);
     }
 }
 
@@ -230,7 +239,10 @@ fn check_disconnected_nodes(graph: &NodeGraph, result: &mut ValidationResult) {
         if node.kind.is_event() {
             if graph.connections_from(node.id).is_empty() {
                 result.push_warning(
-                    format!("event node '{}' has no outgoing connections", node.display_name()),
+                    format!(
+                        "event node '{}' has no outgoing connections",
+                        node.display_name()
+                    ),
                     Some(node.id),
                 );
             }
@@ -260,6 +272,7 @@ fn check_disconnected_nodes(graph: &NodeGraph, result: &mut ValidationResult) {
 /// Compute a topological ordering of nodes based on Flow connections.
 ///
 /// Returns `Ok(sorted_ids)` if the flow graph is a DAG, or `Err(())` if there is a cycle.
+#[allow(clippy::result_unit_err)]
 pub fn topological_sort_flow(graph: &NodeGraph) -> Result<Vec<NodeId>, ()> {
     let mut in_degree: HashMap<NodeId, usize> = HashMap::new();
     let mut adjacency: HashMap<NodeId, Vec<NodeId>> = HashMap::new();
@@ -284,7 +297,10 @@ pub fn topological_sort_flow(graph: &NodeGraph) -> Result<Vec<NodeId>, ()> {
             .map(|dt| dt == DataType::Flow)
             .unwrap_or(false);
         if is_flow {
-            adjacency.entry(conn.from_node).or_default().push(conn.to_node);
+            adjacency
+                .entry(conn.from_node)
+                .or_default()
+                .push(conn.to_node);
             *in_degree.entry(conn.to_node).or_insert(0) += 1;
         }
     }
@@ -329,7 +345,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
 
@@ -582,7 +603,12 @@ mod tests {
 
         // equal.result -> branch.condition
         let eq_out = g.get_node(equal).unwrap().find_output("result").unwrap().id;
-        let br_cond = g.get_node(branch).unwrap().find_input("condition").unwrap().id;
+        let br_cond = g
+            .get_node(branch)
+            .unwrap()
+            .find_input("condition")
+            .unwrap()
+            .id;
         g.connect(equal, eq_out, branch, br_cond).unwrap();
 
         // branch.true -> log.exec
@@ -597,7 +623,12 @@ mod tests {
 
         // event.entity -> set_pos.entity
         let ev_entity = g.get_node(event).unwrap().find_output("entity").unwrap().id;
-        let sp_entity = g.get_node(set_pos).unwrap().find_input("entity").unwrap().id;
+        let sp_entity = g
+            .get_node(set_pos)
+            .unwrap()
+            .find_input("entity")
+            .unwrap()
+            .id;
         g.connect(event, ev_entity, set_pos, sp_entity).unwrap();
 
         let result = validate_graph(&g);

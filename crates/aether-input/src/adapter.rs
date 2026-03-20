@@ -23,4 +23,3 @@ pub trait RuntimeAdapter {
     fn poll_frame(&mut self) -> Result<InputFrame, InputFrameError>;
     fn apply_locomotion_profile(&mut self, profile: &LocomotionProfile);
 }
-

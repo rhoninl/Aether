@@ -182,11 +182,7 @@ impl SocialService {
     }
 
     /// Get presence as seen by a viewer (block-list filtered).
-    pub fn get_visible_presence(
-        &self,
-        user_id: u64,
-        viewer_id: u64,
-    ) -> Option<PresenceState> {
+    pub fn get_visible_presence(&self, user_id: u64, viewer_id: u64) -> Option<PresenceState> {
         self.presence
             .get_visible_presence(user_id, viewer_id, &self.block_list)
     }
@@ -224,10 +220,7 @@ mod tests {
     fn block_prevents_friend_request() {
         let mut svc = SocialService::new();
         svc.block_user(1, 2).unwrap();
-        assert_eq!(
-            svc.send_friend_request(2, 1),
-            Err(SocialError::UserBlocked)
-        );
+        assert_eq!(svc.send_friend_request(2, 1), Err(SocialError::UserBlocked));
     }
 
     #[test]

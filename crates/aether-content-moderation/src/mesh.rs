@@ -1,6 +1,7 @@
 /// Mesh geometry scanning rules for content moderation.
-
-use crate::scanner::{ContentFlag, ContentItem, ContentScanner, ContentType, FlagCategory, ScanResult};
+use crate::scanner::{
+    ContentFlag, ContentItem, ContentScanner, ContentType, FlagCategory, ScanResult,
+};
 use crate::severity::ContentSeverity;
 
 /// Rules for geometry-based content scanning.
@@ -110,10 +111,7 @@ impl ContentScanner for MeshScanner {
             };
         }
 
-        let max_score = findings
-            .iter()
-            .map(|f| f.score)
-            .fold(0.0_f32, f32::max);
+        let max_score = findings.iter().map(|f| f.score).fold(0.0_f32, f32::max);
 
         let severity = if max_score >= 0.9 {
             ContentSeverity::High

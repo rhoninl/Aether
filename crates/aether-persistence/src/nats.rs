@@ -152,10 +152,7 @@ impl MockEventBus {
         }
     }
 
-    fn get_or_create_channel(
-        &self,
-        subject: &str,
-    ) -> broadcast::Sender<EventMessage> {
+    fn get_or_create_channel(&self, subject: &str) -> broadcast::Sender<EventMessage> {
         let mut channels = self.channels.lock().unwrap();
         channels
             .entry(subject.to_string())

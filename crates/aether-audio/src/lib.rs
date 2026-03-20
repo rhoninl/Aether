@@ -11,6 +11,7 @@ pub mod output;
 pub mod runtime;
 pub mod types;
 
+pub use acoustics::HrtfTransportParams;
 pub use acoustics::{AcousticsProfile, OcclusionState, RoomAcoustics};
 pub use attenuation::{AttenuationCurve, AttenuationModel, DistanceBand};
 pub use capture::{CaptureConfig, CaptureRingBuffer, CaptureStream};
@@ -21,7 +22,6 @@ pub use channel::{
 pub use codec::{AudioCodec, CodecEncodeError, StubCodec};
 pub use device::{AudioDeviceManager, DeviceConfig, DeviceError, DeviceInfo};
 pub use hrtf::{HrtfProfile, HrtfSample};
-pub use acoustics::HrtfTransportParams;
 pub use loader::{AudioAsset, LoadError};
 pub use opus::{BitRateKbps, CodecError, OpusConfig, OpusPacket};
 pub use output::{OutputPipeline, PlaybackSource, SpatialRenderer};

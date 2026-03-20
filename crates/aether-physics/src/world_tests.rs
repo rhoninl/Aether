@@ -40,8 +40,7 @@ fn create_world_with_custom_config() {
 fn add_dynamic_body() {
     let mut world = PhysicsWorld::new(&default_config());
     let e = entity(0);
-    let handle =
-        world.add_rigid_body(e, BodyType::Dynamic, [0.0, 10.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    let handle = world.add_rigid_body(e, BodyType::Dynamic, [0.0, 10.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
     assert!(handle.is_some());
     assert_eq!(world.body_count(), 1);
     assert!(world.has_body(e));
@@ -51,8 +50,12 @@ fn add_dynamic_body() {
 fn add_kinematic_body() {
     let mut world = PhysicsWorld::new(&default_config());
     let e = entity(0);
-    let handle =
-        world.add_rigid_body(e, BodyType::Kinematic, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    let handle = world.add_rigid_body(
+        e,
+        BodyType::Kinematic,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    );
     assert!(handle.is_some());
     assert_eq!(world.body_count(), 1);
 }
@@ -61,8 +64,7 @@ fn add_kinematic_body() {
 fn add_static_body() {
     let mut world = PhysicsWorld::new(&default_config());
     let e = entity(0);
-    let handle =
-        world.add_rigid_body(e, BodyType::Static, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    let handle = world.add_rigid_body(e, BodyType::Static, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
     assert!(handle.is_some());
     assert_eq!(world.body_count(), 1);
 }
@@ -282,7 +284,12 @@ fn sync_to_ecs_returns_dynamic_bodies() {
 fn sync_from_ecs_moves_kinematic_body() {
     let mut world = PhysicsWorld::new(&default_config());
     let e = entity(0);
-    world.add_rigid_body(e, BodyType::Kinematic, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    world.add_rigid_body(
+        e,
+        BodyType::Kinematic,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    );
     let shape = ColliderShape::Sphere { radius: 0.5 };
     world.add_collider(e, &shape, false, 0.5, 0.0, 1.0, &CollisionLayers::default());
 
@@ -354,8 +361,24 @@ fn raycast_with_exclude() {
     world.add_rigid_body(e2, BodyType::Static, [0.0, -5.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
 
     let shape = ColliderShape::Sphere { radius: 1.0 };
-    world.add_collider(e1, &shape, false, 0.5, 0.0, 1.0, &CollisionLayers::default());
-    world.add_collider(e2, &shape, false, 0.5, 0.0, 1.0, &CollisionLayers::default());
+    world.add_collider(
+        e1,
+        &shape,
+        false,
+        0.5,
+        0.0,
+        1.0,
+        &CollisionLayers::default(),
+    );
+    world.add_collider(
+        e2,
+        &shape,
+        false,
+        0.5,
+        0.0,
+        1.0,
+        &CollisionLayers::default(),
+    );
     world.step();
 
     let filter = QueryFilter::new().excluding(e1);
@@ -375,8 +398,24 @@ fn raycast_all_hits_multiple() {
     world.add_rigid_body(e2, BodyType::Static, [0.0, -5.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
 
     let shape = ColliderShape::Sphere { radius: 1.0 };
-    world.add_collider(e1, &shape, false, 0.5, 0.0, 1.0, &CollisionLayers::default());
-    world.add_collider(e2, &shape, false, 0.5, 0.0, 1.0, &CollisionLayers::default());
+    world.add_collider(
+        e1,
+        &shape,
+        false,
+        0.5,
+        0.0,
+        1.0,
+        &CollisionLayers::default(),
+    );
+    world.add_collider(
+        e2,
+        &shape,
+        false,
+        0.5,
+        0.0,
+        1.0,
+        &CollisionLayers::default(),
+    );
     world.step();
 
     let hits = world.raycast_all(
@@ -449,12 +488,7 @@ fn remove_joint() {
     let e1 = entity(0);
     let e2 = entity(1);
     world.add_rigid_body(e1, BodyType::Dynamic, [0.0; 3], [0.0, 0.0, 0.0, 1.0]);
-    world.add_rigid_body(
-        e2,
-        BodyType::Dynamic,
-        [2.0, 0.0, 0.0],
-        [0.0, 0.0, 0.0, 1.0],
-    );
+    world.add_rigid_body(e2, BodyType::Dynamic, [2.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
 
     let joint = JointType::fixed([1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]);
     let handle = world.add_joint(e1, e2, &joint).unwrap();
@@ -509,10 +543,7 @@ fn set_linear_velocity() {
     world.step();
 
     let pos = world.get_transform(e).unwrap().position;
-    assert!(
-        pos[0] > 0.0,
-        "Body should move along x with set velocity"
-    );
+    assert!(pos[0] > 0.0, "Body should move along x with set velocity");
 }
 
 #[test]
@@ -568,7 +599,12 @@ fn collision_events_between_falling_bodies() {
 
     // Static floor
     let floor = entity(0);
-    world.add_rigid_body(floor, BodyType::Static, [0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    world.add_rigid_body(
+        floor,
+        BodyType::Static,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    );
     let floor_shape = ColliderShape::Box {
         half_extents: [50.0, 0.5, 50.0],
     };
@@ -584,7 +620,12 @@ fn collision_events_between_falling_bodies() {
 
     // Falling ball
     let ball = entity(1);
-    world.add_rigid_body(ball, BodyType::Dynamic, [0.0, 3.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    world.add_rigid_body(
+        ball,
+        BodyType::Dynamic,
+        [0.0, 3.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    );
     let ball_shape = ColliderShape::Sphere { radius: 0.5 };
     world.add_collider(
         ball,
@@ -616,7 +657,12 @@ fn multiple_bodies_independent() {
     let e2 = entity(1);
     let e3 = entity(2);
 
-    world.add_rigid_body(e1, BodyType::Dynamic, [0.0, 10.0, 0.0], [0.0, 0.0, 0.0, 1.0]);
+    world.add_rigid_body(
+        e1,
+        BodyType::Dynamic,
+        [0.0, 10.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+    );
     world.add_rigid_body(
         e2,
         BodyType::Dynamic,

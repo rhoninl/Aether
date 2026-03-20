@@ -76,8 +76,8 @@ pub struct AudioRuntimeOutput {
 pub struct AudioRuntime {
     cfg: AudioRuntimeConfig,
     state: AudioRuntimeState,
-    channel_mgr: VoiceChannelManager,
-    profiler: RuntimeProfiler,
+    _channel_mgr: VoiceChannelManager,
+    _profiler: RuntimeProfiler,
 }
 
 impl Default for AudioRuntime {
@@ -91,8 +91,8 @@ impl AudioRuntime {
         Self {
             cfg,
             state: AudioRuntimeState::default(),
-            channel_mgr: VoiceChannelManager::new(),
-            profiler: RuntimeProfiler::default(),
+            _channel_mgr: VoiceChannelManager::new(),
+            _profiler: RuntimeProfiler::default(),
         }
     }
 
@@ -107,11 +107,15 @@ impl AudioRuntime {
         let mut instructions = Vec::new();
         let mut packets = Vec::new();
         for source in input.sources.iter().take(usize::from(capacity)) {
-            let distance = distance_between(&self.listener_pos(&input.listener), (source.position.x, source.position.y, source.position.z));
+            let distance = distance_between(
+                &self.listener_pos(&input.listener),
+                (source.position.x, source.position.y, source.position.z),
+            );
             let band = self.cfg.attenuation.band(distance);
             let gain = self.cfg.attenuation.gain(distance) * source.volume * band.gain;
             let lod = AcousticsProfile::lod_for_distance(distance);
-            let (mut hrtf, bandwidth_profile) = self.pick_voice_quality(distance, max_channels as usize);
+            let (mut hrtf, bandwidth_profile) =
+                self.pick_voice_quality(distance, max_channels as usize);
             if let Some(source_channel) = input
                 .source_channels
                 .iter()
@@ -151,7 +155,10 @@ impl AudioRuntime {
                 packets.push(packet);
                 profiler.voice_packets = profiler.voice_packets.saturating_add(1);
                 profiler.routed_packets = profiler.routed_packets.saturating_add(1);
-                let _ = self.state.last_encoded_seq.insert((source.id.0, seq_val), seq_val);
+                let _ = self
+                    .state
+                    .last_encoded_seq
+                    .insert((source.id.0, seq_val), seq_val);
             } else {
                 profiler.dropped_packets = profiler.dropped_packets.saturating_add(1);
             }
@@ -178,7 +185,11 @@ impl AudioRuntime {
         }
     }
 
-    fn pick_voice_quality(&mut self, distance_m: f32, max_channels: usize) -> (HrtfTransportParams, String) {
+    fn pick_voice_quality(
+        &mut self,
+        distance_m: f32,
+        max_channels: usize,
+    ) -> (HrtfTransportParams, String) {
         let profile = if max_channels > 32 {
             ("low".to_string(), 0.35)
         } else {
@@ -200,7 +211,14 @@ impl AudioRuntime {
             occlusion: self.cfg.acoustics.room.occlusion,
             reflectivity: self.cfg.acoustics.room.early_reflection_gain,
         };
-        (params, if profile.0 == "low" { "low".into() } else { profile_name })
+        (
+            params,
+            if profile.0 == "low" {
+                "low".into()
+            } else {
+                profile_name
+            },
+        )
     }
 
     fn route_source(&self, source_id: AudioId, requests: &[RoutingRequest]) -> RoutingPolicy {
@@ -210,22 +228,25 @@ impl AudioRuntime {
                 return RoutingPolicy::Allow;
             }
         }
-        if requests.iter().any(|request| request.source_channel.0 > 0 && request.target_player_id == source_id.0) {
+        if requests
+            .iter()
+            .any(|request| request.source_channel.0 > 0 && request.target_player_id == source_id.0)
+        {
             return RoutingPolicy::Allow;
         }
         default
     }
 
     fn listener_pos(&self, listener: &ListenerState) -> (f32, f32, f32) {
-        (listener.position.x, listener.position.y, listener.position.z)
+        (
+            listener.position.x,
+            listener.position.y,
+            listener.position.z,
+        )
     }
 
     fn estimate_packet_size(&self, source_id: AudioId, profile: &str) -> usize {
-        let base: usize = if profile == "low" {
-            90
-        } else {
-            180
-        };
+        let base: usize = if profile == "low" { 90 } else { 180 };
         base.saturating_add(usize::try_from(source_id.0 % 3).unwrap_or_default() * 4)
             .min(OpusPacket::packet_size_limit(&self.cfg.opus))
     }

@@ -209,8 +209,9 @@ impl UiInteractionState {
             // Ray hits a different entity while hovering
             (Some(hit_result), UiInteractionPhase::Hover, Some(prev_entity)) => {
                 // Exit old, enter new
-                self.pending_events
-                    .push(UiInteractionEvent::HoverExit { entity: prev_entity });
+                self.pending_events.push(UiInteractionEvent::HoverExit {
+                    entity: prev_entity,
+                });
                 self.pending_events.push(UiInteractionEvent::HoverEnter {
                     entity: hit_result.entity,
                     point: hit_result.point,
@@ -240,8 +241,9 @@ impl UiInteractionState {
                     if hit_result.entity == prev_entity {
                         self.phase = UiInteractionPhase::Hover;
                     } else {
-                        self.pending_events
-                            .push(UiInteractionEvent::HoverExit { entity: prev_entity });
+                        self.pending_events.push(UiInteractionEvent::HoverExit {
+                            entity: prev_entity,
+                        });
                         self.pending_events.push(UiInteractionEvent::HoverEnter {
                             entity: hit_result.entity,
                             point: hit_result.point,
@@ -254,8 +256,9 @@ impl UiInteractionState {
 
             // Ray misses, was hovering
             (None, UiInteractionPhase::Hover, Some(prev_entity)) => {
-                self.pending_events
-                    .push(UiInteractionEvent::HoverExit { entity: prev_entity });
+                self.pending_events.push(UiInteractionEvent::HoverExit {
+                    entity: prev_entity,
+                });
                 self.current_target = None;
                 self.current_hit_point = None;
                 self.phase = UiInteractionPhase::None;
@@ -267,8 +270,9 @@ impl UiInteractionState {
                     entity: prev_entity,
                     point: self.current_hit_point.unwrap_or([0.0; 3]),
                 });
-                self.pending_events
-                    .push(UiInteractionEvent::HoverExit { entity: prev_entity });
+                self.pending_events.push(UiInteractionEvent::HoverExit {
+                    entity: prev_entity,
+                });
                 self.current_target = None;
                 self.current_hit_point = None;
                 self.phase = UiInteractionPhase::None;
@@ -445,8 +449,12 @@ mod tests {
         assert_eq!(s.current_target().unwrap().index(), 2);
         // Should have HoverExit(1) and HoverEnter(2)
         assert_eq!(events.len(), 2);
-        assert!(matches!(events[0], UiInteractionEvent::HoverExit { entity } if entity.index() == 1));
-        assert!(matches!(events[1], UiInteractionEvent::HoverEnter { entity, .. } if entity.index() == 2));
+        assert!(
+            matches!(events[0], UiInteractionEvent::HoverExit { entity } if entity.index() == 1)
+        );
+        assert!(
+            matches!(events[1], UiInteractionEvent::HoverEnter { entity, .. } if entity.index() == 2)
+        );
     }
 
     #[test]

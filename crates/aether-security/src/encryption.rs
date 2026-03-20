@@ -12,4 +12,3 @@ pub struct TransportSecurityPolicy {
     pub require_client_cert: bool,
     pub enforce_hsts: bool,
 }
-

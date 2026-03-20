@@ -1,7 +1,7 @@
 use std::env;
 use std::process::Command;
 
-use crate::{AVAILABLE_EXAMPLES, example_binary_name};
+use crate::{example_binary_name, AVAILABLE_EXAMPLES};
 
 pub fn list_examples() {
     println!("Available examples:");
@@ -11,10 +11,12 @@ pub fn list_examples() {
 }
 
 pub fn run_example(name: &str) -> Result<(), String> {
-    let binary = example_binary_name(name)
-        .ok_or_else(|| format!("unknown example '{name}'. Run 'aether run --list' to see available examples"))?;
+    let binary = example_binary_name(name).ok_or_else(|| {
+        format!("unknown example '{name}'. Run 'aether run --list' to see available examples")
+    })?;
 
-    let self_path = env::current_exe().map_err(|e| format!("failed to get executable path: {e}"))?;
+    let self_path =
+        env::current_exe().map_err(|e| format!("failed to get executable path: {e}"))?;
     let bin_dir = self_path
         .parent()
         .ok_or_else(|| "failed to determine binary directory".to_string())?;

@@ -36,4 +36,3 @@ pub enum WorldLifecycleEvent {
     ShutdownRequested(String),
     ShutdownComplete(String),
 }
-

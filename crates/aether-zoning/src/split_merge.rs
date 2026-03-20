@@ -237,7 +237,10 @@ mod tests {
 
         // First evaluation -- threshold just crossed, hold not elapsed
         let decisions = mgr.evaluate(0, &[]);
-        assert!(decisions.iter().all(|d| matches!(d, SplitMergeDecision::NoAction) || !matches!(d, SplitMergeDecision::Split { .. })));
+        assert!(decisions
+            .iter()
+            .all(|d| matches!(d, SplitMergeDecision::NoAction)
+                || !matches!(d, SplitMergeDecision::Split { .. })));
         assert_eq!(mgr.split_candidate_count(), 1);
 
         // Still within hold period
@@ -256,7 +259,10 @@ mod tests {
             .collect();
         assert_eq!(splits.len(), 1);
         if let SplitMergeDecision::Split {
-            zone_id, left, right, axis,
+            zone_id,
+            left,
+            right,
+            axis,
         } = &splits[0]
         {
             assert_eq!(zone_id, "zone-1");
@@ -361,10 +367,7 @@ mod tests {
 
     #[test]
     fn normalize_pair_is_symmetric() {
-        assert_eq!(
-            normalize_pair("a", "b"),
-            normalize_pair("b", "a")
-        );
+        assert_eq!(normalize_pair("a", "b"), normalize_pair("b", "a"));
     }
 
     #[test]
@@ -393,8 +396,8 @@ mod tests {
         let mut mgr = SplitMergeManager::new(SplitMergeConfig {
             split_threshold: 50,
             merge_threshold: 10,
-            split_hold_ms: 0,  // immediate
-            merge_hold_ms: 0,  // immediate
+            split_hold_ms: 0, // immediate
+            merge_hold_ms: 0, // immediate
             preferred_split_axis: AxisChoice::Z,
             min_zone_size: 2,
         });

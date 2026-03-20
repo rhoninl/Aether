@@ -81,7 +81,7 @@ impl ThrowDetectorConfig {
     }
 
     pub fn with_weight_decay(mut self, decay: f32) -> Self {
-        self.weight_decay = decay.max(0.0).min(1.0);
+        self.weight_decay = decay.clamp(0.0, 1.0);
         self
     }
 
@@ -313,9 +313,7 @@ mod tests {
 
     #[test]
     fn sample_count_caps_at_buffer_size() {
-        let mut d = ThrowDetector::with_config(
-            ThrowDetectorConfig::default().with_sample_count(3),
-        );
+        let mut d = ThrowDetector::with_config(ThrowDetectorConfig::default().with_sample_count(3));
 
         for i in 0..10 {
             d.record_sample([i as f32, 0.0, 0.0], [0.0; 3], i as f32 * 0.016);
@@ -370,7 +368,10 @@ mod tests {
         let result = d.estimate_release_velocity().unwrap();
         // Weights: newest=1.0, middle=0.5, oldest=0.25, total=1.75
         // Weighted avg = (10*1.0 + 0*0.5 + 0*0.25) / 1.75 = 10/1.75 ~= 5.714
-        assert!(result.linear_velocity[0] > 5.0, "Should favor recent sample");
+        assert!(
+            result.linear_velocity[0] > 5.0,
+            "Should favor recent sample"
+        );
     }
 
     #[test]
@@ -395,9 +396,8 @@ mod tests {
 
     #[test]
     fn estimate_confidence_scales_with_samples() {
-        let mut d = ThrowDetector::with_config(
-            ThrowDetectorConfig::default().with_sample_count(10),
-        );
+        let mut d =
+            ThrowDetector::with_config(ThrowDetectorConfig::default().with_sample_count(10));
 
         d.record_sample([1.0, 0.0, 0.0], [0.0; 3], 0.0);
         d.record_sample([1.0, 0.0, 0.0], [0.0; 3], 0.016);

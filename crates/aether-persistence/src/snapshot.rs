@@ -91,7 +91,9 @@ impl SnapshotRecorder {
         let policy = SnapshotPolicy::new(profile);
 
         // Check window timing: initialise the window if absent and test the deadline.
-        let window = self.last.get_or_insert_with(|| SnapshotWindow::new(now_ms, policy.min_interval_ms));
+        let window = self
+            .last
+            .get_or_insert_with(|| SnapshotWindow::new(now_ms, policy.min_interval_ms));
         let should_snap = window.should_snapshot(now_ms);
 
         if !should_snap && actor_count == 0 {
@@ -131,4 +133,3 @@ impl SnapshotRecorder {
             .retain(|entry| now_ms.saturating_sub(entry.captured_ms) <= age_ms);
     }
 }
-

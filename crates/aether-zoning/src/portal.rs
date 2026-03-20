@@ -196,8 +196,7 @@ impl Portal {
         match &self.state {
             PortalState::Proximity => {
                 match self.activation_mode {
-                    ActivationMode::InteractionRequired
-                    | ActivationMode::ProximityAndConfirm => {
+                    ActivationMode::InteractionRequired | ActivationMode::ProximityAndConfirm => {
                         self.set_state(PortalState::Activating, now_ms);
                         Some(self.state.clone())
                     }
@@ -234,11 +233,7 @@ impl Portal {
     }
 
     /// Mark the portal transition as failed and enter cooldown.
-    pub fn on_transition_failed(
-        &mut self,
-        reason: String,
-        now_ms: u64,
-    ) -> Option<PortalState> {
+    pub fn on_transition_failed(&mut self, reason: String, now_ms: u64) -> Option<PortalState> {
         match &self.state {
             PortalState::Activating | PortalState::TransitionStarted => {
                 self.set_state(
@@ -374,8 +369,7 @@ mod tests {
 
     #[test]
     fn interaction_required_needs_interact() {
-        let mut portal =
-            make_portal().with_activation_mode(ActivationMode::InteractionRequired);
+        let mut portal = make_portal().with_activation_mode(ActivationMode::InteractionRequired);
 
         let result = portal.on_player_enter_proximity(100);
         assert_eq!(result, Some(PortalState::Proximity));
@@ -416,7 +410,10 @@ mod tests {
 
         let result = portal.on_transition_failed("server down".to_string(), 300);
         assert!(result.is_some());
-        assert!(matches!(*portal.state(), PortalState::Cooldown { until_ms: 1300 }));
+        assert!(matches!(
+            *portal.state(),
+            PortalState::Cooldown { until_ms: 1300 }
+        ));
     }
 
     #[test]

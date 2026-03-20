@@ -437,10 +437,7 @@ mod tests {
     fn remove_ghosts_for_entity() {
         let mut mgr = GhostManager::new(1000).with_boundary_margin(10.0);
         let bounds = make_zone_bounds();
-        let adjacent = vec![
-            make_adjacent_zone("zone-b"),
-            make_adjacent_zone("zone-c"),
-        ];
+        let adjacent = vec![make_adjacent_zone("zone-b"), make_adjacent_zone("zone-c")];
 
         let entity = BoundaryEntity {
             entity_id: 1,
@@ -492,17 +489,29 @@ mod tests {
 
         // Near min-y
         assert!(mgr.is_near_boundary(
-            &Position { x: 50.0, y: 5.0, z: 50.0 },
+            &Position {
+                x: 50.0,
+                y: 5.0,
+                z: 50.0
+            },
             &bounds
         ));
         // Near max-z
         assert!(mgr.is_near_boundary(
-            &Position { x: 50.0, y: 50.0, z: 95.0 },
+            &Position {
+                x: 50.0,
+                y: 50.0,
+                z: 95.0
+            },
             &bounds
         ));
         // Near min-z
         assert!(mgr.is_near_boundary(
-            &Position { x: 50.0, y: 50.0, z: 5.0 },
+            &Position {
+                x: 50.0,
+                y: 50.0,
+                z: 5.0
+            },
             &bounds
         ));
     }

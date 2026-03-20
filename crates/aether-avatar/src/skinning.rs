@@ -51,7 +51,7 @@ impl Default for GpuSkinningConfig {
 impl GpuSkinningConfig {
     /// Compute the number of workgroups needed for a given vertex count.
     pub fn workgroup_count(&self, vertex_count: u32) -> u32 {
-        (vertex_count + self.workgroup_size - 1) / self.workgroup_size
+        vertex_count.div_ceil(self.workgroup_size)
     }
 }
 

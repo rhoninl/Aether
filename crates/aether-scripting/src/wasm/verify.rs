@@ -104,8 +104,7 @@ mod tests {
     use super::*;
 
     fn sample_wat() -> Vec<u8> {
-        wat::parse_str(r#"(module (func (export "run") (nop)))"#)
-            .expect("valid WAT")
+        wat::parse_str(r#"(module (func (export "run") (nop)))"#).expect("valid WAT")
     }
 
     #[test]

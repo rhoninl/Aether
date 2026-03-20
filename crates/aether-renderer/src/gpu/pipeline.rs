@@ -124,7 +124,8 @@ pub fn create_forward_pipeline(
     depth_format: wgpu::TextureFormat,
     msaa_samples: u32,
 ) -> wgpu::RenderPipeline {
-    let pbr_shader = shader::create_shader_module(device, shader::PBR_SHADER_LABEL, shader::PBR_SHADER_SOURCE);
+    let pbr_shader =
+        shader::create_shader_module(device, shader::PBR_SHADER_LABEL, shader::PBR_SHADER_SOURCE);
 
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some(FORWARD_PIPELINE_LABEL),

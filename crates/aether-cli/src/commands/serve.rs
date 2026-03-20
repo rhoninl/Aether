@@ -21,8 +21,8 @@ pub fn serve_project(path: &str, port: Option<u16>) -> Result<(), String> {
 
     let m = &world_toml.world;
     let addr = format!("127.0.0.1:{port}");
-    let listener = TcpListener::bind(&addr)
-        .map_err(|e| format!("failed to bind to {addr}: {e}"))?;
+    let listener =
+        TcpListener::bind(&addr).map_err(|e| format!("failed to bind to {addr}: {e}"))?;
 
     println!("Serving '{}' v{} ({})", m.name, m.version, m.dimension);
     println!("  http://{addr}");
@@ -56,11 +56,7 @@ pub fn serve_project(path: &str, port: Option<u16>) -> Result<(), String> {
     Ok(())
 }
 
-fn route(
-    dir: &Path,
-    manifest: &WorldManifest,
-    path: &str,
-) -> (&'static str, &'static str, String) {
+fn route(dir: &Path, manifest: &WorldManifest, path: &str) -> (&'static str, &'static str, String) {
     match path {
         "/" => {
             let body = format!(

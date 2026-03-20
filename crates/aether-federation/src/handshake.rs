@@ -186,11 +186,7 @@ impl HandshakeManager {
     }
 
     /// Get the current state of a handshake session.
-    pub fn get_session(
-        &self,
-        initiator_id: &str,
-        responder_id: &str,
-    ) -> Option<&HandshakeSession> {
+    pub fn get_session(&self, initiator_id: &str, responder_id: &str) -> Option<&HandshakeSession> {
         let key = Self::session_key(initiator_id, responder_id);
         self.sessions.get(&key)
     }
@@ -198,7 +194,7 @@ impl HandshakeManager {
     /// Check if a handshake between two servers is completed.
     pub fn is_authenticated(&self, initiator_id: &str, responder_id: &str) -> bool {
         self.get_session(initiator_id, responder_id)
-            .map_or(false, |s| s.state == HandshakeState::Completed)
+            .is_some_and(|s| s.state == HandshakeState::Completed)
     }
 
     /// Remove expired or failed sessions.
@@ -212,6 +208,7 @@ impl HandshakeManager {
     }
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for HandshakeManager {
     fn default() -> Self {
         Self::new()

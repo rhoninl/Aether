@@ -11,4 +11,3 @@ pub struct RateLimitStatus {
     pub reset_in_ms: u64,
     pub allowed: bool,
 }
-

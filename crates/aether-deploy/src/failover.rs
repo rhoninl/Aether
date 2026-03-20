@@ -12,4 +12,3 @@ pub struct DatabaseFailoverPolicy {
     pub health_check_ms: u64,
     pub switchover_urgency: u8,
 }
-

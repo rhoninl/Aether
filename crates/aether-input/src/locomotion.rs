@@ -38,4 +38,3 @@ pub struct LocomotionProfile {
     pub acceleration_mps2: f32,
     pub max_speed_mps: f32,
 }
-

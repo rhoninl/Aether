@@ -37,10 +37,7 @@ impl EntityStore {
 
     /// Set the position of an entity, creating a default entry if needed.
     pub fn set_position(&mut self, entity_id: u64, pos: [f32; 3]) {
-        let transform = self
-            .transforms
-            .entry(entity_id)
-            .or_insert_with(Transform::default);
+        let transform = self.transforms.entry(entity_id).or_default();
         transform.position = pos;
     }
 
@@ -51,10 +48,7 @@ impl EntityStore {
 
     /// Set the rotation of an entity, creating a default entry if needed.
     pub fn set_rotation(&mut self, entity_id: u64, rot: [f32; 4]) {
-        let transform = self
-            .transforms
-            .entry(entity_id)
-            .or_insert_with(Transform::default);
+        let transform = self.transforms.entry(entity_id).or_default();
         transform.rotation = rot;
     }
 
@@ -194,9 +188,10 @@ impl ScriptManager {
         script_id: usize,
         script: &CompiledScript,
     ) -> Result<(), RuntimeError> {
-        let vm = self.scripts.get_mut(script_id).ok_or_else(|| {
-            RuntimeError::ApiError(format!("script_id {script_id} out of range"))
-        })?;
+        let vm = self
+            .scripts
+            .get_mut(script_id)
+            .ok_or_else(|| RuntimeError::ApiError(format!("script_id {script_id} out of range")))?;
         vm.reload(script)
     }
 
@@ -327,7 +322,11 @@ mod tests {
                 "set_position",
                 &[
                     Value::Entity(1),
-                    Value::Vec3 { x: 10.0, y: 20.0, z: 30.0 },
+                    Value::Vec3 {
+                        x: 10.0,
+                        y: 20.0,
+                        z: 30.0,
+                    },
                 ],
             );
             assert_eq!(result.unwrap(), Value::None);
@@ -343,7 +342,11 @@ mod tests {
         let result = api.call("get_position", &[Value::Entity(1)]).unwrap();
         assert_eq!(
             result,
-            Value::Vec3 { x: 5.0, y: 6.0, z: 7.0 }
+            Value::Vec3 {
+                x: 5.0,
+                y: 6.0,
+                z: 7.0
+            }
         );
     }
 
@@ -364,7 +367,11 @@ mod tests {
                 "set_rotation",
                 &[
                     Value::Entity(2),
-                    Value::Vec3 { x: 0.1, y: 0.2, z: 0.3 },
+                    Value::Vec3 {
+                        x: 0.1,
+                        y: 0.2,
+                        z: 0.3,
+                    },
                 ],
             );
             assert_eq!(result.unwrap(), Value::None);
@@ -382,7 +389,11 @@ mod tests {
         // Returns xyz of the quaternion as Vec3
         assert_eq!(
             result,
-            Value::Vec3 { x: 0.5, y: 0.6, z: 0.7 }
+            Value::Vec3 {
+                x: 0.5,
+                y: 0.6,
+                z: 0.7
+            }
         );
     }
 
@@ -544,7 +555,11 @@ mod tests {
                 IrInstruction::LoadConst(0, Value::Entity(1)),
                 IrInstruction::LoadConst(
                     1,
-                    Value::Vec3 { x: 10.0, y: 20.0, z: 30.0 },
+                    Value::Vec3 {
+                        x: 10.0,
+                        y: 20.0,
+                        z: 30.0,
+                    },
                 ),
                 IrInstruction::Call {
                     function: "set_position".to_string(),

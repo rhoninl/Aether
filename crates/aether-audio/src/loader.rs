@@ -104,10 +104,7 @@ impl AudioAsset {
 pub fn load_wav<P: AsRef<Path>>(path: P) -> Result<AudioAsset, LoadError> {
     let reader = hound::WavReader::open(path.as_ref()).map_err(|e| {
         if matches!(e, hound::Error::IoError(_)) {
-            LoadError::IoError(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                e.to_string(),
-            ))
+            LoadError::IoError(std::io::Error::other(e.to_string()))
         } else {
             LoadError::InvalidData(e.to_string())
         }
@@ -157,8 +154,8 @@ fn read_wav_samples(
 /// Load a WAV file from an in-memory byte slice.
 pub fn load_wav_from_bytes(data: &[u8]) -> Result<AudioAsset, LoadError> {
     let cursor = std::io::Cursor::new(data);
-    let reader = hound::WavReader::new(cursor)
-        .map_err(|e| LoadError::InvalidData(e.to_string()))?;
+    let reader =
+        hound::WavReader::new(cursor).map_err(|e| LoadError::InvalidData(e.to_string()))?;
 
     let spec = reader.spec();
     let sample_rate = spec.sample_rate;
@@ -203,8 +200,7 @@ fn read_wav_samples_cursor(
 
 /// Load an OGG/Vorbis file from disk.
 pub fn load_ogg<P: AsRef<Path>>(path: P) -> Result<AudioAsset, LoadError> {
-    let file =
-        std::fs::File::open(path.as_ref()).map_err(LoadError::IoError)?;
+    let file = std::fs::File::open(path.as_ref()).map_err(LoadError::IoError)?;
     let reader = std::io::BufReader::new(file);
 
     decode_ogg_from_reader(reader)
@@ -219,9 +215,8 @@ pub fn load_ogg_from_bytes(data: &[u8]) -> Result<AudioAsset, LoadError> {
 fn decode_ogg_from_reader<R: std::io::Read + std::io::Seek>(
     reader: R,
 ) -> Result<AudioAsset, LoadError> {
-    let mut ogg_reader =
-        lewton::inside_ogg::OggStreamReader::new(reader)
-            .map_err(|e| LoadError::DecodeFailed(format!("{e:?}")))?;
+    let mut ogg_reader = lewton::inside_ogg::OggStreamReader::new(reader)
+        .map_err(|e| LoadError::DecodeFailed(format!("{e:?}")))?;
 
     let sample_rate = ogg_reader.ident_hdr.audio_sample_rate;
     let channels = ogg_reader.ident_hdr.audio_channels as u16;
@@ -300,7 +295,9 @@ mod tests {
 
     #[test]
     fn load_wav_from_bytes_mono() {
-        let samples: Vec<i16> = (0..480).map(|i| ((i as f32 / 480.0) * 32767.0) as i16).collect();
+        let samples: Vec<i16> = (0..480)
+            .map(|i| ((i as f32 / 480.0) * 32767.0) as i16)
+            .collect();
         let wav_data = create_test_wav(&samples, 48000, 1);
 
         let asset = load_wav_from_bytes(&wav_data).unwrap();
@@ -419,7 +416,10 @@ mod tests {
         // This will fail because the file doesn't exist, but it should be an IO error
         // not an unsupported format error
         let result = load_auto("/nonexistent/file.wav");
-        assert!(matches!(result, Err(LoadError::IoError(_)) | Err(LoadError::InvalidData(_))));
+        assert!(matches!(
+            result,
+            Err(LoadError::IoError(_)) | Err(LoadError::InvalidData(_))
+        ));
     }
 
     #[test]
@@ -442,7 +442,9 @@ mod tests {
 
     #[test]
     fn load_wav_roundtrip_through_file() {
-        let samples: Vec<i16> = (0..960).map(|i| ((i as f32 / 960.0) * 16000.0) as i16).collect();
+        let samples: Vec<i16> = (0..960)
+            .map(|i| ((i as f32 / 960.0) * 16000.0) as i16)
+            .collect();
 
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("test.wav");

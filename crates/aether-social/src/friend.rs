@@ -26,10 +26,23 @@ pub struct FriendStatus {
 /// Friend request action envelopes.
 #[derive(Debug, Clone)]
 pub enum FriendRequest {
-    Send { from: u64, to: u64, message: Option<String> },
-    Accept { from: u64, to: u64 },
-    Reject { from: u64, to: u64 },
-    Block { from: u64, to: u64 },
+    Send {
+        from: u64,
+        to: u64,
+        message: Option<String>,
+    },
+    Accept {
+        from: u64,
+        to: u64,
+    },
+    Reject {
+        from: u64,
+        to: u64,
+    },
+    Block {
+        from: u64,
+        to: u64,
+    },
 }
 
 /// Summary statistics for a user's friend list.
@@ -60,12 +73,7 @@ impl FriendManager {
     ///
     /// Fails if users are blocked, already friends, request already pending,
     /// or if sending to self.
-    pub fn send_request(
-        &mut self,
-        from: u64,
-        to: u64,
-        block_list: &BlockList,
-    ) -> SocialResult<()> {
+    pub fn send_request(&mut self, from: u64, to: u64, block_list: &BlockList) -> SocialResult<()> {
         if from == to {
             return Err(SocialError::SelfAction);
         }
@@ -137,14 +145,12 @@ impl FriendManager {
 
     /// Get all accepted friends for a user.
     pub fn get_friends(&self, user_id: u64) -> Vec<u64> {
-        self.friendships
-            .get(&user_id)
-            .map_or_else(Vec::new, |map| {
-                map.iter()
-                    .filter(|(_, state)| **state == FriendState::Accepted)
-                    .map(|(id, _)| *id)
-                    .collect()
-            })
+        self.friendships.get(&user_id).map_or_else(Vec::new, |map| {
+            map.iter()
+                .filter(|(_, state)| **state == FriendState::Accepted)
+                .map(|(id, _)| *id)
+                .collect()
+        })
     }
 
     /// Get all users who have sent pending requests to `user_id`.

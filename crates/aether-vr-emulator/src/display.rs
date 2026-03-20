@@ -200,21 +200,14 @@ impl StereoDisplay {
 }
 
 /// Compute forward, up, right basis vectors from yaw and pitch.
-pub fn compute_basis_vectors(
-    yaw_rad: f32,
-    pitch_rad: f32,
-) -> ([f32; 3], [f32; 3], [f32; 3]) {
+pub fn compute_basis_vectors(yaw_rad: f32, pitch_rad: f32) -> ([f32; 3], [f32; 3], [f32; 3]) {
     let cos_p = pitch_rad.cos();
     let sin_p = pitch_rad.sin();
     let cos_y = yaw_rad.cos();
     let sin_y = yaw_rad.sin();
 
     // Forward direction (where the head is looking)
-    let forward = [
-        -sin_y * cos_p,
-        sin_p,
-        -cos_y * cos_p,
-    ];
+    let forward = [-sin_y * cos_p, sin_p, -cos_y * cos_p];
 
     // World up
     let world_up = [0.0f32, 1.0, 0.0];
@@ -251,7 +244,7 @@ fn normalize(v: [f32; 3]) -> [f32; 3] {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{HeadsetPreset, preset_display};
+    use crate::config::{preset_display, HeadsetPreset};
 
     const EPSILON: f32 = 1e-4;
 

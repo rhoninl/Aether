@@ -1,4 +1,4 @@
-/// Moderation status state machine with validated transitions.
+//! Moderation status state machine with validated transitions.
 
 /// All possible moderation states for a content item.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

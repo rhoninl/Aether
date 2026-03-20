@@ -31,4 +31,3 @@ pub struct AvatarImportDecision {
     pub reason: Option<String>,
     pub metadata: Option<AvatarMetadata>,
 }
-

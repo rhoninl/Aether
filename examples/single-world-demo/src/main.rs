@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! Single-world demo entry point.
 //!
 //! Ties together the renderer, physics, input, networking, scripting, and
@@ -46,6 +48,7 @@ struct SceneEntity {
 }
 
 /// Application state machine.
+#[allow(clippy::large_enum_variant)]
 enum AppState {
     Initializing,
     Running {
@@ -379,10 +382,7 @@ impl ApplicationHandler for App {
                 // Poll hot-reload events
                 if let Some(watcher) = _watcher {
                     while let Some(event) = watcher.try_recv() {
-                        log::info!(
-                            "hot-reload event: path={}",
-                            event.path.display()
-                        );
+                        log::info!("hot-reload event: path={}", event.path.display());
                     }
                 }
 

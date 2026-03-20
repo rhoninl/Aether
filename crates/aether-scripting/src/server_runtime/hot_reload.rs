@@ -48,15 +48,9 @@ pub enum ReloadOutcome {
         new_version: u32,
     },
     /// The new version was loaded as the first version (no swap needed).
-    FirstLoad {
-        script_id: u64,
-        version: u32,
-    },
+    FirstLoad { script_id: u64, version: u32 },
     /// The reload was rejected.
-    Rejected {
-        script_id: u64,
-        reason: String,
-    },
+    Rejected { script_id: u64, reason: String },
 }
 
 /// Errors that can occur during hot-reload operations.
@@ -71,10 +65,7 @@ pub enum HotReloadError {
         requested: u32,
     },
     /// Too many versions are currently draining.
-    TooManyDrainingVersions {
-        script_id: u64,
-        count: usize,
-    },
+    TooManyDrainingVersions { script_id: u64, count: usize },
     /// Cannot unload: there are still in-flight executions.
     InFlightExecutions {
         script_id: u64,
@@ -170,11 +161,7 @@ impl HotReloadManager {
     }
 
     /// Returns the lifecycle state of a specific version.
-    pub fn version_state(
-        &self,
-        script_id: u64,
-        version: u32,
-    ) -> Option<ModuleLifecycleState> {
+    pub fn version_state(&self, script_id: u64, version: u32) -> Option<ModuleLifecycleState> {
         let slot = self.slots.get(&script_id)?;
         if let Some(active) = &slot.active {
             if active.version == version {
@@ -200,10 +187,7 @@ impl HotReloadManager {
         artifact_hash: [u8; 32],
         target: AotTarget,
     ) -> Result<ReloadOutcome, HotReloadError> {
-        let slot = self
-            .slots
-            .entry(script_id)
-            .or_insert_with(ModuleSlot::new);
+        let slot = self.slots.entry(script_id).or_insert_with(ModuleSlot::new);
 
         // Validate version is newer than current
         if let Some(active) = &slot.active {
@@ -244,10 +228,7 @@ impl HotReloadManager {
             }
         } else {
             slot.active = Some(new_version);
-            ReloadOutcome::FirstLoad {
-                script_id,
-                version,
-            }
+            ReloadOutcome::FirstLoad { script_id, version }
         };
 
         Ok(outcome)

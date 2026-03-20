@@ -15,4 +15,3 @@ pub struct ProgressionRule {
     pub low_lod_first: bool,
     pub refine_budget_ms: u64,
 }
-

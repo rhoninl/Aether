@@ -26,4 +26,3 @@ pub struct DeploymentTopology {
     pub datacenters: Vec<Datacenter>,
     pub env: EnvType,
 }
-

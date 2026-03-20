@@ -140,9 +140,7 @@ impl ScalingConfig {
         ScalingDecision {
             action: ScalingAction::Hold,
             desired_replicas: current_replicas,
-            reason: format!(
-                "players_per_pod={players_per_pod:.1} within target range"
-            ),
+            reason: format!("players_per_pod={players_per_pod:.1} within target range"),
         }
     }
 
@@ -280,7 +278,10 @@ mod tests {
         let metrics = cfg.custom_metrics();
         assert!(!metrics.is_empty());
         assert!(metrics.iter().any(|m| m.name == "aether_player_count"));
-        let player_metric = metrics.iter().find(|m| m.name == "aether_player_count").unwrap();
+        let player_metric = metrics
+            .iter()
+            .find(|m| m.name == "aether_player_count")
+            .unwrap();
         assert_eq!(player_metric.target_value, 50);
     }
 

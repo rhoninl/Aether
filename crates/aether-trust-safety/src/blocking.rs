@@ -185,8 +185,8 @@ mod tests {
 
         let others: Vec<(u64, &BlockList)> = vec![
             (1, &other1_list),
-            (2, &my_list),      // user 2 -- I block them
-            (3, &other3_list),  // user 3 -- they block me
+            (2, &my_list),     // user 2 -- I block them
+            (3, &other3_list), // user 3 -- they block me
         ];
 
         let visible = filter_mutually_visible(10, &my_list, &others);

@@ -80,9 +80,7 @@ mod real {
                 .map_err(|e| PersistenceError::QueryFailed(e.to_string()))?;
             match row {
                 Some(r) => {
-                    let bytes: Vec<u8> = r
-                        .try_get("data")
-                        .unwrap_or_default();
+                    let bytes: Vec<u8> = r.try_get("data").unwrap_or_default();
                     Ok(Some(bytes))
                 }
                 None => Ok(None),
@@ -90,10 +88,7 @@ mod real {
         }
 
         async fn is_healthy(&self) -> bool {
-            sqlx::query("SELECT 1")
-                .execute(&self.pool)
-                .await
-                .is_ok()
+            sqlx::query("SELECT 1").execute(&self.pool).await.is_ok()
         }
     }
 }

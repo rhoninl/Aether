@@ -9,10 +9,7 @@ use crate::visual_script::runtime::error::RuntimeError;
 use crate::visual_script::types::Value;
 
 /// Helper to build a CompiledScript from raw instructions.
-pub(super) fn make_script(
-    instructions: Vec<IrInstruction>,
-    register_count: u32,
-) -> CompiledScript {
+pub(super) fn make_script(instructions: Vec<IrInstruction>, register_count: u32) -> CompiledScript {
     CompiledScript {
         instructions,
         node_instruction_map: HashMap::new(),
@@ -30,7 +27,10 @@ pub(super) fn default_config() -> VmConfig {
 #[test]
 fn test_load_const_int() {
     let script = make_script(
-        vec![IrInstruction::LoadConst(0, Value::Int(42)), IrInstruction::Return],
+        vec![
+            IrInstruction::LoadConst(0, Value::Int(42)),
+            IrInstruction::Return,
+        ],
         1,
     );
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
@@ -41,7 +41,10 @@ fn test_load_const_int() {
 #[test]
 fn test_load_const_float() {
     let script = make_script(
-        vec![IrInstruction::LoadConst(0, Value::Float(3.14)), IrInstruction::Return],
+        vec![
+            IrInstruction::LoadConst(0, Value::Float(3.14)),
+            IrInstruction::Return,
+        ],
         1,
     );
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
@@ -66,7 +69,10 @@ fn test_load_const_string() {
 #[test]
 fn test_load_const_bool() {
     let script = make_script(
-        vec![IrInstruction::LoadConst(0, Value::Bool(true)), IrInstruction::Return],
+        vec![
+            IrInstruction::LoadConst(0, Value::Bool(true)),
+            IrInstruction::Return,
+        ],
         1,
     );
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
@@ -76,9 +82,16 @@ fn test_load_const_bool() {
 
 #[test]
 fn test_load_const_vec3() {
-    let v = Value::Vec3 { x: 1.0, y: 2.0, z: 3.0 };
+    let v = Value::Vec3 {
+        x: 1.0,
+        y: 2.0,
+        z: 3.0,
+    };
     let script = make_script(
-        vec![IrInstruction::LoadConst(0, v.clone()), IrInstruction::Return],
+        vec![
+            IrInstruction::LoadConst(0, v.clone()),
+            IrInstruction::Return,
+        ],
         1,
     );
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
@@ -89,7 +102,10 @@ fn test_load_const_vec3() {
 #[test]
 fn test_load_const_entity() {
     let script = make_script(
-        vec![IrInstruction::LoadConst(0, Value::Entity(99)), IrInstruction::Return],
+        vec![
+            IrInstruction::LoadConst(0, Value::Entity(99)),
+            IrInstruction::Return,
+        ],
         1,
     );
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
@@ -105,7 +121,12 @@ fn test_add_ints() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(3)),
             IrInstruction::LoadConst(1, Value::Int(4)),
-            IrInstruction::BinaryOp { op: BinaryOp::Add, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Add,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -121,7 +142,12 @@ fn test_add_floats() {
         vec![
             IrInstruction::LoadConst(0, Value::Float(1.5)),
             IrInstruction::LoadConst(1, Value::Float(2.5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Add, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Add,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -137,7 +163,12 @@ fn test_add_int_float_coercion() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(2)),
             IrInstruction::LoadConst(1, Value::Float(3.5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Add, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Add,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -153,7 +184,12 @@ fn test_subtract() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(10)),
             IrInstruction::LoadConst(1, Value::Int(3)),
-            IrInstruction::BinaryOp { op: BinaryOp::Subtract, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Subtract,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -169,7 +205,12 @@ fn test_multiply() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(5)),
             IrInstruction::LoadConst(1, Value::Int(6)),
-            IrInstruction::BinaryOp { op: BinaryOp::Multiply, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Multiply,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -185,7 +226,12 @@ fn test_divide() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(10)),
             IrInstruction::LoadConst(1, Value::Int(2)),
-            IrInstruction::BinaryOp { op: BinaryOp::Divide, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Divide,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -201,7 +247,12 @@ fn test_divide_by_zero_int() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(10)),
             IrInstruction::LoadConst(1, Value::Int(0)),
-            IrInstruction::BinaryOp { op: BinaryOp::Divide, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Divide,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -217,7 +268,12 @@ fn test_divide_by_zero_float() {
         vec![
             IrInstruction::LoadConst(0, Value::Float(10.0)),
             IrInstruction::LoadConst(1, Value::Float(0.0)),
-            IrInstruction::BinaryOp { op: BinaryOp::Divide, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Divide,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -233,7 +289,12 @@ fn test_equal_true() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(5)),
             IrInstruction::LoadConst(1, Value::Int(5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Equal, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Equal,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -249,7 +310,12 @@ fn test_equal_false() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(5)),
             IrInstruction::LoadConst(1, Value::Int(6)),
-            IrInstruction::BinaryOp { op: BinaryOp::Equal, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Equal,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -265,7 +331,12 @@ fn test_not_equal() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(5)),
             IrInstruction::LoadConst(1, Value::Int(6)),
-            IrInstruction::BinaryOp { op: BinaryOp::NotEqual, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::NotEqual,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -281,7 +352,12 @@ fn test_greater() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(10)),
             IrInstruction::LoadConst(1, Value::Int(5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Greater, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Greater,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -297,7 +373,12 @@ fn test_less() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(3)),
             IrInstruction::LoadConst(1, Value::Int(5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Less, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Less,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -313,7 +394,12 @@ fn test_and_both_true() {
         vec![
             IrInstruction::LoadConst(0, Value::Bool(true)),
             IrInstruction::LoadConst(1, Value::Bool(true)),
-            IrInstruction::BinaryOp { op: BinaryOp::And, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::And,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -329,7 +415,12 @@ fn test_and_one_false() {
         vec![
             IrInstruction::LoadConst(0, Value::Bool(true)),
             IrInstruction::LoadConst(1, Value::Bool(false)),
-            IrInstruction::BinaryOp { op: BinaryOp::And, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::And,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -345,7 +436,12 @@ fn test_or() {
         vec![
             IrInstruction::LoadConst(0, Value::Bool(false)),
             IrInstruction::LoadConst(1, Value::Bool(true)),
-            IrInstruction::BinaryOp { op: BinaryOp::Or, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Or,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -361,7 +457,12 @@ fn test_type_error_binary_op() {
         vec![
             IrInstruction::LoadConst(0, Value::String("a".into())),
             IrInstruction::LoadConst(1, Value::Int(1)),
-            IrInstruction::BinaryOp { op: BinaryOp::Add, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Add,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::Return,
         ],
         3,
@@ -440,7 +541,11 @@ fn test_branch_true() {
     let script = make_script(
         vec![
             IrInstruction::LoadConst(0, Value::Bool(true)),
-            IrInstruction::Branch { condition: 0, true_label: 0, false_label: 1 },
+            IrInstruction::Branch {
+                condition: 0,
+                true_label: 0,
+                false_label: 1,
+            },
             IrInstruction::Label(0),
             IrInstruction::LoadConst(1, Value::Int(1)),
             IrInstruction::Return,
@@ -460,7 +565,11 @@ fn test_branch_false() {
     let script = make_script(
         vec![
             IrInstruction::LoadConst(0, Value::Bool(false)),
-            IrInstruction::Branch { condition: 0, true_label: 0, false_label: 1 },
+            IrInstruction::Branch {
+                condition: 0,
+                true_label: 0,
+                false_label: 1,
+            },
             IrInstruction::Label(0),
             IrInstruction::LoadConst(1, Value::Int(1)),
             IrInstruction::Return,
@@ -495,10 +604,7 @@ fn test_jump() {
 
 #[test]
 fn test_label_not_found() {
-    let script = make_script(
-        vec![IrInstruction::Jump(99), IrInstruction::Return],
-        0,
-    );
+    let script = make_script(vec![IrInstruction::Jump(99), IrInstruction::Return], 0);
     let mut vm = ScriptVm::new(&script, default_config()).unwrap();
     let err = vm.execute(&mut NoOpApi).unwrap_err();
     assert_eq!(err, RuntimeError::LabelNotFound(99));

@@ -20,7 +20,9 @@ pub enum WorldManifestError {
     GravityUnrealistic,
 }
 
-pub fn validate_runtime_manifest(manifest: &WorldRuntimeManifest) -> Result<(), WorldManifestError> {
+pub fn validate_runtime_manifest(
+    manifest: &WorldRuntimeManifest,
+) -> Result<(), WorldManifestError> {
     if manifest.terrain_manifest.trim().is_empty() {
         return Err(WorldManifestError::MissingTerrain);
     }
@@ -38,4 +40,3 @@ pub fn validate_runtime_manifest(manifest: &WorldRuntimeManifest) -> Result<(), 
     }
     Ok(())
 }
-

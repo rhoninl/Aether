@@ -135,11 +135,7 @@ impl JwtProvider {
     }
 
     /// Creates an access token for the given user.
-    pub fn create_access_token(
-        &self,
-        user_id: &Uuid,
-        role: &UserRole,
-    ) -> Result<String, JwtError> {
+    pub fn create_access_token(&self, user_id: &Uuid, role: &UserRole) -> Result<String, JwtError> {
         self.create_token(user_id, role, self.config.access_expiry_secs)
     }
 
@@ -170,13 +166,13 @@ impl JwtProvider {
     /// Validates a token and returns the decoded claims.
     pub fn validate_token(&self, token: &str) -> Result<Claims, JwtError> {
         let validation = Validation::new(jsonwebtoken::Algorithm::HS256);
-        let token_data = decode::<Claims>(token, &self.decoding_key, &validation).map_err(
-            |e| match e.kind() {
+        let token_data = decode::<Claims>(token, &self.decoding_key, &validation).map_err(|e| {
+            match e.kind() {
                 jsonwebtoken::errors::ErrorKind::ExpiredSignature => JwtError::Expired,
                 jsonwebtoken::errors::ErrorKind::InvalidSignature => JwtError::InvalidSignature,
                 _ => JwtError::ValidationFailed(e.to_string()),
-            },
-        )?;
+            }
+        })?;
         Ok(token_data.claims)
     }
 
@@ -276,10 +272,7 @@ mod tests {
         let token_user = provider
             .create_access_token(&user_id, &UserRole::User)
             .unwrap();
-        assert_eq!(
-            provider.validate_token(&token_user).unwrap().role,
-            "user"
-        );
+        assert_eq!(provider.validate_token(&token_user).unwrap().role, "user");
 
         let token_mod = provider
             .create_access_token(&user_id, &UserRole::Moderator)
@@ -292,10 +285,7 @@ mod tests {
         let token_admin = provider
             .create_access_token(&user_id, &UserRole::Admin)
             .unwrap();
-        assert_eq!(
-            provider.validate_token(&token_admin).unwrap().role,
-            "admin"
-        );
+        assert_eq!(provider.validate_token(&token_admin).unwrap().role, "admin");
     }
 
     #[test]

@@ -221,16 +221,11 @@ impl Component for Transform {
 }
 
 /// Who has physics authority over this body.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PhysicsAuthority {
+    #[default]
     Server,
     Client(u64),
-}
-
-impl Default for PhysicsAuthority {
-    fn default() -> Self {
-        Self::Server
-    }
 }
 
 impl Component for PhysicsAuthority {

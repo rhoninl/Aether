@@ -323,9 +323,7 @@ impl ScriptVm {
 
     /// Set a variable directly (for pre-loading state before execution).
     pub fn set_variable(&mut self, name: String, value: Value) -> Result<(), RuntimeError> {
-        if self.variables.len() >= self.config.max_vars
-            && !self.variables.contains_key(&name)
-        {
+        if self.variables.len() >= self.config.max_vars && !self.variables.contains_key(&name) {
             return Err(RuntimeError::VariableLimitExceeded {
                 limit: self.config.max_vars,
             });
@@ -454,9 +452,18 @@ fn values_equal(lhs: &Value, rhs: &Value) -> bool {
         (Value::Float(a), Value::Int(b)) => *a == (*b as f32),
         (Value::String(a), Value::String(b)) => a == b,
         (Value::Entity(a), Value::Entity(b)) => a == b,
-        (Value::Vec3 { x: x1, y: y1, z: z1 }, Value::Vec3 { x: x2, y: y2, z: z2 }) => {
-            x1 == x2 && y1 == y2 && z1 == z2
-        }
+        (
+            Value::Vec3 {
+                x: x1,
+                y: y1,
+                z: z1,
+            },
+            Value::Vec3 {
+                x: x2,
+                y: y2,
+                z: z2,
+            },
+        ) => x1 == x2 && y1 == y2 && z1 == z2,
         _ => false,
     }
 }

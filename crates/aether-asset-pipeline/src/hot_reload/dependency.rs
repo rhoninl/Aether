@@ -150,10 +150,7 @@ mod tests {
     #[test]
     fn add_single_dependency() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         assert_eq!(g.edge_count(), 1);
         assert_eq!(g.asset_count(), 2);
     }
@@ -161,10 +158,7 @@ mod tests {
     #[test]
     fn get_direct_dependencies() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         let deps = g.get_dependencies(&PathBuf::from("material.mat"));
         assert_eq!(deps, vec![PathBuf::from("texture.png")]);
     }
@@ -172,10 +166,7 @@ mod tests {
     #[test]
     fn get_dependents_of_texture() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         let dependents = g.get_dependents(&PathBuf::from("texture.png"));
         assert_eq!(dependents, vec![PathBuf::from("material.mat")]);
     }
@@ -183,10 +174,7 @@ mod tests {
     #[test]
     fn get_dependents_of_asset_with_no_dependents() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         let dependents = g.get_dependents(&PathBuf::from("material.mat"));
         assert!(dependents.is_empty());
     }
@@ -195,36 +183,21 @@ mod tests {
     fn transitive_dependents() {
         let mut g = DependencyGraph::new();
         // scene depends on material, material depends on texture
-        g.add_dependency(
-            PathBuf::from("scene.toml"),
-            PathBuf::from("material.mat"),
-        );
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("scene.toml"), PathBuf::from("material.mat"));
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         // Changing texture should cascade to material and scene
         let dependents = g.get_dependents(&PathBuf::from("texture.png"));
         assert_eq!(
             dependents,
-            vec![
-                PathBuf::from("material.mat"),
-                PathBuf::from("scene.toml"),
-            ]
+            vec![PathBuf::from("material.mat"), PathBuf::from("scene.toml"),]
         );
     }
 
     #[test]
     fn multiple_dependents_of_same_asset() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("mat_a.mat"),
-            PathBuf::from("shared.png"),
-        );
-        g.add_dependency(
-            PathBuf::from("mat_b.mat"),
-            PathBuf::from("shared.png"),
-        );
+        g.add_dependency(PathBuf::from("mat_a.mat"), PathBuf::from("shared.png"));
+        g.add_dependency(PathBuf::from("mat_b.mat"), PathBuf::from("shared.png"));
         let dependents = g.get_dependents(&PathBuf::from("shared.png"));
         assert_eq!(dependents.len(), 2);
         assert!(dependents.contains(&PathBuf::from("mat_a.mat")));
@@ -234,10 +207,7 @@ mod tests {
     #[test]
     fn remove_dependency_edge() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
         g.remove_dependency(
             &PathBuf::from("material.mat"),
             &PathBuf::from("texture.png"),
@@ -250,14 +220,8 @@ mod tests {
     #[test]
     fn remove_asset_clears_all_edges() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("texture.png"),
-        );
-        g.add_dependency(
-            PathBuf::from("scene.toml"),
-            PathBuf::from("material.mat"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("texture.png"));
+        g.add_dependency(PathBuf::from("scene.toml"), PathBuf::from("material.mat"));
         g.remove_asset(&PathBuf::from("material.mat"));
         assert_eq!(g.edge_count(), 0);
     }
@@ -266,10 +230,7 @@ mod tests {
     fn remove_nonexistent_dependency() {
         let mut g = DependencyGraph::new();
         // Should not panic
-        g.remove_dependency(
-            &PathBuf::from("nope.mat"),
-            &PathBuf::from("nope.png"),
-        );
+        g.remove_dependency(&PathBuf::from("nope.mat"), &PathBuf::from("nope.png"));
         assert_eq!(g.edge_count(), 0);
     }
 
@@ -307,14 +268,8 @@ mod tests {
     #[test]
     fn asset_with_multiple_dependencies() {
         let mut g = DependencyGraph::new();
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("diffuse.png"),
-        );
-        g.add_dependency(
-            PathBuf::from("material.mat"),
-            PathBuf::from("normal.png"),
-        );
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("diffuse.png"));
+        g.add_dependency(PathBuf::from("material.mat"), PathBuf::from("normal.png"));
         g.add_dependency(
             PathBuf::from("material.mat"),
             PathBuf::from("roughness.png"),

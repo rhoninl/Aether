@@ -14,4 +14,3 @@ pub use transaction::{
     TransactionError, TransactionKind, TransactionState,
 };
 pub use wallet::{WalletAccount, WalletConstraint, WalletOperation, WalletSummary};
-

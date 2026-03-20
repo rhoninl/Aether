@@ -27,14 +27,9 @@ pub enum GrabJointKind {
     /// Rigid lock -- object follows hand exactly.
     Fixed,
     /// Compliant spring joint with stiffness and damping.
-    Spring {
-        stiffness: f32,
-        damping: f32,
-    },
+    Spring { stiffness: f32, damping: f32 },
     /// Hinge joint allowing rotation around a specified axis.
-    Hinge {
-        axis: [f32; 3],
-    },
+    Hinge { axis: [f32; 3] },
 }
 
 impl GrabJointKind {
@@ -108,9 +103,10 @@ impl GrabConstraint {
 }
 
 /// Per-hand grab state.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum GrabState {
     /// Hand is not grabbing anything.
+    #[default]
     Idle,
     /// Hand is actively holding an object.
     Grabbing {
@@ -121,12 +117,6 @@ pub enum GrabState {
         /// The world-space point where the grab was initiated.
         grab_point: [f32; 3],
     },
-}
-
-impl Default for GrabState {
-    fn default() -> Self {
-        GrabState::Idle
-    }
 }
 
 impl GrabState {
@@ -274,18 +264,15 @@ impl GrabSystem {
                 let result = GrabUpdateResult {
                     force_magnitude: 0.0,
                     broke: false,
-                    target_position: math::sub(hand_world_anchor, math::quat_rotate(
-                        hand_transform.rotation,
-                        constraint.object_anchor,
-                    )),
+                    target_position: math::sub(
+                        hand_world_anchor,
+                        math::quat_rotate(hand_transform.rotation, constraint.object_anchor),
+                    ),
                     target_rotation: hand_transform.rotation,
                 };
                 Some(result)
             }
-            GrabJointKind::Spring {
-                stiffness,
-                damping,
-            } => {
+            GrabJointKind::Spring { stiffness, damping } => {
                 // Spring force: F = -k * x - c * v
                 let spring_force = math::scale(displacement, *stiffness);
                 let damping_force = math::scale(object_velocity, -*damping);
@@ -304,10 +291,8 @@ impl GrabSystem {
                 }
 
                 // Target = current + force * dt^2 / mass (simplified: assume unit mass)
-                let target_position = math::add(
-                    object_transform.position,
-                    math::scale(total_force, dt * dt),
-                );
+                let target_position =
+                    math::add(object_transform.position, math::scale(total_force, dt * dt));
 
                 Some(GrabUpdateResult {
                     force_magnitude,
@@ -334,10 +319,8 @@ impl GrabSystem {
 
                 // Allow object to move along the hinge axis freely
                 // but constrain perpendicular motion
-                let target_position = math::add(
-                    object_transform.position,
-                    math::scale(planar_disp, dt),
-                );
+                let target_position =
+                    math::add(object_transform.position, math::scale(planar_disp, dt));
 
                 Some(GrabUpdateResult {
                     force_magnitude,
@@ -436,8 +419,7 @@ mod tests {
 
     #[test]
     fn constraint_with_anchors() {
-        let c = GrabConstraint::fixed()
-            .with_anchors([0.1, 0.0, 0.0], [0.0, 0.1, 0.0]);
+        let c = GrabConstraint::fixed().with_anchors([0.1, 0.0, 0.0], [0.0, 0.1, 0.0]);
         assert_eq!(c.hand_anchor, [0.1, 0.0, 0.0]);
         assert_eq!(c.object_anchor, [0.0, 0.1, 0.0]);
     }
@@ -552,12 +534,7 @@ mod tests {
     #[test]
     fn update_fixed_joint_snaps_to_hand() {
         let mut system = GrabSystem::new().with_max_distance(5.0);
-        system.try_grab(
-            [0.0; 3],
-            entity(1),
-            [0.0; 3],
-            GrabConstraint::fixed(),
-        );
+        system.try_grab([0.0; 3], entity(1), [0.0; 3], GrabConstraint::fixed());
 
         let hand = identity_transform_at([1.0, 2.0, 3.0]);
         let obj = identity_transform_at([0.0; 3]);
@@ -652,12 +629,7 @@ mod tests {
         let mut system = GrabSystem::new().with_max_distance(5.0);
 
         // Grab
-        assert!(system.try_grab(
-            [0.0; 3],
-            entity(1),
-            [0.0; 3],
-            GrabConstraint::fixed(),
-        ));
+        assert!(system.try_grab([0.0; 3], entity(1), [0.0; 3], GrabConstraint::fixed(),));
         assert!(system.is_grabbing());
 
         // Release
@@ -665,12 +637,7 @@ mod tests {
         assert!(!system.is_grabbing());
 
         // Grab again
-        assert!(system.try_grab(
-            [0.0; 3],
-            entity(2),
-            [0.0; 3],
-            GrabConstraint::spring(),
-        ));
+        assert!(system.try_grab([0.0; 3], entity(2), [0.0; 3], GrabConstraint::spring(),));
         assert_eq!(system.state().target().unwrap().index(), 2);
     }
 }

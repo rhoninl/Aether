@@ -202,11 +202,7 @@ mod tests {
             InputSource::Keyboard(KeyCode::Space),
             InputGesture::Press,
         );
-        map.bind(
-            "jump",
-            InputSource::GamepadButton(0),
-            InputGesture::Press,
-        );
+        map.bind("jump", InputSource::GamepadButton(0), InputGesture::Press);
         let result = map.resolve_action("jump");
         assert_eq!(result.len(), 2);
     }
@@ -231,11 +227,7 @@ mod tests {
             InputSource::Keyboard(KeyCode::Space),
             InputGesture::Press,
         );
-        map.bind(
-            "jump",
-            InputSource::GamepadButton(0),
-            InputGesture::Press,
-        );
+        map.bind("jump", InputSource::GamepadButton(0), InputGesture::Press);
         map.bind(
             "move_forward",
             InputSource::Keyboard(KeyCode::W),
@@ -262,7 +254,9 @@ mod tests {
             },
         );
         map.unbind_source(&InputSource::Keyboard(KeyCode::Space));
-        assert!(map.resolve(&InputSource::Keyboard(KeyCode::Space)).is_empty());
+        assert!(map
+            .resolve(&InputSource::Keyboard(KeyCode::Space))
+            .is_empty());
     }
 
     #[test]

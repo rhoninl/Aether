@@ -6,16 +6,11 @@ use crate::rate_limit::RateLimiter;
 
 pub type ScriptId = u64;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum ScriptRuntime {
+    #[default]
     Wasm,
     Lua,
-}
-
-impl Default for ScriptRuntime {
-    fn default() -> Self {
-        ScriptRuntime::Wasm
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -75,7 +70,11 @@ pub struct WorldTick {
 
 impl WorldTick {
     pub fn deferred_to_run_next(&self, limit: Option<usize>) -> Vec<ScriptId> {
-        self.deferred.iter().take(limit.unwrap_or(self.deferred.len())).cloned().collect()
+        self.deferred
+            .iter()
+            .take(limit.unwrap_or(self.deferred.len()))
+            .cloned()
+            .collect()
     }
 }
 
@@ -98,7 +97,10 @@ pub struct SchedulerLimitsError {
 pub enum SchedulerError {
     NotFound(ScriptId),
     DuplicateScript(ScriptId),
-    ScriptLimitExceeded { script_id: ScriptId, reason: &'static str },
+    ScriptLimitExceeded {
+        script_id: ScriptId,
+        reason: &'static str,
+    },
     WorldLimitExceeded(SchedulerLimitsError),
     ScriptSuspended(ScriptId),
     WorldFull(String),
@@ -162,14 +164,18 @@ impl WorldScriptScheduler {
                 reason: "script memory exceeds configured per-script memory limit",
             });
         }
-        if self.running_world_memory + descriptor.memory_bytes > self.limits.per_world.max_script_memory_bytes {
+        if self.running_world_memory + descriptor.memory_bytes
+            > self.limits.per_world.max_script_memory_bytes
+        {
             return Err(SchedulerError::WorldLimitExceeded(SchedulerLimitsError {
                 reason: "script memory",
                 used: self.running_world_memory + descriptor.memory_bytes,
                 limit: self.limits.per_world.max_script_memory_bytes,
             }));
         }
-        if self.running_world_entities + descriptor.initial_entities > self.limits.per_world.max_scripted_entities {
+        if self.running_world_entities + descriptor.initial_entities
+            > self.limits.per_world.max_scripted_entities
+        {
             return Err(SchedulerError::WorldLimitExceeded(SchedulerLimitsError {
                 reason: "script entities",
                 used: (self.running_world_entities + descriptor.initial_entities) as u64,
@@ -200,8 +206,12 @@ impl WorldScriptScheduler {
 
     pub fn remove_script(&mut self, id: ScriptId) -> Option<RuntimeScript> {
         if let Some(script) = self.scripts.remove(&id) {
-            self.running_world_memory = self.running_world_memory.saturating_sub(script.memory_bytes);
-            self.running_world_entities = self.running_world_entities.saturating_sub(script.scripted_entities);
+            self.running_world_memory = self
+                .running_world_memory
+                .saturating_sub(script.memory_bytes);
+            self.running_world_entities = self
+                .running_world_entities
+                .saturating_sub(script.scripted_entities);
             return Some(script);
         }
         None
@@ -231,14 +241,16 @@ impl WorldScriptScheduler {
             .filter(|script| matches!(script.state, ScriptState::Running))
             .collect();
 
-        candidates.sort_by(|a, b| b.effective_priority().cmp(&a.effective_priority()));
+        candidates.sort_by_key(|b| std::cmp::Reverse(b.effective_priority()));
 
         let mut selected = Vec::new();
         let mut deferred = Vec::new();
         let mut predicted_cpu = Duration::ZERO;
 
         for script in candidates {
-            if predicted_cpu + script.cpu_budget_per_tick <= self.limits.per_world.cpu_budget_per_tick {
+            if predicted_cpu + script.cpu_budget_per_tick
+                <= self.limits.per_world.cpu_budget_per_tick
+            {
                 predicted_cpu += script.cpu_budget_per_tick;
                 selected.push(script.id);
                 script.age_bonus = 0;
@@ -265,7 +277,10 @@ impl WorldScriptScheduler {
     ) -> TickUsageResult {
         let total_cpu = report.iter().map(|entry| entry.cpu_used).sum();
 
-        if let Some(script) = report.iter().find_map(|entry| self.scripts.get(&entry.script_id)) {
+        if let Some(script) = report
+            .iter()
+            .find_map(|entry| self.scripts.get(&entry.script_id))
+        {
             let _ = script;
         }
         for entry in report {
@@ -316,8 +331,7 @@ impl WorldScriptScheduler {
                 }
             })
             .min_by(|a, b| {
-                a.1
-                    .cmp(&b.1)
+                a.1.cmp(&b.1)
                     .then_with(|| a.2.cmp(&b.2))
                     .then_with(|| a.0.cmp(&b.0))
             })
@@ -334,8 +348,10 @@ impl WorldScriptScheduler {
             .scripts
             .get_mut(&script_id)
             .ok_or(SchedulerError::NotFound(script_id))?;
-        if script.scripted_entities + count > u32::MAX {
-            return Err(SchedulerError::WorldFull("entity request overflow".to_string()));
+        if script.scripted_entities.checked_add(count).is_none() {
+            return Err(SchedulerError::WorldFull(
+                "entity request overflow".to_string(),
+            ));
         }
         if matches!(script.state, ScriptState::Suspended) {
             return Err(SchedulerError::ScriptSuspended(script_id));
@@ -514,9 +530,7 @@ mod tests {
         scheduler.register_script(descriptor, now).unwrap();
 
         for _ in 0..50 {
-            assert!(scheduler
-                .try_emit_network_rpc(now, 7, 1)
-                .is_ok());
+            assert!(scheduler.try_emit_network_rpc(now, 7, 1).is_ok());
         }
         assert!(scheduler.try_emit_network_rpc(now, 7, 1).is_err());
 

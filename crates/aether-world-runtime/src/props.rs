@@ -40,4 +40,3 @@ pub struct SpawnPoint {
     pub yaw_deg: f32,
     pub is_default: bool,
 }
-

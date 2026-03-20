@@ -47,25 +47,18 @@ struct EntityState {
 #[derive(Debug, Clone, PartialEq)]
 pub enum TeleportResult {
     /// Position change is within acceptable limits.
-    Valid {
-        distance: f32,
-    },
+    Valid { distance: f32 },
     /// First position report for this entity (no previous state to compare).
     FirstReport,
     /// Position change exceeds maximum teleport distance.
-    TeleportViolation {
-        distance: f32,
-        max_allowed: f32,
-    },
+    TeleportViolation { distance: f32, max_allowed: f32 },
     /// Update arrived too soon after the previous one.
     UpdateTooFast {
         interval_secs: f64,
         min_interval_secs: f32,
     },
     /// Invalid input.
-    InvalidInput {
-        reason: String,
-    },
+    InvalidInput { reason: String },
 }
 
 impl fmt::Display for TeleportResult {
@@ -131,12 +124,7 @@ impl TeleportDetector {
     /// - `entity_id`: Unique entity identifier.
     /// - `new_pos`: Client-claimed new position.
     /// - `timestamp_secs`: Server timestamp of this update in seconds.
-    pub fn check(
-        &mut self,
-        entity_id: u64,
-        new_pos: Vec3,
-        timestamp_secs: f64,
-    ) -> TeleportResult {
+    pub fn check(&mut self, entity_id: u64, new_pos: Vec3, timestamp_secs: f64) -> TeleportResult {
         if timestamp_secs < 0.0 {
             return TeleportResult::InvalidInput {
                 reason: "timestamp must be non-negative".to_string(),

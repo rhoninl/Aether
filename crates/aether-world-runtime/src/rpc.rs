@@ -107,12 +107,12 @@ impl RpcDispatcher {
 
     /// Dispatch an RPC request to the appropriate handler.
     pub fn dispatch(&self, request: &RpcRequest) -> Result<RpcResponse, RpcError> {
-        let handler = self
-            .handlers
-            .get(&request.method)
-            .ok_or_else(|| RpcError::HandlerNotFound {
-                method: request.method.clone(),
-            })?;
+        let handler =
+            self.handlers
+                .get(&request.method)
+                .ok_or_else(|| RpcError::HandlerNotFound {
+                    method: request.method.clone(),
+                })?;
 
         match handler(request) {
             Ok(response_payload) => Ok(RpcResponse {
@@ -130,10 +130,7 @@ impl RpcDispatcher {
     }
 
     /// Dispatch multiple requests, returning responses and errors.
-    pub fn dispatch_batch(
-        &self,
-        requests: &[RpcRequest],
-    ) -> Vec<Result<RpcResponse, RpcError>> {
+    pub fn dispatch_batch(&self, requests: &[RpcRequest]) -> Vec<Result<RpcResponse, RpcError>> {
         requests.iter().map(|req| self.dispatch(req)).collect()
     }
 }

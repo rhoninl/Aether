@@ -16,10 +16,7 @@ pub struct VisualScriptGraph {
 #[derive(Debug)]
 pub enum VisualScriptCompileError {
     EmptyGraph,
-    DanglingNode {
-        node_id: u32,
-        context: &'static str,
-    },
+    DanglingNode { node_id: u32, context: &'static str },
     BackendUnavailable,
     InvalidNodeId(u32),
 }

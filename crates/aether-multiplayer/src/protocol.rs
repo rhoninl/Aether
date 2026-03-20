@@ -12,14 +12,9 @@ pub type PlayerId = Uuid;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ClientMessage {
     /// Player input update with avatar state.
-    InputUpdate {
-        tick: u64,
-        avatar: AvatarState,
-    },
+    InputUpdate { tick: u64, avatar: AvatarState },
     /// Ping for latency measurement.
-    Ping {
-        client_time_ms: u64,
-    },
+    Ping { client_time_ms: u64 },
 }
 
 /// Messages sent from server to client.
@@ -31,13 +26,9 @@ pub enum ServerMessage {
         avatars: Vec<(PlayerId, AvatarState)>,
     },
     /// Notification that a player joined.
-    PlayerJoined {
-        player_id: PlayerId,
-    },
+    PlayerJoined { player_id: PlayerId },
     /// Notification that a player left.
-    PlayerLeft {
-        player_id: PlayerId,
-    },
+    PlayerLeft { player_id: PlayerId },
     /// Pong response for latency measurement.
     Pong {
         client_time_ms: u64,
@@ -192,7 +183,11 @@ mod tests {
         };
         let bytes = encode_server_message(&msg).unwrap();
         let decoded = decode_server_message(&bytes).unwrap();
-        if let ServerMessage::WorldState { tick, avatars: decoded_avatars } = decoded {
+        if let ServerMessage::WorldState {
+            tick,
+            avatars: decoded_avatars,
+        } = decoded
+        {
             assert_eq!(tick, 999);
             assert_eq!(decoded_avatars.len(), 20);
         } else {

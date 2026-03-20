@@ -1,7 +1,13 @@
 #[derive(Debug, Clone)]
 pub enum HapticWave {
-    Sine { freq_hz: f32, amplitude: f32 },
-    Pulse { amplitude: f32, duration_ms: u16 },
+    Sine {
+        freq_hz: f32,
+        amplitude: f32,
+    },
+    Pulse {
+        amplitude: f32,
+        duration_ms: u16,
+    },
     Ramp {
         from_amplitude: f32,
         to_amplitude: f32,
@@ -32,4 +38,3 @@ pub struct HapticRequest {
     pub cooldown_ms: u32,
     pub looped: bool,
 }
-

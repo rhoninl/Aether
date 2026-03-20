@@ -10,9 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ProjectError;
 use crate::mode::WorldDimension;
-use crate::version::{
-    deserialize_version_history, serialize_version_history, VersionHistory,
-};
+use crate::version::{deserialize_version_history, serialize_version_history, VersionHistory};
 
 // ---------------------------------------------------------------------------
 // Manifest types
@@ -107,9 +105,7 @@ pub fn scaffold_project(
     dimension: WorldDimension,
 ) -> Result<(), ProjectError> {
     if root.exists() {
-        return Err(ProjectError::AlreadyExists(
-            root.display().to_string(),
-        ));
+        return Err(ProjectError::AlreadyExists(root.display().to_string()));
     }
 
     // Create top-level directory.
@@ -120,21 +116,18 @@ pub fn scaffold_project(
 
     // Write world.toml.
     let manifest = build_default_manifest(name, dimension);
-    let toml_str = toml::to_string_pretty(&manifest)
-        .map_err(|e| ProjectError::Manifest(e.to_string()))?;
+    let toml_str =
+        toml::to_string_pretty(&manifest).map_err(|e| ProjectError::Manifest(e.to_string()))?;
     fs::write(root.join(WORLD_MANIFEST_FILE), toml_str)?;
 
     // Write default scene.
     let scene_content = build_default_scene(name, dimension);
-    fs::write(
-        root.join(SCENES_DIR).join(MAIN_SCENE_FILE),
-        scene_content,
-    )?;
+    fs::write(root.join(SCENES_DIR).join(MAIN_SCENE_FILE), scene_content)?;
 
     // Write empty version history.
     let history = VersionHistory::new();
-    let history_toml = serialize_version_history(&history)
-        .map_err(|e| ProjectError::Manifest(e.to_string()))?;
+    let history_toml =
+        serialize_version_history(&history).map_err(|e| ProjectError::Manifest(e.to_string()))?;
     fs::write(
         root.join(VERSION_HISTORY_DIR).join(VERSION_HISTORY_FILE),
         history_toml,
@@ -155,8 +148,8 @@ pub fn load_project(root: &Path) -> Result<WorldProject, ProjectError> {
     }
 
     let manifest_str = fs::read_to_string(&manifest_path)?;
-    let manifest: WorldProjectManifest = toml::from_str(&manifest_str)
-        .map_err(|e| ProjectError::Manifest(e.to_string()))?;
+    let manifest: WorldProjectManifest =
+        toml::from_str(&manifest_str).map_err(|e| ProjectError::Manifest(e.to_string()))?;
 
     let version_history = load_version_history(root)?;
 
@@ -187,14 +180,11 @@ pub fn load_version_history(root: &Path) -> Result<VersionHistory, ProjectError>
 }
 
 /// Save version history to `.aether/versions.toml`.
-pub fn save_version_history(
-    root: &Path,
-    history: &VersionHistory,
-) -> Result<(), ProjectError> {
+pub fn save_version_history(root: &Path, history: &VersionHistory) -> Result<(), ProjectError> {
     let dir = root.join(VERSION_HISTORY_DIR);
     fs::create_dir_all(&dir)?;
-    let toml_str = serialize_version_history(history)
-        .map_err(|e| ProjectError::Manifest(e.to_string()))?;
+    let toml_str =
+        serialize_version_history(history).map_err(|e| ProjectError::Manifest(e.to_string()))?;
     fs::write(dir.join(VERSION_HISTORY_FILE), toml_str)?;
     Ok(())
 }
@@ -225,10 +215,7 @@ fn create_directories(root: &Path, dimension: WorldDimension) -> Result<(), Proj
     Ok(())
 }
 
-fn build_default_manifest(
-    name: &str,
-    dimension: WorldDimension,
-) -> WorldProjectManifest {
+fn build_default_manifest(name: &str, dimension: WorldDimension) -> WorldProjectManifest {
     let (dim_str, gravity, camera, max_players) = match dimension {
         WorldDimension::ThreeD => (
             "3D".to_string(),

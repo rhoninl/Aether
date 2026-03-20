@@ -104,7 +104,11 @@ impl ChunkEntry {
     }
 
     /// Attempt to transition to a new state. Returns an error if the transition is invalid.
-    pub fn transition(&mut self, next: ChunkState, now_ms: u64) -> Result<ChunkState, InvalidTransition> {
+    pub fn transition(
+        &mut self,
+        next: ChunkState,
+        now_ms: u64,
+    ) -> Result<ChunkState, InvalidTransition> {
         if self.state.can_transition_to(&next) {
             let prev = self.state;
             self.state = next;

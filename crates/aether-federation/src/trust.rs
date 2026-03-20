@@ -17,4 +17,3 @@ pub enum ModifiedSinceApproval {
     Yes,
     No,
 }
-

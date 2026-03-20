@@ -18,7 +18,7 @@ use std::collections::HashMap;
 
 use wasmtime::{Engine, Module, Store};
 
-use aot::{AotArtifact, AotCompiler, AotCompilationError, AotTarget, OptimizationLevel};
+use aot::{AotArtifact, AotCompilationError, AotCompiler, AotTarget, OptimizationLevel};
 use artifact_registry::{ArtifactRegistry, RegistryError};
 use hot_reload::{HotReloadManager, ReloadOutcome};
 use resource_limits::{MeteringOutcome, ResourceMeter, ServerResourcePolicy};
@@ -249,11 +249,7 @@ impl ServerRuntime {
     ///
     /// The module is compiled with Wasmtime and made ready for execution.
     /// This also registers the version with the hot-reload manager.
-    pub fn load_module(
-        &mut self,
-        script_id: u64,
-        version: u32,
-    ) -> Result<(), ServerRuntimeError> {
+    pub fn load_module(&mut self, script_id: u64, version: u32) -> Result<(), ServerRuntimeError> {
         let manifest = self.registry.get_manifest(script_id, version)?;
         let artifact_bytes = self.registry.get_artifact_bytes(script_id, version)?;
 
@@ -372,10 +368,7 @@ impl ServerRuntime {
             }
         }
 
-        Ok(ReloadOutcome::FirstLoad {
-            script_id,
-            version,
-        })
+        Ok(ReloadOutcome::FirstLoad { script_id, version })
     }
 
     /// Unloads a module from the runtime.

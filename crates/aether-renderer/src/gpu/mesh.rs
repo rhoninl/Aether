@@ -1,9 +1,11 @@
 use bytemuck::{Pod, Zeroable};
 
-/// Number of floats in a Vertex (3 pos + 3 normal + 2 uv).
-const VERTEX_FLOAT_COUNT: usize = 8;
 /// Size of a single Vertex in bytes.
 pub const VERTEX_SIZE: usize = std::mem::size_of::<Vertex>();
+
+/// Number of f32 floats in a single Vertex (position: 3 + normal: 3 + uv: 2).
+#[cfg(test)]
+const VERTEX_FLOAT_COUNT: usize = 8;
 
 /// PBR vertex: position, normal, UV.
 #[repr(C)]
@@ -62,7 +64,11 @@ pub struct GpuMesh {
 }
 
 /// Create a vertex buffer from a slice of vertices.
-pub fn create_vertex_buffer(device: &wgpu::Device, label: &str, vertices: &[Vertex]) -> wgpu::Buffer {
+pub fn create_vertex_buffer(
+    device: &wgpu::Device,
+    label: &str,
+    vertices: &[Vertex],
+) -> wgpu::Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: Some(label),
         size: (vertices.len() * VERTEX_SIZE) as u64,
@@ -72,20 +78,28 @@ pub fn create_vertex_buffer(device: &wgpu::Device, label: &str, vertices: &[Vert
 }
 
 /// Create an index buffer from a slice of u32 indices.
-pub fn create_index_buffer_u32(device: &wgpu::Device, label: &str, indices: &[u32]) -> wgpu::Buffer {
+pub fn create_index_buffer_u32(
+    device: &wgpu::Device,
+    label: &str,
+    indices: &[u32],
+) -> wgpu::Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: Some(label),
-        size: (indices.len() * std::mem::size_of::<u32>()) as u64,
+        size: std::mem::size_of_val(indices) as u64,
         usage: wgpu::BufferUsages::INDEX | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     })
 }
 
 /// Create an index buffer from a slice of u16 indices.
-pub fn create_index_buffer_u16(device: &wgpu::Device, label: &str, indices: &[u16]) -> wgpu::Buffer {
+pub fn create_index_buffer_u16(
+    device: &wgpu::Device,
+    label: &str,
+    indices: &[u16],
+) -> wgpu::Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: Some(label),
-        size: (indices.len() * std::mem::size_of::<u16>()) as u64,
+        size: std::mem::size_of_val(indices) as u64,
         usage: wgpu::BufferUsages::INDEX | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     })

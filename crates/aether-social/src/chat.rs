@@ -102,10 +102,7 @@ impl ChatManager {
             kind,
             server_ts_ms: self.current_ts_ms,
         };
-        self.messages
-            .get_mut(channel_id)
-            .unwrap()
-            .push(msg.clone());
+        self.messages.get_mut(channel_id).unwrap().push(msg.clone());
         Ok(msg)
     }
 
@@ -262,7 +259,10 @@ mod tests {
     fn remove_non_member_errors() {
         let mut cm = ChatManager::new();
         let cid = cm.create_channel(ChatType::Group, vec![1]);
-        assert_eq!(cm.remove_member(&cid, 99), Err(SocialError::NotChannelMember));
+        assert_eq!(
+            cm.remove_member(&cid, 99),
+            Err(SocialError::NotChannelMember)
+        );
     }
 
     #[test]
@@ -274,7 +274,10 @@ mod tests {
     #[test]
     fn get_messages_nonexistent_channel() {
         let cm = ChatManager::new();
-        assert_eq!(cm.get_messages("nope", 10), Err(SocialError::ChannelNotFound));
+        assert_eq!(
+            cm.get_messages("nope", 10),
+            Err(SocialError::ChannelNotFound)
+        );
     }
 
     #[test]

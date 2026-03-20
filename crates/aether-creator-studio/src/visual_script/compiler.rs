@@ -47,10 +47,7 @@ pub enum IrInstruction {
         rhs: Register,
     },
     /// Unary NOT: dest = !src.
-    Not {
-        dest: Register,
-        src: Register,
-    },
+    Not { dest: Register, src: Register },
     /// Conditional branch.
     Branch {
         condition: Register,
@@ -268,20 +265,16 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
 
     match &node.kind {
         NodeKind::Add | NodeKind::Subtract | NodeKind::Multiply | NodeKind::Divide => {
-            let a_reg = gen
-                .resolve_input(graph, node_id, "a")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
-            let b_reg = gen
-                .resolve_input(graph, node_id, "b")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
+            let a_reg = gen.resolve_input(graph, node_id, "a").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
+            let b_reg = gen.resolve_input(graph, node_id, "b").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
             let dest = gen.alloc_register();
 
             let op = match &node.kind {
@@ -303,20 +296,16 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
         }
 
         NodeKind::Equal | NodeKind::NotEqual | NodeKind::Greater | NodeKind::Less => {
-            let a_reg = gen
-                .resolve_input(graph, node_id, "a")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
-            let b_reg = gen
-                .resolve_input(graph, node_id, "b")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
+            let a_reg = gen.resolve_input(graph, node_id, "a").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
+            let b_reg = gen.resolve_input(graph, node_id, "b").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
             let dest = gen.alloc_register();
 
             let op = match &node.kind {
@@ -338,20 +327,16 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
         }
 
         NodeKind::And | NodeKind::Or => {
-            let a_reg = gen
-                .resolve_input(graph, node_id, "a")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Bool(false)));
-                    r
-                });
-            let b_reg = gen
-                .resolve_input(graph, node_id, "b")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Bool(false)));
-                    r
-                });
+            let a_reg = gen.resolve_input(graph, node_id, "a").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Bool(false)));
+                r
+            });
+            let b_reg = gen.resolve_input(graph, node_id, "b").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Bool(false)));
+                r
+            });
             let dest = gen.alloc_register();
 
             let op = match &node.kind {
@@ -379,10 +364,7 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
                     r
                 });
             let dest = gen.alloc_register();
-            gen.emit(IrInstruction::Not {
-                dest,
-                src: src_reg,
-            });
+            gen.emit(IrInstruction::Not { dest, src: src_reg });
             gen.output_registers
                 .insert((node_id, "result".into()), dest);
         }
@@ -396,8 +378,7 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
             });
             // The variable name is baked into the call semantics
             let _name = var_name.clone();
-            gen.output_registers
-                .insert((node_id, "value".into()), dest);
+            gen.output_registers.insert((node_id, "value".into()), dest);
         }
 
         NodeKind::Clamp => {
@@ -408,20 +389,16 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
                     gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
                     r
                 });
-            let min_reg = gen
-                .resolve_input(graph, node_id, "min")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
-            let max_reg = gen
-                .resolve_input(graph, node_id, "max")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
-                    r
-                });
+            let min_reg = gen.resolve_input(graph, node_id, "min").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
+            let max_reg = gen.resolve_input(graph, node_id, "max").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
+                r
+            });
             let dest = gen.alloc_register();
             gen.emit(IrInstruction::Call {
                 function: "clamp".into(),
@@ -433,27 +410,21 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
         }
 
         NodeKind::Lerp => {
-            let a_reg = gen
-                .resolve_input(graph, node_id, "a")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
-            let b_reg = gen
-                .resolve_input(graph, node_id, "b")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
-                    r
-                });
-            let t_reg = gen
-                .resolve_input(graph, node_id, "t")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.5)));
-                    r
-                });
+            let a_reg = gen.resolve_input(graph, node_id, "a").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
+            let b_reg = gen.resolve_input(graph, node_id, "b").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
+                r
+            });
+            let t_reg = gen.resolve_input(graph, node_id, "t").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.5)));
+                r
+            });
             let dest = gen.alloc_register();
             gen.emit(IrInstruction::Call {
                 function: "lerp".into(),
@@ -465,20 +436,16 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
         }
 
         NodeKind::RandomRange => {
-            let min_reg = gen
-                .resolve_input(graph, node_id, "min")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
-                    r
-                });
-            let max_reg = gen
-                .resolve_input(graph, node_id, "max")
-                .unwrap_or_else(|| {
-                    let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
-                    r
-                });
+            let min_reg = gen.resolve_input(graph, node_id, "min").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(0.0)));
+                r
+            });
+            let max_reg = gen.resolve_input(graph, node_id, "max").unwrap_or_else(|| {
+                let r = gen.alloc_register();
+                gen.emit(IrInstruction::LoadConst(r, Value::Float(1.0)));
+                r
+            });
             let dest = gen.alloc_register();
             gen.emit(IrInstruction::Call {
                 function: "random_range".into(),
@@ -494,12 +461,7 @@ fn compile_pure_node(graph: &NodeGraph, node_id: NodeId, gen: &mut IrGenerator) 
 }
 
 /// Compile a flow (impure) node.
-fn compile_flow_node(
-    graph: &NodeGraph,
-    node_id: NodeId,
-    kind: &NodeKind,
-    gen: &mut IrGenerator,
-) {
+fn compile_flow_node(graph: &NodeGraph, node_id: NodeId, kind: &NodeKind, gen: &mut IrGenerator) {
     match kind {
         // Event nodes just emit a label (entry point)
         NodeKind::OnInteract
@@ -549,10 +511,7 @@ fn compile_flow_node(
                 .resolve_input(graph, node_id, "message")
                 .unwrap_or_else(|| {
                     let r = gen.alloc_register();
-                    gen.emit(IrInstruction::LoadConst(
-                        r,
-                        Value::String("<empty>".into()),
-                    ));
+                    gen.emit(IrInstruction::LoadConst(r, Value::String("<empty>".into())));
                     r
                 });
             gen.emit(IrInstruction::Call {
@@ -563,23 +522,27 @@ fn compile_flow_node(
         }
 
         NodeKind::SetPosition => {
-            let entity_reg = gen.resolve_input(graph, node_id, "entity").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
-                r
-            });
-            let pos_reg = gen.resolve_input(graph, node_id, "position").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(
-                    r,
-                    Value::Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 0.0,
-                    },
-                ));
-                r
-            });
+            let entity_reg = gen
+                .resolve_input(graph, node_id, "entity")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
+                    r
+                });
+            let pos_reg = gen
+                .resolve_input(graph, node_id, "position")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(
+                        r,
+                        Value::Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    ));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "set_position".into(),
                 args: vec![entity_reg, pos_reg],
@@ -588,23 +551,27 @@ fn compile_flow_node(
         }
 
         NodeKind::SetRotation => {
-            let entity_reg = gen.resolve_input(graph, node_id, "entity").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
-                r
-            });
-            let rot_reg = gen.resolve_input(graph, node_id, "rotation").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(
-                    r,
-                    Value::Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 0.0,
-                    },
-                ));
-                r
-            });
+            let entity_reg = gen
+                .resolve_input(graph, node_id, "entity")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
+                    r
+                });
+            let rot_reg = gen
+                .resolve_input(graph, node_id, "rotation")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(
+                        r,
+                        Value::Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    ));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "set_rotation".into(),
                 args: vec![entity_reg, rot_reg],
@@ -613,16 +580,20 @@ fn compile_flow_node(
         }
 
         NodeKind::PlayAnimation => {
-            let entity_reg = gen.resolve_input(graph, node_id, "entity").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
-                r
-            });
-            let anim_reg = gen.resolve_input(graph, node_id, "animation").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::String("idle".into())));
-                r
-            });
+            let entity_reg = gen
+                .resolve_input(graph, node_id, "entity")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
+                    r
+                });
+            let anim_reg = gen
+                .resolve_input(graph, node_id, "animation")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::String("idle".into())));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "play_animation".into(),
                 args: vec![entity_reg, anim_reg],
@@ -631,11 +602,13 @@ fn compile_flow_node(
         }
 
         NodeKind::PlaySound => {
-            let sound_reg = gen.resolve_input(graph, node_id, "sound").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
-                r
-            });
+            let sound_reg = gen
+                .resolve_input(graph, node_id, "sound")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "play_sound".into(),
                 args: vec![sound_reg],
@@ -644,23 +617,27 @@ fn compile_flow_node(
         }
 
         NodeKind::SpawnEntity => {
-            let template_reg = gen.resolve_input(graph, node_id, "template").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
-                r
-            });
-            let pos_reg = gen.resolve_input(graph, node_id, "position").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(
-                    r,
-                    Value::Vec3 {
-                        x: 0.0,
-                        y: 0.0,
-                        z: 0.0,
-                    },
-                ));
-                r
-            });
+            let template_reg = gen
+                .resolve_input(graph, node_id, "template")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
+                    r
+                });
+            let pos_reg = gen
+                .resolve_input(graph, node_id, "position")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(
+                        r,
+                        Value::Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: 0.0,
+                        },
+                    ));
+                    r
+                });
             let result_reg = gen.alloc_register();
             gen.emit(IrInstruction::Call {
                 function: "spawn_entity".into(),
@@ -672,11 +649,13 @@ fn compile_flow_node(
         }
 
         NodeKind::DestroyEntity => {
-            let entity_reg = gen.resolve_input(graph, node_id, "entity").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
-                r
-            });
+            let entity_reg = gen
+                .resolve_input(graph, node_id, "entity")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::Entity(0)));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "destroy_entity".into(),
                 args: vec![entity_reg],
@@ -685,16 +664,20 @@ fn compile_flow_node(
         }
 
         NodeKind::SendMessage => {
-            let channel_reg = gen.resolve_input(graph, node_id, "channel").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
-                r
-            });
-            let msg_reg = gen.resolve_input(graph, node_id, "message").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
-                r
-            });
+            let channel_reg = gen
+                .resolve_input(graph, node_id, "channel")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
+                    r
+                });
+            let msg_reg = gen
+                .resolve_input(graph, node_id, "message")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::String(String::new())));
+                    r
+                });
             gen.emit(IrInstruction::Call {
                 function: "send_message".into(),
                 args: vec![channel_reg, msg_reg],
@@ -723,11 +706,13 @@ fn compile_flow_node(
         }
 
         NodeKind::ForLoop => {
-            let start_reg = gen.resolve_input(graph, node_id, "start").unwrap_or_else(|| {
-                let r = gen.alloc_register();
-                gen.emit(IrInstruction::LoadConst(r, Value::Int(0)));
-                r
-            });
+            let start_reg = gen
+                .resolve_input(graph, node_id, "start")
+                .unwrap_or_else(|| {
+                    let r = gen.alloc_register();
+                    gen.emit(IrInstruction::LoadConst(r, Value::Int(0)));
+                    r
+                });
             let end_reg = gen.resolve_input(graph, node_id, "end").unwrap_or_else(|| {
                 let r = gen.alloc_register();
                 gen.emit(IrInstruction::LoadConst(r, Value::Int(10)));
@@ -842,10 +827,7 @@ mod tests {
     fn test_compile_has_return() {
         let g = simple_event_log_graph();
         let result = compile(&g).unwrap();
-        assert_eq!(
-            *result.instructions.last().unwrap(),
-            IrInstruction::Return
-        );
+        assert_eq!(*result.instructions.last().unwrap(), IrInstruction::Return);
     }
 
     #[test]
@@ -917,14 +899,21 @@ mod tests {
         g.connect(event, ev_exec, set_pos, sp_in).unwrap();
 
         let ev_entity = g.get_node(event).unwrap().find_output("entity").unwrap().id;
-        let sp_entity = g.get_node(set_pos).unwrap().find_input("entity").unwrap().id;
+        let sp_entity = g
+            .get_node(set_pos)
+            .unwrap()
+            .find_input("entity")
+            .unwrap()
+            .id;
         g.connect(event, ev_entity, set_pos, sp_entity).unwrap();
 
         let result = compile(&g).unwrap();
-        let has_call = result.instructions.iter().any(|i| matches!(
-            i,
-            IrInstruction::Call { function, .. } if function == "set_position"
-        ));
+        let has_call = result.instructions.iter().any(|i| {
+            matches!(
+                i,
+                IrInstruction::Call { function, .. } if function == "set_position"
+            )
+        });
         assert!(has_call);
     }
 
@@ -944,10 +933,12 @@ mod tests {
         g.connect(delay, d_out, log, l_in).unwrap();
 
         let result = compile(&g).unwrap();
-        let has_delay = result.instructions.iter().any(|i| matches!(
-            i,
-            IrInstruction::Call { function, .. } if function == "delay"
-        ));
+        let has_delay = result.instructions.iter().any(|i| {
+            matches!(
+                i,
+                IrInstruction::Call { function, .. } if function == "delay"
+            )
+        });
         assert!(has_delay);
     }
 
@@ -992,20 +983,8 @@ mod tests {
     fn test_compile_error_display() {
         assert!(format!("{}", CompileError::EmptyGraph).contains("empty"));
         assert!(format!("{}", CompileError::CycleDetected).contains("cycle"));
-        assert!(
-            format!(
-                "{}",
-                CompileError::ValidationFailed(vec!["bad".into()])
-            )
-            .contains("bad")
-        );
-        assert!(
-            format!(
-                "{}",
-                CompileError::InternalError("oops".into())
-            )
-            .contains("oops")
-        );
+        assert!(format!("{}", CompileError::ValidationFailed(vec!["bad".into()])).contains("bad"));
+        assert!(format!("{}", CompileError::InternalError("oops".into())).contains("oops"));
     }
 
     #[test]
@@ -1019,10 +998,12 @@ mod tests {
         g.connect(event, ev_exec, spawn, sp_in).unwrap();
 
         let result = compile(&g).unwrap();
-        let has_spawn = result.instructions.iter().any(|i| matches!(
-            i,
-            IrInstruction::Call { function, .. } if function == "spawn_entity"
-        ));
+        let has_spawn = result.instructions.iter().any(|i| {
+            matches!(
+                i,
+                IrInstruction::Call { function, .. } if function == "spawn_entity"
+            )
+        });
         assert!(has_spawn);
     }
 
@@ -1038,8 +1019,18 @@ mod tests {
         let br_in = g.get_node(branch).unwrap().find_input("exec").unwrap().id;
         g.connect(event, ev_exec, branch, br_in).unwrap();
 
-        let not_out = g.get_node(not_node).unwrap().find_output("result").unwrap().id;
-        let br_cond = g.get_node(branch).unwrap().find_input("condition").unwrap().id;
+        let not_out = g
+            .get_node(not_node)
+            .unwrap()
+            .find_output("result")
+            .unwrap()
+            .id;
+        let br_cond = g
+            .get_node(branch)
+            .unwrap()
+            .find_input("condition")
+            .unwrap()
+            .id;
         g.connect(not_node, not_out, branch, br_cond).unwrap();
 
         let br_true = g.get_node(branch).unwrap().find_output("true").unwrap().id;

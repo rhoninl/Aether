@@ -72,11 +72,7 @@ impl HoldManager {
     /// Release a legal hold by case_id.
     ///
     /// Returns an error if the case_id is not found or already released.
-    pub fn release_hold(
-        &mut self,
-        case_id: &str,
-        now: DateTime<Utc>,
-    ) -> Result<(), HoldError> {
+    pub fn release_hold(&mut self, case_id: &str, now: DateTime<Utc>) -> Result<(), HoldError> {
         let hold = self
             .holds
             .iter_mut()
@@ -162,12 +158,8 @@ mod tests {
         let mut mgr = HoldManager::new();
         mgr.place_hold("CASE-001".into(), "reason".into(), 42, time(2026, 1, 1))
             .unwrap();
-        let result =
-            mgr.place_hold("CASE-001".into(), "other".into(), 42, time(2026, 1, 2));
-        assert_eq!(
-            result,
-            Err(HoldError::DuplicateCaseId("CASE-001".into()))
-        );
+        let result = mgr.place_hold("CASE-001".into(), "other".into(), 42, time(2026, 1, 2));
+        assert_eq!(result, Err(HoldError::DuplicateCaseId("CASE-001".into())));
     }
 
     #[test]
@@ -246,8 +238,7 @@ mod tests {
             .unwrap();
         mgr.release_hold("CASE-001", time(2026, 2, 1)).unwrap();
         // Same case_id can be reused after release
-        let result =
-            mgr.place_hold("CASE-001".into(), "v2".into(), 42, time(2026, 3, 1));
+        let result = mgr.place_hold("CASE-001".into(), "v2".into(), 42, time(2026, 3, 1));
         assert!(result.is_ok());
     }
 

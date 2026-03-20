@@ -161,9 +161,7 @@ mod tests {
     use super::*;
 
     fn make_keystore() -> ComplianceKeystore {
-        ComplianceKeystore::new(
-            b"test-master-key-32bytes-long!!!!".to_vec(),
-        )
+        ComplianceKeystore::new(b"test-master-key-32bytes-long!!!!".to_vec())
     }
 
     #[test]
@@ -246,10 +244,7 @@ mod tests {
             vec![3, 4],
             2000,
         );
-        assert_eq!(
-            result,
-            Err(KeystoreError::DuplicateKeyId("key-001".into()))
-        );
+        assert_eq!(result, Err(KeystoreError::DuplicateKeyId("key-001".into())));
     }
 
     #[test]
@@ -362,26 +357,14 @@ mod tests {
     #[test]
     fn two_approvers_is_minimum() {
         let mut ks = make_keystore();
-        let result = ks.store(
-            "k".into(),
-            KeyPurpose::DeletionSalt,
-            b"v",
-            vec![1, 2],
-            0,
-        );
+        let result = ks.store("k".into(), KeyPurpose::DeletionSalt, b"v", vec![1, 2], 0);
         assert!(result.is_ok());
     }
 
     #[test]
     fn three_approvers_allowed() {
         let mut ks = make_keystore();
-        let result = ks.store(
-            "k".into(),
-            KeyPurpose::DeletionSalt,
-            b"v",
-            vec![1, 2, 3],
-            0,
-        );
+        let result = ks.store("k".into(), KeyPurpose::DeletionSalt, b"v", vec![1, 2, 3], 0);
         assert!(result.is_ok());
     }
 }

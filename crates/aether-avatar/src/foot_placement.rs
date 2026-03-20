@@ -52,15 +52,9 @@ pub struct FootIkResult {
 /// * `left_foot` - Current left foot position
 /// * `right_foot` - Current right foot position
 /// * `config` - Foot placement configuration
-pub fn foot_ik(
-    left_foot: [f32; 3],
-    right_foot: [f32; 3],
-    config: &FootPlacement,
-) -> FootIkResult {
-    let (left_clamped, left_grounded, left_toe) =
-        clamp_foot_to_ground(left_foot, config);
-    let (right_clamped, right_grounded, right_toe) =
-        clamp_foot_to_ground(right_foot, config);
+pub fn foot_ik(left_foot: [f32; 3], right_foot: [f32; 3], config: &FootPlacement) -> FootIkResult {
+    let (left_clamped, left_grounded, left_toe) = clamp_foot_to_ground(left_foot, config);
+    let (right_clamped, right_grounded, right_toe) = clamp_foot_to_ground(right_foot, config);
 
     FootIkResult {
         left_foot: left_clamped,
@@ -81,26 +75,15 @@ pub fn estimate_feet_from_hip(
     config: &FootPlacement,
 ) -> FootIkResult {
     let foot_y = (hip[1] - leg_length).max(config.ground_y);
-    let left_foot = [
-        hip[0] - config.step_half_width,
-        foot_y,
-        hip[2],
-    ];
-    let right_foot = [
-        hip[0] + config.step_half_width,
-        foot_y,
-        hip[2],
-    ];
+    let left_foot = [hip[0] - config.step_half_width, foot_y, hip[2]];
+    let right_foot = [hip[0] + config.step_half_width, foot_y, hip[2]];
 
     foot_ik(left_foot, right_foot, config)
 }
 
 /// Clamp a single foot position to the ground plane.
 /// Returns (clamped_position, is_grounded, toe_angle).
-fn clamp_foot_to_ground(
-    foot: [f32; 3],
-    config: &FootPlacement,
-) -> ([f32; 3], bool, f32) {
+fn clamp_foot_to_ground(foot: [f32; 3], config: &FootPlacement) -> ([f32; 3], bool, f32) {
     if foot[1] <= config.ground_y + config.air_threshold {
         // Foot is at or below ground -- clamp to ground
         let clamped = [foot[0], config.ground_y, foot[2]];

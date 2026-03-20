@@ -66,16 +66,11 @@ pub struct CameraConfig2D {
 }
 
 /// 2D camera mode.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum CameraMode2D {
+    #[default]
     SideView,
     TopDown,
-}
-
-impl Default for CameraMode2D {
-    fn default() -> Self {
-        CameraMode2D::SideView
-    }
 }
 
 /// 2D camera bounds.
@@ -214,7 +209,9 @@ fn is_valid_semver(version: &str) -> bool {
     if parts.len() != 3 {
         return false;
     }
-    parts.iter().all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
+    parts
+        .iter()
+        .all(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
 }
 
 // ---------------------------------------------------------------------------

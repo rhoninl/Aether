@@ -8,10 +8,7 @@ pub enum TeleportResult {
     /// Teleport succeeded; contains the target position.
     Success { position: [f32; 3] },
     /// Teleport failed because the target is beyond max distance.
-    OutOfRange {
-        distance: f32,
-        max_distance: f32,
-    },
+    OutOfRange { distance: f32, max_distance: f32 },
     /// Teleport target is invalid (e.g., blocked by geometry).
     InvalidTarget,
 }
@@ -34,10 +31,9 @@ pub fn compute_smooth_move(
     max_speed: f32,
     dt_s: f32,
 ) -> ([f32; 3], f32) {
-    let dir_magnitude = (direction[0] * direction[0]
-        + direction[1] * direction[1]
-        + direction[2] * direction[2])
-    .sqrt();
+    let dir_magnitude =
+        (direction[0] * direction[0] + direction[1] * direction[1] + direction[2] * direction[2])
+            .sqrt();
 
     if dir_magnitude < 1e-6 {
         // No input: decelerate to zero
@@ -75,11 +71,7 @@ pub fn compute_smooth_move(
 ///
 /// # Returns
 /// `TeleportResult` indicating success or failure.
-pub fn compute_teleport(
-    origin: [f32; 3],
-    target: [f32; 3],
-    max_distance: f32,
-) -> TeleportResult {
+pub fn compute_teleport(origin: [f32; 3], target: [f32; 3], max_distance: f32) -> TeleportResult {
     let dx = target[0] - origin[0];
     let dy = target[1] - origin[1];
     let dz = target[2] - origin[2];

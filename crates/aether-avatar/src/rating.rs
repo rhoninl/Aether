@@ -32,4 +32,3 @@ pub struct PerformanceOverride {
     pub world_min_bucket: AvatarRatingBucket,
     pub enabled: bool,
 }
-

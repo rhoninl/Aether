@@ -93,11 +93,7 @@ impl SessionManager {
     }
 
     /// Attempt to add a new player session.
-    pub fn join(
-        &mut self,
-        player_id: PlayerId,
-        now_ms: u64,
-    ) -> Result<SessionEvent, SessionError> {
+    pub fn join(&mut self, player_id: PlayerId, now_ms: u64) -> Result<SessionEvent, SessionError> {
         // Check for existing session
         if let Some(existing) = self.sessions.get(&player_id) {
             match &existing.state {
@@ -190,10 +186,7 @@ impl SessionManager {
     }
 
     /// Begin reconnection for a disconnected player.
-    fn begin_reconnect(
-        &mut self,
-        player_id: PlayerId,
-    ) -> Result<SessionEvent, SessionError> {
+    fn begin_reconnect(&mut self, player_id: PlayerId) -> Result<SessionEvent, SessionError> {
         let session = self
             .sessions
             .get_mut(&player_id)
@@ -378,7 +371,10 @@ mod tests {
         mgr.join(pid, 1000).unwrap();
 
         let result = mgr.join(pid, 2000);
-        assert_eq!(result.unwrap_err(), SessionError::AlreadyExists { player_id: pid });
+        assert_eq!(
+            result.unwrap_err(),
+            SessionError::AlreadyExists { player_id: pid }
+        );
     }
 
     #[test]
@@ -512,7 +508,10 @@ mod tests {
         mgr.activate(&pid).unwrap();
 
         let result = mgr.activate(&pid);
-        assert!(matches!(result.unwrap_err(), SessionError::InvalidTransition { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            SessionError::InvalidTransition { .. }
+        ));
     }
 
     #[test]
@@ -524,7 +523,10 @@ mod tests {
         mgr.disconnect(&pid, 5000).unwrap();
 
         let result = mgr.disconnect(&pid, 6000);
-        assert!(matches!(result.unwrap_err(), SessionError::InvalidTransition { .. }));
+        assert!(matches!(
+            result.unwrap_err(),
+            SessionError::InvalidTransition { .. }
+        ));
     }
 
     #[test]

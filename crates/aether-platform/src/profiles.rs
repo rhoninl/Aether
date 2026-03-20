@@ -207,10 +207,22 @@ mod tests {
 
     #[test]
     fn named_constructors_match_for_platform() {
-        assert_eq!(QualityProfile::pc_vr(), QualityProfile::for_platform(Platform::PcVr));
-        assert_eq!(QualityProfile::quest(), QualityProfile::for_platform(Platform::QuestStandalone));
-        assert_eq!(QualityProfile::desktop(), QualityProfile::for_platform(Platform::Desktop));
-        assert_eq!(QualityProfile::web(), QualityProfile::for_platform(Platform::WebBrowser));
+        assert_eq!(
+            QualityProfile::pc_vr(),
+            QualityProfile::for_platform(Platform::PcVr)
+        );
+        assert_eq!(
+            QualityProfile::quest(),
+            QualityProfile::for_platform(Platform::QuestStandalone)
+        );
+        assert_eq!(
+            QualityProfile::desktop(),
+            QualityProfile::for_platform(Platform::Desktop)
+        );
+        assert_eq!(
+            QualityProfile::web(),
+            QualityProfile::for_platform(Platform::WebBrowser)
+        );
     }
 
     #[test]

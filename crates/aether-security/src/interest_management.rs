@@ -130,11 +130,7 @@ impl InterestManager {
     ///
     /// # Returns
     /// A `VisibilityResult` containing visible entity IDs and the filtered count.
-    pub fn visible_entities(
-        &self,
-        player_id: u64,
-        player_pos: &Vec3,
-    ) -> VisibilityResult {
+    pub fn visible_entities(&self, player_id: u64, player_pos: &Vec3) -> VisibilityResult {
         let mut visible = Vec::new();
         let mut filtered_count = 0;
 
@@ -440,7 +436,9 @@ mod tests {
     #[test]
     fn test_filter_reason_display() {
         assert!(FilterReason::OutOfRange.to_string().contains("range"));
-        assert!(FilterReason::Unauthorized.to_string().contains("unauthorized"));
+        assert!(FilterReason::Unauthorized
+            .to_string()
+            .contains("unauthorized"));
         assert!(FilterReason::Hidden.to_string().contains("hidden"));
     }
 }

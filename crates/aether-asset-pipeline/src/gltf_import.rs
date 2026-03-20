@@ -76,8 +76,8 @@ pub struct GltfImporter;
 impl GltfImporter {
     /// Import a glTF file from raw bytes (supports both .gltf JSON and .glb binary).
     pub fn import(data: &[u8]) -> Result<ImportedScene, GltfImportError> {
-        let (document, buffers, _images) = gltf::import_slice(data)
-            .map_err(|e| GltfImportError::ParseError(e.to_string()))?;
+        let (document, buffers, _images) =
+            gltf::import_slice(data).map_err(|e| GltfImportError::ParseError(e.to_string()))?;
 
         let mut meshes = Vec::new();
         let mut materials = Vec::new();
@@ -87,16 +87,11 @@ impl GltfImporter {
         for material in document.materials() {
             let pbr = material.pbr_metallic_roughness();
             materials.push(ImportedMaterial {
-                name: material
-                    .name()
-                    .unwrap_or("unnamed_material")
-                    .to_string(),
+                name: material.name().unwrap_or("unnamed_material").to_string(),
                 base_color: pbr.base_color_factor(),
                 metallic_factor: pbr.metallic_factor(),
                 roughness_factor: pbr.roughness_factor(),
-                base_color_texture_index: pbr
-                    .base_color_texture()
-                    .map(|t| t.texture().index()),
+                base_color_texture_index: pbr.base_color_texture().map(|t| t.texture().index()),
             });
         }
 
@@ -197,13 +192,13 @@ impl GltfImporter {
         glb.extend_from_slice(&(json_padded_len as u32).to_le_bytes());
         glb.extend_from_slice(&0x4E4F534Au32.to_le_bytes()); // "JSON"
         glb.extend_from_slice(json_bytes);
-        glb.extend(std::iter::repeat(b' ').take(json_padding));
+        glb.extend(std::iter::repeat_n(b' ', json_padding));
 
         // BIN chunk
         glb.extend_from_slice(&(bin_padded_len as u32).to_le_bytes());
         glb.extend_from_slice(&0x004E4942u32.to_le_bytes()); // "BIN\0"
         glb.extend_from_slice(&bin_data);
-        glb.extend(std::iter::repeat(0u8).take(bin_padding));
+        glb.extend(std::iter::repeat_n(0u8, bin_padding));
 
         Self::import(&glb)
     }
@@ -220,11 +215,7 @@ mod tests {
         let mut buffer = Vec::new();
 
         // 3 positions (float32 x 3)
-        let positions: [[f32; 3]; 3] = [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-        ];
+        let positions: [[f32; 3]; 3] = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
         for pos in &positions {
             for &v in pos {
                 buffer.extend_from_slice(&v.to_le_bytes());
@@ -297,11 +288,7 @@ mod tests {
     fn make_material_gltf() -> (String, Vec<u8>) {
         let mut buffer = Vec::new();
 
-        let positions: [[f32; 3]; 3] = [
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0],
-        ];
+        let positions: [[f32; 3]; 3] = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
         for pos in &positions {
             for &v in pos {
                 buffer.extend_from_slice(&v.to_le_bytes());

@@ -143,9 +143,7 @@ fn main() {
     }
 
     println!("Spawned {} entities", world.entity_count());
-    println!(
-        "  - 1 player, 5 NPCs, 10 static objects\n"
-    );
+    println!("  - 1 player, 5 NPCs, 10 static objects\n");
 
     // -- Register systems --
 
@@ -162,10 +160,7 @@ fn main() {
             let _ = result.entity_count(); // gravity would mutate velocity.y
         })
         .stage(Stage::PrePhysics)
-        .access(
-            AccessDescriptor::new()
-                .write(ComponentId::of::<Velocity>()),
-        )
+        .access(AccessDescriptor::new().write(ComponentId::of::<Velocity>()))
         .build(),
     );
 
@@ -247,11 +242,7 @@ fn main() {
         SystemBuilder::new("tick_logger", move |world: &World| {
             let tick = tick_for_logger.load(Ordering::Relaxed);
             if tick % 20 == 0 {
-                println!(
-                    "  [tick {:>3}] entities: {}",
-                    tick,
-                    world.entity_count()
-                );
+                println!("  [tick {:>3}] entities: {}", tick, world.entity_count());
             }
         })
         .stage(Stage::NetworkSync)
@@ -334,12 +325,13 @@ fn main() {
     println!("Entities: {}", world.entity_count());
     println!(
         "Replicated components: {:?}",
-        world.replicated_components(&[
-            ComponentId::of::<Transform>(),
-            ComponentId::of::<Velocity>(),
-            ComponentId::of::<Health>(),
-        ])
-        .len()
+        world
+            .replicated_components(&[
+                ComponentId::of::<Transform>(),
+                ComponentId::of::<Velocity>(),
+                ComponentId::of::<Health>(),
+            ])
+            .len()
     );
     println!(
         "Wall clock: {:.2}s ({} ticks)",
@@ -354,7 +346,10 @@ fn main() {
     // Demonstrate component mutation
     println!("\n=== Component Mutation Demo ===\n");
     let pos = world.get_component::<Transform>(player).unwrap();
-    println!("Player position: ({:.1}, {:.1}, {:.1})", pos.x, pos.y, pos.z);
+    println!(
+        "Player position: ({:.1}, {:.1}, {:.1})",
+        pos.x, pos.y, pos.z
+    );
 
     {
         let pos = world.get_component_mut::<Transform>(player).unwrap();

@@ -64,8 +64,8 @@ fn load_versions(dir: &Path) -> Result<Vec<VersionEntry>, String> {
     if !path.exists() {
         return Ok(Vec::new());
     }
-    let content = fs::read_to_string(&path)
-        .map_err(|e| format!("failed to read {}: {e}", path.display()))?;
+    let content =
+        fs::read_to_string(&path).map_err(|e| format!("failed to read {}: {e}", path.display()))?;
 
     // If the file is just comments or empty, return empty list
     let trimmed = content
@@ -107,8 +107,8 @@ fn save_versions(dir: &Path, entries: &[VersionEntry]) -> Result<(), String> {
 /// Update the version field in world.toml.
 fn update_world_toml_version(dir: &Path, new_version: &str) -> Result<(), String> {
     let path = dir.join("world.toml");
-    let content = fs::read_to_string(&path)
-        .map_err(|e| format!("failed to read world.toml: {e}"))?;
+    let content =
+        fs::read_to_string(&path).map_err(|e| format!("failed to read world.toml: {e}"))?;
 
     // We need to update the version field in the [world] section.
     // Use simple string replacement to preserve formatting.
@@ -290,7 +290,12 @@ list = ["main"]
         let tmp = TempDir::new().unwrap();
         create_minimal_project(tmp.path(), "0.1.0");
 
-        publish(tmp.path().to_str().unwrap(), BumpLevel::Minor, "new feature").unwrap();
+        publish(
+            tmp.path().to_str().unwrap(),
+            BumpLevel::Minor,
+            "new feature",
+        )
+        .unwrap();
 
         let wt = manifest::load_manifest(tmp.path()).unwrap();
         assert_eq!(wt.world.version, "0.2.0");
@@ -301,7 +306,12 @@ list = ["main"]
         let tmp = TempDir::new().unwrap();
         create_minimal_project(tmp.path(), "1.2.3");
 
-        publish(tmp.path().to_str().unwrap(), BumpLevel::Major, "breaking change").unwrap();
+        publish(
+            tmp.path().to_str().unwrap(),
+            BumpLevel::Major,
+            "breaking change",
+        )
+        .unwrap();
 
         let wt = manifest::load_manifest(tmp.path()).unwrap();
         assert_eq!(wt.world.version, "2.0.0");
@@ -324,10 +334,14 @@ list = ["main"]
         let tmp = TempDir::new().unwrap();
         create_minimal_project(tmp.path(), "0.1.0");
 
-        publish(tmp.path().to_str().unwrap(), BumpLevel::Patch, "first release").unwrap();
+        publish(
+            tmp.path().to_str().unwrap(),
+            BumpLevel::Patch,
+            "first release",
+        )
+        .unwrap();
 
-        let content =
-            fs::read_to_string(tmp.path().join(".aether/versions.toml")).unwrap();
+        let content = fs::read_to_string(tmp.path().join(".aether/versions.toml")).unwrap();
         assert!(content.contains("version = \"0.1.1\""));
         assert!(content.contains("first release"));
         assert!(content.contains("published_at"));

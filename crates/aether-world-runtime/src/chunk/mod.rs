@@ -13,8 +13,7 @@ pub mod streaming;
 pub use coord::{ChunkCoord, ChunkId, DEFAULT_CHUNK_SIZE};
 pub use eviction::{EvictionCandidate, EvictionPolicy, DEFAULT_MAX_CACHED_CHUNKS};
 pub use manifest::{
-    BoundaryStitch, ChunkManifest, ChunkManifestError, ChunkReference, PortalDefinition,
-    PortalFace,
+    BoundaryStitch, ChunkManifest, ChunkManifestError, ChunkReference, PortalDefinition, PortalFace,
 };
 pub use state::{ChunkEntry, ChunkState, InvalidTransition};
 pub use streaming::{

@@ -1,5 +1,4 @@
 /// Content scanner trait and supporting types for automated content analysis.
-
 use crate::severity::ContentSeverity;
 
 /// Types of content that can be scanned.
@@ -126,16 +125,17 @@ impl ScannerPipeline {
 
         let all_flags: Vec<ContentFlag> = results.iter().flat_map(|r| r.flags.clone()).collect();
 
-        let max_confidence = results
-            .iter()
-            .map(|r| r.confidence)
-            .fold(0.0_f32, f32::max);
+        let max_confidence = results.iter().map(|r| r.confidence).fold(0.0_f32, f32::max);
 
         // Use the auto-decision from the scanner with the highest severity
         let auto_decision = results
             .iter()
             .filter(|r| r.severity == severity)
-            .max_by(|a, b| a.confidence.partial_cmp(&b.confidence).unwrap_or(std::cmp::Ordering::Equal))
+            .max_by(|a, b| {
+                a.confidence
+                    .partial_cmp(&b.confidence)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
             .and_then(|r| r.auto_decision.clone());
 
         AggregatedScanResult {

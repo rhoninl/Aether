@@ -205,7 +205,10 @@ impl InputRuntime {
         }
 
         output.dropped_events = self.state.dropped_events.saturating_add(dropped_events);
-        output.unsupported_inputs = self.state.unsupported_events.saturating_add(unsupported_inputs);
+        output.unsupported_inputs = self
+            .state
+            .unsupported_events
+            .saturating_add(unsupported_inputs);
         output.players = frames;
         output
     }
@@ -234,20 +237,24 @@ impl InputRuntime {
                 });
             }
 
-            let target = event.target.as_ref().map(|t| t.entity_id).filter(|id| *id != 0);
+            let target = event
+                .target
+                .as_ref()
+                .map(|t| t.entity_id)
+                .filter(|id| *id != 0);
             let intent = match (event.button, event.hand) {
                 (XRButton::Trigger, InputActionPath::LeftHand | InputActionPath::RightHand) => {
                     SimulationIntent::Locomotion {
                         player_id: event.player_id,
                         mode: self.pick_locomotion_mode(event),
                         phase: event.phase,
-                        hand: event.hand.clone(),
+                        hand: event.hand,
                         force: event.force,
                     }
                 }
                 (XRButton::A | XRButton::B, _) => SimulationIntent::Interaction {
                     player_id: event.player_id,
-                    hand: event.hand.clone(),
+                    hand: event.hand,
                     button: event.button,
                     phase: event.phase,
                     force: event.force,
@@ -264,7 +271,7 @@ impl InputRuntime {
                     } else {
                         SimulationIntent::Interaction {
                             player_id: event.player_id,
-                            hand: event.hand.clone(),
+                            hand: event.hand,
                             button: event.button,
                             phase: event.phase,
                             force: event.force,
@@ -312,7 +319,12 @@ impl InputRuntime {
 
     fn pick_locomotion_mode(&self, event: &crate::actions::InteractionEvent) -> LocomotionMode {
         if event.force > 0.75 {
-            if self.cfg.locomotion.allowed_modes.contains(&LocomotionMode::Teleport) {
+            if self
+                .cfg
+                .locomotion
+                .allowed_modes
+                .contains(&LocomotionMode::Teleport)
+            {
                 LocomotionMode::Teleport
             } else {
                 LocomotionMode::Smooth
@@ -328,8 +340,12 @@ impl InputRuntime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton},
+        capabilities::{InputActionPath, InputBackend, InputBackend::OpenXr},
+        locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile},
+    };
     use std::collections::VecDeque;
-    use crate::{actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton}, capabilities::{InputActionPath, InputBackend, InputBackend::OpenXr}, locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile}};
 
     use crate::adapter::{InputFrame, InputFrameError, RuntimeAdapter};
 
@@ -364,19 +380,22 @@ mod tests {
                     max_speed_mps: 2.8,
                 },
             }
-            .with_event(player_id, InteractionEvent {
+            .with_event(
                 player_id,
-                hand: InputActionPath::RightHand,
-                button: XRButton::Trigger,
-                phase: ActionPhase::Started,
-                force: 0.9,
-                target: Some(InteractionTarget {
-                    entity_id: 12,
-                    hit_distance_m: 2.0,
-                    has_physics: true,
-                }),
-                hand_pose: None,
-            })
+                InteractionEvent {
+                    player_id,
+                    hand: InputActionPath::RightHand,
+                    button: XRButton::Trigger,
+                    phase: ActionPhase::Started,
+                    force: 0.9,
+                    target: Some(InteractionTarget {
+                        entity_id: 12,
+                        hit_distance_m: 2.0,
+                        has_physics: true,
+                    }),
+                    hand_pose: None,
+                },
+            )
         }
         fn with_event(mut self, player_id: u64, event: InteractionEvent) -> Self {
             self.frames.push_back(InputFrame {

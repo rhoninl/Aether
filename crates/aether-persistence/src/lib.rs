@@ -28,7 +28,9 @@ pub mod snapshot;
 pub mod transactions;
 pub mod wal;
 
-pub use config::{WorldPersistenceClass, WorldPersistenceProfile, DEFAULT_EPHEMERAL_SNAPSHOT_INTERVAL};
+pub use config::{
+    WorldPersistenceClass, WorldPersistenceProfile, DEFAULT_EPHEMERAL_SNAPSHOT_INTERVAL,
+};
 pub use error::PersistenceError;
 pub use health::{BackendStatus, HealthReport};
 pub use migration::Migration;
@@ -37,6 +39,10 @@ pub use placement::{PodPlacementHint, PodRuntimeClass, PodTopologyHint, WorldMan
 pub use pool::ConnectionConfig;
 pub use postgres::DatabaseClient;
 pub use redis_client::CacheClient;
+pub use runtime::{
+    PersistenceRuntime, PersistenceRuntimeConfig, PersistenceRuntimeOutput,
+    PersistenceRuntimeState, RuntimeTickInput, WorldRecovery, WorldRuntimeInput,
+};
 pub use snapshot::{Snapshot, SnapshotKind, SnapshotPolicy, SnapshotRecorder, SnapshotWindow};
 pub use transactions::{
     CriticalStateError, CriticalStateKey, CriticalStateMutationRecord, CriticalStatePriority,
@@ -45,8 +51,4 @@ pub use transactions::{
 pub use wal::{
     WalAppendError, WalAppendResult, WalDurability, WalEntry, WalReplayRecord, WalSegment,
     WalWriteCoordinator,
-};
-pub use runtime::{
-    PersistenceRuntime, PersistenceRuntimeConfig, PersistenceRuntimeOutput, PersistenceRuntimeState,
-    RuntimeTickInput, WorldRecovery, WorldRuntimeInput,
 };

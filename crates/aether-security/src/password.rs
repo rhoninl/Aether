@@ -1,7 +1,9 @@
 //! Password hashing and verification using Argon2id.
 
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher as ArgonHasher, PasswordVerifier, SaltString},
+    password_hash::{
+        rand_core::OsRng, PasswordHash, PasswordHasher as ArgonHasher, PasswordVerifier, SaltString,
+    },
     Algorithm, Argon2, Params, Version,
 };
 use std::env;

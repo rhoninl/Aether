@@ -59,23 +59,12 @@ pub struct UgcRuntime {
     state: UgcRuntimeState,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct UgcRuntimeState {
     next_session: u64,
     sessions: HashMap<String, ArtifactUploadSession>,
     artifacts: HashMap<String, ArtifactDescriptor>,
     moderation: HashMap<String, ModerationStatus>,
-}
-
-impl Default for UgcRuntimeState {
-    fn default() -> Self {
-        Self {
-            next_session: 0,
-            sessions: HashMap::new(),
-            artifacts: HashMap::new(),
-            moderation: HashMap::new(),
-        }
-    }
 }
 
 impl Default for UgcRuntime {
@@ -107,7 +96,9 @@ impl UgcRuntime {
         for request in input.start_uploads {
             if let Some((artifact_id, report)) = self.begin_upload(&request, input.now_ms) {
                 output.validation_reports.push(report);
-                output.state_changes.push(format!("session_start:{artifact_id}:{}", request.owner_id));
+                output
+                    .state_changes
+                    .push(format!("session_start:{artifact_id}:{}", request.owner_id));
             }
         }
 
@@ -204,7 +195,9 @@ impl UgcRuntime {
             checksum: Some(format!("chk-{}-{}", request.owner_id, request.chunk_count)),
         };
 
-        self.state.sessions.insert(artifact_id.clone(), session.clone());
+        self.state
+            .sessions
+            .insert(artifact_id.clone(), session.clone());
         self.state
             .artifacts
             .insert(artifact_id.clone(), session.artifact.clone());
@@ -216,12 +209,9 @@ impl UgcRuntime {
                 .moderation
                 .insert(artifact_id.clone(), ModerationStatus::Running);
         }
-        self.state
-            .artifacts
-            .get_mut(&artifact_id)
-            .map(|descriptor| {
-                descriptor.state = ArtifactState::Scanning;
-            });
+        if let Some(descriptor) = self.state.artifacts.get_mut(&artifact_id) {
+            descriptor.state = ArtifactState::Scanning;
+        }
 
         Some((artifact_id, file_validation))
     }
@@ -280,16 +270,19 @@ impl UgcRuntime {
     }
 
     fn address(&self, artifact_id: &str, now_ms: u64) -> Option<ValidationReport> {
-        self.state.artifacts.get(artifact_id).map(|artifact| ValidationReport {
-            file_name: artifact.artifact_id.clone(),
-            accepted: true,
-            error: if artifact.size_bytes == 0 {
-                Some(ValidationError::Corrupt)
-            } else {
-                None
-            },
-            checksum: Some(format!("validated:{now_ms}")),
-        })
+        self.state
+            .artifacts
+            .get(artifact_id)
+            .map(|artifact| ValidationReport {
+                file_name: artifact.artifact_id.clone(),
+                accepted: true,
+                error: if artifact.size_bytes == 0 {
+                    Some(ValidationError::Corrupt)
+                } else {
+                    None
+                },
+                checksum: Some(format!("validated:{now_ms}")),
+            })
     }
 
     fn handle_moderation_signal(
@@ -310,11 +303,12 @@ impl UgcRuntime {
                 } else {
                     ModerationStatus::Rejected("automatic policy rejection".into())
                 };
-                self.state.moderation.insert(request.artifact_id.clone(), status);
-                output.moderation_events.push(format!(
-                    "scan_triggered:{}:{}",
-                    request.artifact_id, now_ms
-                ));
+                self.state
+                    .moderation
+                    .insert(request.artifact_id.clone(), status);
+                output
+                    .moderation_events
+                    .push(format!("scan_triggered:{}:{}", request.artifact_id, now_ms));
             }
             ModerationSignal::ScanComplete { approved, reason } => {
                 let status = if approved {
@@ -322,7 +316,9 @@ impl UgcRuntime {
                 } else {
                     ModerationStatus::Rejected(reason.unwrap_or_default())
                 };
-                self.state.moderation.insert(request.artifact_id.clone(), status);
+                self.state
+                    .moderation
+                    .insert(request.artifact_id.clone(), status);
             }
         }
         if let Some(artifact) = self.state.artifacts.get_mut(&request.artifact_id) {
@@ -359,9 +355,11 @@ impl UgcRuntime {
             self.state
                 .moderation
                 .insert(update.artifact_id.clone(), update.status.clone());
-            output
-                .moderation_events
-                .push(format!("moderation_update:{}:{}", update.artifact_id, update.updated_ms.max(now_ms)));
+            output.moderation_events.push(format!(
+                "moderation_update:{}:{}",
+                update.artifact_id,
+                update.updated_ms.max(now_ms)
+            ));
         }
     }
 
@@ -404,15 +402,21 @@ impl UgcRuntime {
         match (mime_hint, file_name) {
             (mime, _) if mime.contains("gltf") => ArtifactType::AssetBundle,
             (mime, _) if mime.contains("glb") => ArtifactType::AssetBundle,
-            (mime, _) if mime.contains("image") || mime.contains("png") => ArtifactType::AvatarModel,
+            (mime, _) if mime.contains("image") || mime.contains("png") => {
+                ArtifactType::AvatarModel
+            }
             (mime, _) if mime.contains("wav") || mime.contains("mp3") => ArtifactType::VoicePack,
             (mime, _) if mime.contains("wasm") => ArtifactType::WorldScript,
             (mime, _) if mime.contains("lua") => ArtifactType::WorldScript,
-            (_, name) if name.ends_with(".glb") || name.ends_with(".gltf") => ArtifactType::AssetBundle,
+            (_, name) if name.ends_with(".glb") || name.ends_with(".gltf") => {
+                ArtifactType::AssetBundle
+            }
             (_, name) if name.ends_with(".png") => ArtifactType::AvatarModel,
             (_, name) if name.ends_with(".wasm") => ArtifactType::WorldScript,
             (_, name) if name.ends_with(".lua") => ArtifactType::WorldScript,
-            (_, name) if name.ends_with(".wav") || name.ends_with(".mp3") => ArtifactType::VoicePack,
+            (_, name) if name.ends_with(".wav") || name.ends_with(".mp3") => {
+                ArtifactType::VoicePack
+            }
             _ => ArtifactType::AssetBundle,
         }
     }
@@ -446,7 +450,7 @@ impl std::fmt::Display for UploadSession {
 }
 
 impl UploadSession {
-    fn session_id_for_artifact(artifact_id: &str) -> String {
+    fn _session_id_for_artifact(artifact_id: &str) -> String {
         artifact_id.to_string()
     }
 }

@@ -128,7 +128,10 @@ pub enum TransferResult {
     /// Transfer was committed successfully.
     Committed { entity_id: u64, new_zone: String },
     /// Transfer was rolled back successfully.
-    RolledBack { entity_id: u64, restored_zone: String },
+    RolledBack {
+        entity_id: u64,
+        restored_zone: String,
+    },
     /// Entity is not registered.
     EntityNotFound { entity_id: u64 },
     /// Entity is already in a pending transfer.

@@ -70,8 +70,7 @@ mod tests {
 
     #[test]
     fn revolute_joint_creation() {
-        let joint =
-            JointType::revolute([0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]);
+        let joint = JointType::revolute([0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]);
         match joint {
             JointType::Revolute {
                 axis,
@@ -112,12 +111,7 @@ mod tests {
 
     #[test]
     fn prismatic_joint_without_limits() {
-        let joint = JointType::prismatic(
-            [1.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0],
-            None,
-        );
+        let joint = JointType::prismatic([1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], None);
         match joint {
             JointType::Prismatic { limits, .. } => {
                 assert!(limits.is_none());

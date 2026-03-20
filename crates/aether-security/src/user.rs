@@ -111,14 +111,20 @@ mod tests {
     #[test]
     fn test_user_role_from_str() {
         assert_eq!("user".parse::<UserRole>().unwrap(), UserRole::User);
-        assert_eq!("moderator".parse::<UserRole>().unwrap(), UserRole::Moderator);
+        assert_eq!(
+            "moderator".parse::<UserRole>().unwrap(),
+            UserRole::Moderator
+        );
         assert_eq!("admin".parse::<UserRole>().unwrap(), UserRole::Admin);
     }
 
     #[test]
     fn test_user_role_from_str_case_insensitive() {
         assert_eq!("USER".parse::<UserRole>().unwrap(), UserRole::User);
-        assert_eq!("Moderator".parse::<UserRole>().unwrap(), UserRole::Moderator);
+        assert_eq!(
+            "Moderator".parse::<UserRole>().unwrap(),
+            UserRole::Moderator
+        );
         assert_eq!("ADMIN".parse::<UserRole>().unwrap(), UserRole::Admin);
     }
 

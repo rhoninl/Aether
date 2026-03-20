@@ -14,10 +14,10 @@ pub use editor_state::{EditorState, EditorTool};
 pub use error::{ModeError, ProjectError, VersionError};
 pub use mode::{ModeManager, WorldDimension, WorldMode};
 pub use project::{
-    load_project, load_version_history, save_manifest, save_version_history,
-    scaffold_project, WorldProject, WorldProjectManifest,
+    load_project, load_version_history, save_manifest, save_version_history, scaffold_project,
+    WorldProject, WorldProjectManifest,
 };
 pub use version::{
-    bump_version, deserialize_version_history, serialize_version_history, BumpKind,
-    VersionHistory, VersionRecord,
+    bump_version, deserialize_version_history, serialize_version_history, BumpKind, VersionHistory,
+    VersionRecord,
 };

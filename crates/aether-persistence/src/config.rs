@@ -34,7 +34,10 @@ impl WorldPersistenceProfile {
     }
 
     pub fn requires_stateful_storage(&self) -> bool {
-        self.has_economy_state || self.has_inventory || self.has_identity || self.has_durable_script_state
+        self.has_economy_state
+            || self.has_inventory
+            || self.has_identity
+            || self.has_durable_script_state
     }
 
     pub fn classify_pod(&self) -> WorldPersistenceClass {
@@ -45,4 +48,3 @@ impl WorldPersistenceProfile {
         }
     }
 }
-

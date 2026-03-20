@@ -72,7 +72,10 @@ pub struct ManifestPatch {
 }
 
 /// Create a default manifest with sensible defaults.
-pub fn create_default_manifest(world_id: impl Into<String>, name: impl Into<String>) -> WorldManifest {
+pub fn create_default_manifest(
+    world_id: impl Into<String>,
+    name: impl Into<String>,
+) -> WorldManifest {
     WorldManifest {
         world_id: world_id.into(),
         name: name.into(),

@@ -14,21 +14,12 @@ pub struct RaycastHit {
 }
 
 /// Filter options for physics queries.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct QueryFilter {
     /// If set, exclude this entity from results.
     pub exclude_entity: Option<Entity>,
     /// If true, include sensor colliders in results.
     pub include_sensors: bool,
-}
-
-impl Default for QueryFilter {
-    fn default() -> Self {
-        Self {
-            exclude_entity: None,
-            include_sensors: false,
-        }
-    }
 }
 
 impl QueryFilter {

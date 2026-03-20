@@ -195,11 +195,7 @@ mod tests {
             },
         );
 
-        InputPipeline::new(
-            map,
-            DeadZoneConfig::default(),
-            SensitivityCurve::Linear,
-        )
+        InputPipeline::new(map, DeadZoneConfig::default(), SensitivityCurve::Linear)
     }
 
     #[test]
@@ -363,11 +359,8 @@ mod tests {
             InputGesture::Press,
         );
 
-        let mut pipeline = InputPipeline::new(
-            map,
-            DeadZoneConfig::default(),
-            SensitivityCurve::Linear,
-        );
+        let mut pipeline =
+            InputPipeline::new(map, DeadZoneConfig::default(), SensitivityCurve::Linear);
 
         let mut state = RawInputState::default();
         state.pressed_keys.insert(KeyCode::W);

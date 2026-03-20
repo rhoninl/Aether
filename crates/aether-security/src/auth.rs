@@ -354,9 +354,7 @@ mod tests {
     #[test]
     fn test_login_nonexistent_user() {
         let service = create_test_auth_service();
-        let err = service
-            .login("nobody@example.com", "password")
-            .unwrap_err();
+        let err = service.login("nobody@example.com", "password").unwrap_err();
         assert!(matches!(err, AuthError::InvalidCredentials));
     }
 
@@ -435,7 +433,9 @@ mod tests {
             .unwrap();
 
         // Login again to create a second session
-        let login = service.login("grace@example.com", "graces-password").unwrap();
+        let login = service
+            .login("grace@example.com", "graces-password")
+            .unwrap();
 
         let count = service.logout_all(reg.user.id).unwrap();
         assert_eq!(count, 2);
@@ -534,9 +534,7 @@ mod tests {
         assert!(AuthError::UserAlreadyExists
             .to_string()
             .contains("already exists"));
-        assert!(AuthError::NoPasswordSet
-            .to_string()
-            .contains("no password"));
+        assert!(AuthError::NoPasswordSet.to_string().contains("no password"));
     }
 
     #[test]

@@ -100,10 +100,7 @@ impl RegionRoutingConfig {
                 target_endpoint: best.endpoint.clone(),
                 estimated_latency_ms: Some(*latency),
                 is_failover: true,
-                reason: format!(
-                    "failover to closest region ({}ms)",
-                    latency
-                ),
+                reason: format!("failover to closest region ({}ms)", latency),
             });
         }
 

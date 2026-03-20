@@ -29,4 +29,3 @@ pub struct TerrainTool {
     pub brush: SculptBrush,
     pub selected: TerrainBrush,
 }
-

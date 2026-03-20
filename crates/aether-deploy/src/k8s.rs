@@ -26,4 +26,3 @@ pub struct AutoscalePolicy {
     pub server: WorldServerRuntime,
     pub hpa: Option<WorldServerAutoscaler>,
 }
-

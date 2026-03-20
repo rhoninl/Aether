@@ -59,4 +59,3 @@ pub struct PropEdit {
     pub z: f32,
     pub yaw_deg: f32,
 }
-

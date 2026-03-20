@@ -46,11 +46,7 @@ impl ScriptState {
 /// Reads a string from WASM linear memory at the given pointer and length.
 ///
 /// Requires mutable access to `Caller` because `get_export` takes `&mut`.
-fn read_wasm_string(
-    caller: &mut Caller<'_, ScriptState>,
-    ptr: i32,
-    len: i32,
-) -> Option<String> {
+fn read_wasm_string(caller: &mut Caller<'_, ScriptState>, ptr: i32, len: i32) -> Option<String> {
     let memory = caller.get_export("memory")?.into_memory()?;
     let data = memory.data(&*caller);
     let start = ptr as usize;
@@ -118,9 +114,7 @@ pub fn register_host_functions(linker: &mut Linker<ScriptState>) -> wasmtime::Re
     linker.func_wrap(
         "env",
         "host_get_time_delta",
-        |caller: Caller<'_, ScriptState>| -> f32 {
-            caller.data().delta_time
-        },
+        |caller: Caller<'_, ScriptState>| -> f32 { caller.data().delta_time },
     )?;
 
     Ok(())

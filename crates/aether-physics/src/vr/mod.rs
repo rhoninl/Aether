@@ -20,9 +20,7 @@ pub use grab::{GrabConstraint, GrabJointKind, GrabState, GrabSystem, GrabUpdateR
 pub use hand_collision::{
     CollisionSphere, HandColliderConfig, HandCollisionDetector, HandCollisionResult,
 };
-pub use haptic::{
-    Hand, HapticCurve, HapticEvent, HapticFeedbackConfig, HapticFeedbackMapper,
-};
+pub use haptic::{Hand, HapticCurve, HapticEvent, HapticFeedbackConfig, HapticFeedbackMapper};
 pub use manipulation::{
     ManipulationConfig, ManipulationMode, ManipulationResult, ManipulationState,
 };

@@ -32,4 +32,3 @@ pub struct ScriptSandboxPolicy {
     pub allowed: Vec<SandboxCapability>,
     pub denied: Vec<SandboxCapability>,
 }
-

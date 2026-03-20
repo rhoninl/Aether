@@ -1,4 +1,4 @@
-use crate::config::{ClusterLightingConfig, FrameContext, FramePolicy, FoveationConfig, FoveationTier, LODLevel, LODPolicy, LodCurve, ShadowCascadeConfig, FrameBudget};
+use crate::config::{FoveationTier, FrameContext, FramePolicy, ShadowCascadeConfig};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LoadBucket {
@@ -105,7 +105,10 @@ impl FrameScheduler {
 
     pub fn cascade_resolution_budget(cfg: &ShadowCascadeConfig, target_bytes: u64) -> [u32; 4] {
         let mut out = cfg.cascade_resolutions;
-        let total: u64 = out.iter().map(|r| (*r as u64).saturating_mul(*r as u64)).sum();
+        let total: u64 = out
+            .iter()
+            .map(|r| (*r as u64).saturating_mul(*r as u64))
+            .sum();
         if total <= target_bytes {
             return out;
         }

@@ -1,11 +1,11 @@
 use std::collections::{HashMap, VecDeque};
 
+use crate::ghost::GhostCache;
 use crate::{
     AxisChoice, GhostEntity, GhostPolicy, HandoffDecision, HandoffFailureMode, HandoffResult,
-    KdBoundary, KdPoint, KdTree, KdTreeSplitResult, LoadMetrics, MergeThreshold, SplitPolicy, SplitResult,
-    ZoneSpec,
+    KdBoundary, KdPoint, KdTree, KdTreeSplitResult, LoadMetrics, MergeThreshold, SplitPolicy,
+    SplitResult, ZoneSpec,
 };
-use crate::ghost::GhostCache;
 
 #[derive(Debug)]
 pub struct ZoningRuntimeConfig {
@@ -122,7 +122,8 @@ impl ZoningRuntime {
                 && sample.players > self.cfg.merge_threshold.merge_player_threshold;
             if too_large {
                 output.split_decisions.push(self.evaluate_split(&sample));
-            } else if sample.players < self.cfg.merge_threshold.merge_player_threshold && self.state.zone_tree.len() > 1
+            } else if sample.players < self.cfg.merge_threshold.merge_player_threshold
+                && self.state.zone_tree.len() > 1
             {
                 output.merge_decisions.push(self.evaluate_merge(&sample));
             }
@@ -130,19 +131,27 @@ impl ZoningRuntime {
         }
 
         for decision in self.state.pending_handoffs.drain(..).collect::<Vec<_>>() {
-            output.handoffs.push(self.execute_handoff(input.now_ms, decision));
+            output
+                .handoffs
+                .push(self.execute_handoff(input.now_ms, decision));
         }
 
-        let _ = self.state.ghost_cache.cull_expired(input.now_ms);
-        output.ghost_queue = self.state.ghost_cache.as_identities().into_iter().map(|identity| GhostEntity {
-            source_entity: identity.entity_id,
-            local_entity: identity.entity_id,
-            source_zone: identity.authority_zone.clone(),
-            remote_zone: identity.authority_zone,
-            ttl_ms: self.cfg.ghost_policy.ttl_ms,
-            collision_enabled: false,
-            render_only: true,
-        }).collect();
+        self.state.ghost_cache.cull_expired(input.now_ms);
+        output.ghost_queue = self
+            .state
+            .ghost_cache
+            .as_identities()
+            .into_iter()
+            .map(|identity| GhostEntity {
+                source_entity: identity.entity_id,
+                local_entity: identity.entity_id,
+                source_zone: identity.authority_zone.clone(),
+                remote_zone: identity.authority_zone,
+                ttl_ms: self.cfg.ghost_policy.ttl_ms,
+                collision_enabled: false,
+                render_only: true,
+            })
+            .collect();
         output
     }
 

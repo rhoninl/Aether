@@ -43,7 +43,12 @@ pub trait UIApi {
 }
 
 pub trait AudioApi {
-    fn play_sound(&mut self, asset_id: &str, volume: f32, position: Vec3) -> ScriptApiResult<AudioHandle>;
+    fn play_sound(
+        &mut self,
+        asset_id: &str,
+        volume: f32,
+        position: Vec3,
+    ) -> ScriptApiResult<AudioHandle>;
     fn stop_sound(&mut self, handle: AudioHandle) -> ScriptApiResult<()>;
 }
 

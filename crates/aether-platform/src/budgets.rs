@@ -67,7 +67,10 @@ impl PerformanceBudget {
             frame_time_ok,
             polygon_usage_pct: percentage(usage.polygons_per_eye, self.max_polygons_per_eye),
             draw_call_usage_pct: percentage(usage.draw_calls, self.max_draw_calls),
-            texture_memory_usage_pct: percentage(usage.texture_memory_mb, self.max_texture_memory_mb),
+            texture_memory_usage_pct: percentage(
+                usage.texture_memory_mb,
+                self.max_texture_memory_mb,
+            ),
             frame_time_usage_pct: if self.frame_time_budget_ms > 0.0 {
                 (usage.frame_time_ms / self.frame_time_budget_ms) * 100.0
             } else {

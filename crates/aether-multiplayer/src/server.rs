@@ -16,7 +16,9 @@ use aether_world_runtime::tick::TickScheduler;
 
 use crate::avatar::AvatarState;
 use crate::config::MultiplayerConfig;
-use crate::protocol::{decode_client_message, encode_server_message, ClientMessage, PlayerId, ServerMessage};
+use crate::protocol::{
+    decode_client_message, encode_server_message, ClientMessage, PlayerId, ServerMessage,
+};
 use crate::simulation::WorldState;
 
 /// Internal message from per-client receive tasks to the main tick loop.
@@ -82,9 +84,8 @@ impl MultiplayerServer {
             ..QuicConfig::default()
         };
 
-        let quic_server = Arc::new(
-            QuicServer::bind(&quic_config).map_err(|e| ServerError::Bind(e.to_string()))?,
-        );
+        let quic_server =
+            Arc::new(QuicServer::bind(&quic_config).map_err(|e| ServerError::Bind(e.to_string()))?);
 
         let local_addr = quic_server
             .local_addr()
@@ -208,7 +209,11 @@ async fn handle_new_connection(shared: &SharedState, client_id: u64) {
     // Register in state sync and world
     shared.state_sync.lock().await.add_client(player_id);
     shared.world_state.lock().await.add_player(player_id);
-    shared.connection_map.lock().await.insert(client_id, player_id);
+    shared
+        .connection_map
+        .lock()
+        .await
+        .insert(client_id, player_id);
 
     tracing::info!(client_id = client_id, player_id = %player_id, "player connected");
 
@@ -295,11 +300,7 @@ async fn tick_loop(
 }
 
 /// Process a single server tick.
-async fn process_tick(
-    tick_number: u64,
-    shared: &SharedState,
-    pending_inputs: &[IncomingInput],
-) {
+async fn process_tick(tick_number: u64, shared: &SharedState, pending_inputs: &[IncomingInput]) {
     // Apply pending inputs
     {
         let mut world = shared.world_state.lock().await;

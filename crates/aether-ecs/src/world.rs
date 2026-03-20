@@ -261,7 +261,7 @@ impl World {
             let src_ptr = {
                 let old_arch = self.storage.get_archetype(old_arch_idx).unwrap();
                 let col = old_arch.columns.get(&shared_id).unwrap();
-                unsafe { col.get_raw(old_row) as *const u8 }
+                unsafe { col.get_raw(old_row) }
             };
             let info = self.registry.get(shared_id).unwrap();
             // Copy data
@@ -362,7 +362,7 @@ impl World {
             let src_ptr = {
                 let old_arch = self.storage.get_archetype(old_arch_idx).unwrap();
                 let col = old_arch.columns.get(&keep_id).unwrap();
-                unsafe { col.get_raw(old_row) as *const u8 }
+                unsafe { col.get_raw(old_row) }
             };
             let info = self.registry.get(keep_id).unwrap();
             let new_arch = self.storage.get_archetype_mut(new_arch_idx).unwrap();

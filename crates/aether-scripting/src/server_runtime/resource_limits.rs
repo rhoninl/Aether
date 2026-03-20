@@ -37,17 +37,9 @@ pub enum SyscallCategory {
 }
 
 /// Policy for syscall access. By default, all syscalls are denied on the server.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct SyscallPolicy {
     allowed: Vec<SyscallCategory>,
-}
-
-impl Default for SyscallPolicy {
-    fn default() -> Self {
-        Self {
-            allowed: Vec::new(),
-        }
-    }
 }
 
 impl SyscallPolicy {
@@ -267,10 +259,7 @@ impl ResourceMeter {
     }
 
     /// Records CPU elapsed time. Returns `Err` with termination reason if budget exceeded.
-    pub fn record_cpu_time(
-        &mut self,
-        elapsed: Duration,
-    ) -> Result<(), MeteringTerminationReason> {
+    pub fn record_cpu_time(&mut self, elapsed: Duration) -> Result<(), MeteringTerminationReason> {
         if self.terminated.is_some() {
             return Err(self.terminated.clone().unwrap());
         }
@@ -342,10 +331,8 @@ mod tests {
 
     #[test]
     fn policy_with_cpu_and_memory() {
-        let policy = ServerResourcePolicy::with_cpu_and_memory(
-            Duration::from_millis(10),
-            128 * 1024 * 1024,
-        );
+        let policy =
+            ServerResourcePolicy::with_cpu_and_memory(Duration::from_millis(10), 128 * 1024 * 1024);
         assert_eq!(policy.cpu_limit, Duration::from_millis(10));
         assert_eq!(policy.memory_bytes, 128 * 1024 * 1024);
         // Other fields should be defaults
@@ -371,8 +358,7 @@ mod tests {
 
     #[test]
     fn syscall_policy_allow_specific() {
-        let policy =
-            SyscallPolicy::allow(vec![SyscallCategory::Clock, SyscallCategory::Random]);
+        let policy = SyscallPolicy::allow(vec![SyscallCategory::Clock, SyscallCategory::Random]);
         assert!(policy.is_allowed(SyscallCategory::Clock));
         assert!(policy.is_allowed(SyscallCategory::Random));
         assert!(!policy.is_allowed(SyscallCategory::Filesystem));
@@ -403,7 +389,10 @@ mod tests {
         assert!(meter.record_fuel(50).is_ok());
         let result = meter.record_fuel(60);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), MeteringTerminationReason::FuelExhausted);
+        assert_eq!(
+            result.unwrap_err(),
+            MeteringTerminationReason::FuelExhausted
+        );
         assert!(meter.is_terminated());
     }
 

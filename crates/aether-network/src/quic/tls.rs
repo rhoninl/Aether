@@ -55,11 +55,9 @@ impl std::fmt::Debug for TlsCertPair {
 ///
 /// The certificate is valid for "localhost" and IP 127.0.0.1.
 pub fn generate_self_signed() -> Result<TlsCertPair, TlsError> {
-    let cert = rcgen::generate_simple_self_signed(vec![
-        "localhost".to_string(),
-        "127.0.0.1".to_string(),
-    ])
-    .map_err(|e| TlsError::CertGeneration(e.to_string()))?;
+    let cert =
+        rcgen::generate_simple_self_signed(vec!["localhost".to_string(), "127.0.0.1".to_string()])
+            .map_err(|e| TlsError::CertGeneration(e.to_string()))?;
 
     let cert_der = CertificateDer::from(cert.cert);
     let key_der = PrivatePkcs8KeyDer::from(cert.key_pair.serialize_der());
@@ -74,15 +72,17 @@ pub fn generate_self_signed() -> Result<TlsCertPair, TlsError> {
 pub fn load_from_files(cert_path: &str, key_path: &str) -> Result<TlsCertPair, TlsError> {
     let cert_pem = std::fs::read(cert_path)
         .map_err(|e| TlsError::FileRead(format!("cert {cert_path}: {e}")))?;
-    let key_pem = std::fs::read(key_path)
-        .map_err(|e| TlsError::FileRead(format!("key {key_path}: {e}")))?;
+    let key_pem =
+        std::fs::read(key_path).map_err(|e| TlsError::FileRead(format!("key {key_path}: {e}")))?;
 
     let certs: Vec<CertificateDer<'static>> = rustls_pemfile::certs(&mut &cert_pem[..])
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| TlsError::Parse(format!("cert parse: {e}")))?;
 
     if certs.is_empty() {
-        return Err(TlsError::Parse("no certificates found in PEM file".to_string()));
+        return Err(TlsError::Parse(
+            "no certificates found in PEM file".to_string(),
+        ));
     }
 
     let key = rustls_pemfile::private_key(&mut &key_pem[..])
@@ -127,12 +127,8 @@ pub fn build_client_config_dev() -> quinn::ClientConfig {
     ));
 
     let mut transport_config = quinn::TransportConfig::default();
-    transport_config.max_concurrent_bidi_streams(
-        super::config::MAX_CONCURRENT_BI_STREAMS.into(),
-    );
-    transport_config.max_concurrent_uni_streams(
-        super::config::MAX_CONCURRENT_UNI_STREAMS.into(),
-    );
+    transport_config.max_concurrent_bidi_streams(super::config::MAX_CONCURRENT_BI_STREAMS.into());
+    transport_config.max_concurrent_uni_streams(super::config::MAX_CONCURRENT_UNI_STREAMS.into());
     transport_config.datagram_receive_buffer_size(Some(65536));
 
     client_config.transport_config(Arc::new(transport_config));

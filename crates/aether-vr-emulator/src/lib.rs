@@ -61,11 +61,8 @@ impl VrEmulator {
         let session = EmulatorSession::new(&config);
         let head_tracker = EmulatedHeadTracker::new(&config.input_sensitivity);
         let controllers = EmulatedControllers::new(&config.input_sensitivity);
-        let stereo_display = StereoDisplay::new(
-            &config.display,
-            config.window_width,
-            config.window_height,
-        );
+        let stereo_display =
+            StereoDisplay::new(&config.display, config.window_width, config.window_height);
 
         let mut emulator = Self {
             config,
@@ -95,11 +92,8 @@ impl VrEmulator {
         let session = EmulatorSession::new(&config);
         let head_tracker = EmulatedHeadTracker::new(&config.input_sensitivity);
         let controllers = EmulatedControllers::new(&config.input_sensitivity);
-        let stereo_display = StereoDisplay::new(
-            &config.display,
-            config.window_width,
-            config.window_height,
-        );
+        let stereo_display =
+            StereoDisplay::new(&config.display, config.window_width, config.window_height);
 
         let mut emulator = Self {
             config,
@@ -124,7 +118,7 @@ impl VrEmulator {
     /// Check if the emulator is still running (session active and window open).
     pub fn is_running(&self) -> bool {
         let session_active = self.session.should_render();
-        let window_open = self.window.as_ref().map_or(true, |w| w.is_open());
+        let window_open = self.window.as_ref().is_none_or(|w| w.is_open());
         session_active && window_open
     }
 
@@ -148,8 +142,9 @@ impl VrEmulator {
             let head_up = window.is_key_down(minifb::Key::R);
             let head_down = window.is_key_down(minifb::Key::F);
 
-            self.head_tracker
-                .apply_movement(head_fwd, head_back, head_left, head_right, head_up, head_down, dt_s);
+            self.head_tracker.apply_movement(
+                head_fwd, head_back, head_left, head_right, head_up, head_down, dt_s,
+            );
 
             // Handle preset positions
             if window.is_key_down(minifb::Key::F1) {
@@ -178,7 +173,8 @@ impl VrEmulator {
 
         // Build tracking snapshot
         let snapshot = TrackingSnapshot {
-            timestamp_ns: timing.predicted_display_time_ns
+            timestamp_ns: timing
+                .predicted_display_time_ns
                 .saturating_sub(timing.target_interval_ns),
             predicted_display_time_ns: timing.predicted_display_time_ns,
             head_pose: self.head_tracker.to_pose(),
@@ -208,12 +204,13 @@ impl VrEmulator {
 
         let head_pos = self.head_tracker.position();
         let head_yaw = self.head_tracker.yaw_rad();
-        let (left_ctrl, right_ctrl) = self
-            .controllers
-            .update(controller_input, head_pos, head_yaw, dt_s);
+        let (left_ctrl, right_ctrl) =
+            self.controllers
+                .update(controller_input, head_pos, head_yaw, dt_s);
 
         let snapshot = TrackingSnapshot {
-            timestamp_ns: timing.predicted_display_time_ns
+            timestamp_ns: timing
+                .predicted_display_time_ns
                 .saturating_sub(timing.target_interval_ns),
             predicted_display_time_ns: timing.predicted_display_time_ns,
             head_pose: self.head_tracker.to_pose(),

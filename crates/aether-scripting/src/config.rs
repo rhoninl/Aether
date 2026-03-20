@@ -53,7 +53,7 @@ impl Default for WorldScriptLimits {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ScriptRuntimeLimits {
     pub per_script: ScriptResourceLimits,
     pub per_world: WorldScriptLimits,
@@ -70,15 +70,6 @@ impl ScriptRuntimeLimits {
             per_world: WorldScriptLimits {
                 ..WorldScriptLimits::default()
             },
-        }
-    }
-}
-
-impl Default for ScriptRuntimeLimits {
-    fn default() -> Self {
-        Self {
-            per_script: ScriptResourceLimits::default(),
-            per_world: WorldScriptLimits::default(),
         }
     }
 }

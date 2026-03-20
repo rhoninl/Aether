@@ -28,7 +28,7 @@ pub struct LedgerRecord {
 }
 
 /// Append-only double-entry journal.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CurrencyLedger {
     next_journal_id: u64,
     pub entries: Vec<LedgerRecord>,

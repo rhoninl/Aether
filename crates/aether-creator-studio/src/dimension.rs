@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Chosen at world creation time. Immutable after creation.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum WorldDimension {
     TwoD,
+    #[default]
     ThreeD,
 }
 
@@ -18,12 +19,6 @@ impl fmt::Display for WorldDimension {
             WorldDimension::TwoD => write!(f, "2D"),
             WorldDimension::ThreeD => write!(f, "3D"),
         }
-    }
-}
-
-impl Default for WorldDimension {
-    fn default() -> Self {
-        WorldDimension::ThreeD
     }
 }
 

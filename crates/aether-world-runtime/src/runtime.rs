@@ -100,7 +100,7 @@ pub struct WorldRuntimeOutput {
     pub ghost_handoffs: Vec<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct WorldRuntimeState {
     cfg: WorldRuntimeConfig,
     world_states: HashMap<String, WorldRuntimeWorldState>,
@@ -108,13 +108,13 @@ pub struct WorldRuntimeState {
 
 #[derive(Debug)]
 struct WorldRuntimeWorldState {
-    manifest: WorldRuntimeManifest,
+    _manifest: WorldRuntimeManifest,
     state: RuntimeState,
-    terrain_chunks: Vec<TerrainChunk>,
+    _terrain_chunks: Vec<TerrainChunk>,
     pending_chunks: Vec<ChunkDescriptor>,
     loaded_chunks: HashMap<u64, ChunkDescriptor>,
-    props: Vec<PropInstance>,
-    lighting: Vec<LightingSetup>,
+    _props: Vec<PropInstance>,
+    _lighting: Vec<LightingSetup>,
     spawn_points: Vec<SpawnPoint>,
     last_tick: u64,
     last_tick_ms: u64,
@@ -122,23 +122,14 @@ struct WorldRuntimeWorldState {
     last_stream_ms: u64,
     boot_error: Option<String>,
     tick_errors: u32,
-    enforced_gravity: f32,
-    enforced_tick_rate: u32,
+    _enforced_gravity: f32,
+    _enforced_tick_rate: u32,
     enforced_players: u32,
     zone_count: u32,
     zone_count_target: u32,
     last_zone_rebalance_ms: u64,
     ghost_entities: Vec<u64>,
     chunk_drops: u64,
-}
-
-impl Default for WorldRuntimeState {
-    fn default() -> Self {
-        Self {
-            cfg: WorldRuntimeConfig::default(),
-            world_states: HashMap::new(),
-        }
-    }
 }
 
 impl WorldRuntime {
@@ -149,10 +140,6 @@ impl WorldRuntime {
                 world_states: HashMap::new(),
             },
         }
-    }
-
-    pub fn default() -> Self {
-        Self::new(WorldRuntimeConfig::default())
     }
 
     pub fn state(&self) -> &WorldRuntimeState {
@@ -234,6 +221,7 @@ impl WorldRuntime {
         output
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn boot_world(
         &mut self,
         manifest: &WorldRuntimeManifest,
@@ -248,13 +236,13 @@ impl WorldRuntime {
             Ok(()) => {
                 if spawn_points.is_empty() {
                     let state = WorldRuntimeWorldState {
-                        manifest: manifest.clone(),
+                        _manifest: manifest.clone(),
                         state: RuntimeState::StoppedError("missing_spawn_points".into()),
-                        terrain_chunks: terrain_chunks.to_vec(),
+                        _terrain_chunks: terrain_chunks.to_vec(),
                         pending_chunks: Vec::new(),
                         loaded_chunks: HashMap::new(),
-                        props: props.to_vec(),
-                        lighting: lighting.to_vec(),
+                        _props: props.to_vec(),
+                        _lighting: lighting.to_vec(),
                         spawn_points: spawn_points.to_vec(),
                         last_tick: 0,
                         last_tick_ms: now_ms,
@@ -262,8 +250,8 @@ impl WorldRuntime {
                         last_stream_ms: now_ms,
                         boot_error: Some("missing_spawn_points".into()),
                         tick_errors: 0,
-                        enforced_gravity: manifest.gravity.clamp(-9.8, 9.8),
-                        enforced_tick_rate: manifest.tick_rate_hz.clamp(1, 240),
+                        _enforced_gravity: manifest.gravity.clamp(-9.8, 9.8),
+                        _enforced_tick_rate: manifest.tick_rate_hz.clamp(1, 240),
                         enforced_players: manifest.max_players.max(1),
                         zone_count: 1,
                         zone_count_target: 1,
@@ -271,7 +259,9 @@ impl WorldRuntime {
                         ghost_entities: Vec::new(),
                         chunk_drops: 0,
                     };
-                    self.state.world_states.insert(manifest.world_id.clone(), state);
+                    self.state
+                        .world_states
+                        .insert(manifest.world_id.clone(), state);
                     output.events.push(LifecycleEvent {
                         world_id: manifest.world_id.clone(),
                         state: RuntimeState::StoppedError("missing_spawn_points".into()),
@@ -285,13 +275,13 @@ impl WorldRuntime {
                 }
 
                 let state = WorldRuntimeWorldState {
-                    manifest: manifest.clone(),
+                    _manifest: manifest.clone(),
                     state: RuntimeState::Running,
-                    terrain_chunks: terrain_chunks.to_vec(),
+                    _terrain_chunks: terrain_chunks.to_vec(),
                     pending_chunks: Vec::new(),
                     loaded_chunks: HashMap::new(),
-                    props: props.to_vec(),
-                    lighting: lighting.to_vec(),
+                    _props: props.to_vec(),
+                    _lighting: lighting.to_vec(),
                     spawn_points: spawn_points.to_vec(),
                     last_tick: 0,
                     last_tick_ms: now_ms,
@@ -299,8 +289,8 @@ impl WorldRuntime {
                     last_stream_ms: now_ms,
                     boot_error: None,
                     tick_errors: 0,
-                    enforced_gravity: manifest.gravity.clamp(-9.8, 9.8),
-                    enforced_tick_rate: manifest.tick_rate_hz.clamp(1, 240),
+                    _enforced_gravity: manifest.gravity.clamp(-9.8, 9.8),
+                    _enforced_tick_rate: manifest.tick_rate_hz.clamp(1, 240),
                     enforced_players: manifest.max_players.max(1),
                     zone_count: 1,
                     zone_count_target: 1,
@@ -323,15 +313,17 @@ impl WorldRuntime {
                 });
             }
             Err(err) => {
-                output.error_report.push(format!("boot {}: {:?}", manifest.world_id, err));
-                let mut state = WorldRuntimeWorldState {
-                    manifest: manifest.clone(),
+                output
+                    .error_report
+                    .push(format!("boot {}: {:?}", manifest.world_id, err));
+                let state = WorldRuntimeWorldState {
+                    _manifest: manifest.clone(),
                     state: RuntimeState::StoppedError(format!("{err:?}")),
-                    terrain_chunks: terrain_chunks.to_vec(),
+                    _terrain_chunks: terrain_chunks.to_vec(),
                     pending_chunks: Vec::new(),
                     loaded_chunks: HashMap::new(),
-                    props: props.to_vec(),
-                    lighting: lighting.to_vec(),
+                    _props: props.to_vec(),
+                    _lighting: lighting.to_vec(),
                     spawn_points: spawn_points.to_vec(),
                     last_tick: 0,
                     last_tick_ms: now_ms,
@@ -339,8 +331,8 @@ impl WorldRuntime {
                     last_stream_ms: now_ms,
                     boot_error: Some(format!("{err:?}")),
                     tick_errors: 0,
-                    enforced_gravity: manifest.gravity,
-                    enforced_tick_rate: manifest.tick_rate_hz,
+                    _enforced_gravity: manifest.gravity,
+                    _enforced_tick_rate: manifest.tick_rate_hz,
                     enforced_players: manifest.max_players,
                     zone_count: 1,
                     zone_count_target: 1,
@@ -348,7 +340,9 @@ impl WorldRuntime {
                     ghost_entities: Vec::new(),
                     chunk_drops: 0,
                 };
-                self.state.world_states.insert(manifest.world_id.clone(), state);
+                self.state
+                    .world_states
+                    .insert(manifest.world_id.clone(), state);
                 output.events.push(LifecycleEvent {
                     world_id: manifest.world_id.clone(),
                     state: RuntimeState::StoppedError(format!("boot failed: {err:?}")),
@@ -358,6 +352,7 @@ impl WorldRuntime {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn step_world(
         &mut self,
         world_id: &str,
@@ -425,9 +420,9 @@ impl WorldRuntime {
         if player_count > 500 {
             state.enforced_players = player_count;
             state.tick_errors = state.tick_errors.saturating_add(1);
-            output
-                .error_report
-                .push(format!("tick {world_id}: unusual player count {player_count}"));
+            output.error_report.push(format!(
+                "tick {world_id}: unusual player count {player_count}"
+            ));
         }
 
         if state.tick_errors as u64 >= self.state.cfg.max_pending_ticks {
@@ -470,7 +465,9 @@ impl WorldRuntime {
         output: &mut WorldRuntimeOutput,
     ) {
         let Some(state) = self.state.world_states.get_mut(world_id) else {
-            output.error_report.push(format!("stream on missing world: {world_id}"));
+            output
+                .error_report
+                .push(format!("stream on missing world: {world_id}"));
             return;
         };
 
@@ -486,7 +483,12 @@ impl WorldRuntime {
         }
 
         let policy = ChunkStreamingPolicy {
-            max_inflight: self.state.cfg.max_inflight_chunks.max(1).min(u16::MAX as usize) as u16,
+            max_inflight: self
+                .state
+                .cfg
+                .max_inflight_chunks
+                .max(1)
+                .min(u16::MAX as usize) as u16,
             min_prefetch_distance: 12.0,
             target_bytes_per_second: self.state.cfg.stream_budget_bytes_per_tick,
         };
@@ -500,7 +502,10 @@ impl WorldRuntime {
             0
         } else {
             let chunks_to_preload = pending.len().max(1) as u64;
-            self.state.cfg.stream_budget_bytes_per_tick.min(128_000 * chunks_to_preload)
+            self.state
+                .cfg
+                .stream_budget_bytes_per_tick
+                .min(128_000 * chunks_to_preload)
         };
         let mut budget = budget_total;
         let mut loaded_this_tick = 0u32;
@@ -549,13 +554,15 @@ impl WorldRuntime {
                 .saturating_sub(self.state.cfg.max_visible_chunks);
             for key in loaded_keys.into_iter().take(excess) {
                 state.loaded_chunks.remove(&key);
-                output.unload_events.push(format!("unloaded {world_id}:{key}"));
+                output
+                    .unload_events
+                    .push(format!("unloaded {world_id}:{key}"));
             }
         }
 
         output.samples.push(PerformanceSample {
             world_id: world_id.to_string(),
-            render_ms: ((policy.target_bytes_per_second - budget).max(0)) as u32,
+            render_ms: (policy.target_bytes_per_second - budget) as u32,
             physics_ms: state.loaded_chunks.len() as u32,
             network_ms: loaded_this_tick.saturating_add(state.loaded_chunks.len() as u32),
             scripting_ms: now_ms as u32 % 1_000,
@@ -589,7 +596,9 @@ impl WorldRuntime {
         if !matches!(state.state, RuntimeState::Running) {
             return;
         }
-        if now_ms.saturating_sub(state.last_zone_rebalance_ms) < self.state.cfg.zone_rebalance_cooldown_ms {
+        if now_ms.saturating_sub(state.last_zone_rebalance_ms)
+            < self.state.cfg.zone_rebalance_cooldown_ms
+        {
             return;
         }
 
@@ -598,7 +607,8 @@ impl WorldRuntime {
             .clamp(1, self.state.cfg.max_zone_count.max(1));
 
         if state.zone_count < state.zone_count_target {
-            while state.zone_count < state.zone_count_target && state.zone_count < self.state.cfg.max_zone_count.max(1)
+            while state.zone_count < state.zone_count_target
+                && state.zone_count < self.state.cfg.max_zone_count.max(1)
             {
                 let from = state.zone_count;
                 state.zone_count = (state.zone_count + 1).min(self.state.cfg.max_zone_count.max(1));
@@ -612,7 +622,9 @@ impl WorldRuntime {
                     state.zone_count, now_spawn_points
                 ));
             }
-        } else if state.zone_count > state.zone_count_target || now_spawn_points < usize::try_from(state.zone_count).unwrap_or(0) {
+        } else if state.zone_count > state.zone_count_target
+            || now_spawn_points < usize::try_from(state.zone_count).unwrap_or(0)
+        {
             while state.zone_count > state.zone_count_target && state.zone_count > 1 {
                 let from = state.zone_count;
                 state.zone_count = state.zone_count.saturating_sub(1);
@@ -620,13 +632,14 @@ impl WorldRuntime {
                     "merge {world_id}:{from}->{},players:{}",
                     state.zone_count, active_player_count
                 ));
-                output.ghost_handoffs.push(format!("handoff:{world_id}:{from}->{}", state.zone_count));
+                output
+                    .ghost_handoffs
+                    .push(format!("handoff:{world_id}:{from}->{}", state.zone_count));
             }
         } else {
-            output.zone_decisions.push(format!(
-                "normalize {world_id}:{}",
-                state.zone_count
-            ));
+            output
+                .zone_decisions
+                .push(format!("normalize {world_id}:{}", state.zone_count));
         }
 
         state.last_zone_rebalance_ms = now_ms;
@@ -662,21 +675,29 @@ impl WorldRuntime {
                     timestamp_ms: 0,
                 });
                 if !reason.is_empty() {
-                    output.error_report.push(format!("world stopped: {world_id} {reason}"));
+                    output
+                        .error_report
+                        .push(format!("world stopped: {world_id} {reason}"));
                 }
             }
             None => {
-                output.error_report.push(format!("shutdown missing world: {world_id}"));
+                output
+                    .error_report
+                    .push(format!("shutdown missing world: {world_id}"));
             }
         }
     }
 
+    #[allow(dead_code)]
     fn stream_budget(&self, chunks: &[ChunkDescriptor]) -> u64 {
         if chunks.is_empty() {
             return 0;
         }
         let chunks_to_preload = chunks.len().max(1) as u64;
-        self.state.cfg.stream_budget_bytes_per_tick.min(128_000 * chunks_to_preload)
+        self.state
+            .cfg
+            .stream_budget_bytes_per_tick
+            .min(128_000 * chunks_to_preload)
     }
 
     fn chunk_estimated_cost(chunk: &ChunkDescriptor) -> u64 {
@@ -689,6 +710,12 @@ impl WorldRuntime {
 
 pub struct WorldRuntime {
     state: WorldRuntimeState,
+}
+
+impl Default for WorldRuntime {
+    fn default() -> Self {
+        Self::new(WorldRuntimeConfig::default())
+    }
 }
 
 impl WorldRuntime {
@@ -711,8 +738,11 @@ impl WorldRuntime {
                 }
                 Ok(())
             }
-            Err(WorldManifestError::GravityUnrealistic) => Err(RuntimeSettingsError::GravityCritical),
-            Err(WorldManifestError::MissingTerrain) | Err(WorldManifestError::MissingEnvironment) => {
+            Err(WorldManifestError::GravityUnrealistic) => {
+                Err(RuntimeSettingsError::GravityCritical)
+            }
+            Err(WorldManifestError::MissingTerrain)
+            | Err(WorldManifestError::MissingEnvironment) => {
                 Err(RuntimeSettingsError::InvalidSpawnPoints)
             }
             Err(WorldManifestError::InvalidTickRate) => Err(RuntimeSettingsError::TickRateTooLow),

@@ -22,4 +22,3 @@ pub enum LivePreviewError {
     NetworkTimeout,
     SnapshotStale,
 }
-

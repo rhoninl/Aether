@@ -124,7 +124,6 @@ impl GpuContext {
         width: u32,
         height: u32,
     ) -> Result<Self, GpuError> {
-
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -155,8 +154,16 @@ impl GpuContext {
             .copied()
             .unwrap_or(surface_caps.formats[0]);
 
-        let w = if width > 0 { width } else { DEFAULT_SURFACE_WIDTH };
-        let h = if height > 0 { height } else { DEFAULT_SURFACE_HEIGHT };
+        let w = if width > 0 {
+            width
+        } else {
+            DEFAULT_SURFACE_WIDTH
+        };
+        let h = if height > 0 {
+            height
+        } else {
+            DEFAULT_SURFACE_HEIGHT
+        };
 
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,

@@ -112,7 +112,9 @@ impl PrefetchQueue {
     pub fn drain_sorted(&mut self) -> Vec<PrefetchHint> {
         let mut hints: Vec<PrefetchHint> = self.hints.drain().map(|(_, h)| h).collect();
         hints.sort_by(|a, b| {
-            a.priority.cmp(&b.priority).then_with(|| a.asset_url.cmp(&b.asset_url))
+            a.priority
+                .cmp(&b.priority)
+                .then_with(|| a.asset_url.cmp(&b.asset_url))
         });
         hints
     }
@@ -121,7 +123,9 @@ impl PrefetchQueue {
     pub fn peek_sorted(&self) -> Vec<&PrefetchHint> {
         let mut hints: Vec<&PrefetchHint> = self.hints.values().collect();
         hints.sort_by(|a, b| {
-            a.priority.cmp(&b.priority).then_with(|| a.asset_url.cmp(&b.asset_url))
+            a.priority
+                .cmp(&b.priority)
+                .then_with(|| a.asset_url.cmp(&b.asset_url))
         });
         hints
     }
@@ -217,7 +221,10 @@ mod tests {
         let added = queue.add(make_hint("a.png", PrefetchPriority::Critical));
         assert!(added);
         assert_eq!(queue.len(), 1);
-        assert_eq!(queue.get("a.png").unwrap().priority, PrefetchPriority::Critical);
+        assert_eq!(
+            queue.get("a.png").unwrap().priority,
+            PrefetchPriority::Critical
+        );
     }
 
     #[test]
@@ -226,7 +233,10 @@ mod tests {
         queue.add(make_hint("a.png", PrefetchPriority::Critical));
         let added = queue.add(make_hint("a.png", PrefetchPriority::Low));
         assert!(!added);
-        assert_eq!(queue.get("a.png").unwrap().priority, PrefetchPriority::Critical);
+        assert_eq!(
+            queue.get("a.png").unwrap().priority,
+            PrefetchPriority::Critical
+        );
     }
 
     // --- Priority ordering ---

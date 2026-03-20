@@ -24,11 +24,7 @@ const CUBES: [[f32; 3]; 4] = [
     [-3.0, 0.5, -3.0],
 ];
 
-const SPHERES: [[f32; 3]; 3] = [
-    [1.0, 1.0, -6.0],
-    [-1.5, 2.5, -5.0],
-    [3.0, 1.0, -8.0],
-];
+const SPHERES: [[f32; 3]; 3] = [[1.0, 1.0, -6.0], [-1.5, 2.5, -5.0], [3.0, 1.0, -8.0]];
 
 /// Render the scene from one eye's perspective.
 pub fn render_eye(
@@ -62,11 +58,7 @@ pub fn render_eye(
 }
 
 /// Render a checkerboard ground grid.
-fn render_ground_grid(
-    fb: &mut EmulatorFrameBuffer,
-    display: &StereoDisplay,
-    eye_view: &EyeView,
-) {
+fn render_ground_grid(fb: &mut EmulatorFrameBuffer, display: &StereoDisplay, eye_view: &EyeView) {
     let grid_half = 10;
     let spacing = 1.0f32;
 
@@ -93,22 +85,14 @@ fn render_ground_grid(
 }
 
 /// Render cubes as wireframe boxes.
-fn render_cubes(
-    fb: &mut EmulatorFrameBuffer,
-    display: &StereoDisplay,
-    eye_view: &EyeView,
-) {
+fn render_cubes(fb: &mut EmulatorFrameBuffer, display: &StereoDisplay, eye_view: &EyeView) {
     for pos in &CUBES {
         render_wireframe_cube(fb, display, eye_view, *pos, 0.4, CUBE_COLOR);
     }
 }
 
 /// Render spheres as filled circles.
-fn render_spheres(
-    fb: &mut EmulatorFrameBuffer,
-    display: &StereoDisplay,
-    eye_view: &EyeView,
-) {
+fn render_spheres(fb: &mut EmulatorFrameBuffer, display: &StereoDisplay, eye_view: &EyeView) {
     for pos in &SPHERES {
         if let Some((sx, sy, _z)) = display.project_point(eye_view, *pos) {
             let radius_px = project_radius(eye_view, *pos, 0.3);
@@ -183,9 +167,18 @@ fn render_wireframe_cube(
     ];
 
     let edges: [(usize, usize); 12] = [
-        (0, 1), (1, 2), (2, 3), (3, 0),
-        (4, 5), (5, 6), (6, 7), (7, 4),
-        (0, 4), (1, 5), (2, 6), (3, 7),
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7),
     ];
 
     for (a, b) in &edges {

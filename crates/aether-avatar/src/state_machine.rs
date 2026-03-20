@@ -135,10 +135,7 @@ impl AnimationStateMachine {
             };
 
             return AnimationOutput {
-                layers: vec![
-                    (transition.from, from_weight),
-                    (transition.to, to_weight),
-                ],
+                layers: vec![(transition.from, from_weight), (transition.to, to_weight)],
                 primary_state: primary,
             };
         }
@@ -186,9 +183,9 @@ impl AnimationStateMachine {
                     ProceduralStateMachine::Idle
                 }
             }
-            LocomotionIntent::Walk
-            | LocomotionIntent::Sprint
-            | LocomotionIntent::Crouch => ProceduralStateMachine::Locomote,
+            LocomotionIntent::Walk | LocomotionIntent::Sprint | LocomotionIntent::Crouch => {
+                ProceduralStateMachine::Locomote
+            }
             LocomotionIntent::Jump => ProceduralStateMachine::Fall,
             LocomotionIntent::FallRecovery => ProceduralStateMachine::Idle,
         }
@@ -317,10 +314,7 @@ mod tests {
         // Wait for gesture to expire -- the large dt completes the transition
         // to GestureRecover immediately.
         let output = sm.update(GESTURE_EXPIRE_MS, &idle_input());
-        assert_eq!(
-            output.primary_state,
-            ProceduralStateMachine::GestureRecover
-        );
+        assert_eq!(output.primary_state, ProceduralStateMachine::GestureRecover);
         assert_eq!(sm.current_state(), ProceduralStateMachine::GestureRecover);
     }
 
@@ -408,6 +402,9 @@ mod tests {
             .map(|(_, w)| *w)
             .unwrap_or(0.0);
 
-        assert!(idle_weight > locomote_weight, "idle should still dominate at 25%");
+        assert!(
+            idle_weight > locomote_weight,
+            "idle should still dominate at 25%"
+        );
     }
 }

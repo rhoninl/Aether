@@ -53,7 +53,9 @@ mod tests {
     fn test_noop_api_accepts_any_function() {
         let mut api = NoOpApi;
         assert!(api.call("set_position", &[]).is_ok());
-        assert!(api.call("play_sound", &[Value::String("boom".into())]).is_ok());
+        assert!(api
+            .call("play_sound", &[Value::String("boom".into())])
+            .is_ok());
         assert!(api.call("", &[]).is_ok());
     }
 
@@ -61,7 +63,18 @@ mod tests {
     fn test_recording_api_captures_calls() {
         let mut api = RecordingApi::default();
         api.call("log", &[Value::String("hello".into())]).unwrap();
-        api.call("set_position", &[Value::Entity(1), Value::Vec3 { x: 1.0, y: 2.0, z: 3.0 }]).unwrap();
+        api.call(
+            "set_position",
+            &[
+                Value::Entity(1),
+                Value::Vec3 {
+                    x: 1.0,
+                    y: 2.0,
+                    z: 3.0,
+                },
+            ],
+        )
+        .unwrap();
 
         assert_eq!(api.calls.len(), 2);
         assert_eq!(api.calls[0].0, "log");

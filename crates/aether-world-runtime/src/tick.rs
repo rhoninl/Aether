@@ -77,7 +77,7 @@ impl TickScheduler {
 
         // If we hit the cap, drain the remaining accumulator to prevent spiral-of-death
         if produced >= self.max_ticks_per_update && self.accumulator_us >= self.tick_interval_us {
-            self.accumulator_us = self.accumulator_us % self.tick_interval_us;
+            self.accumulator_us %= self.tick_interval_us;
         }
 
         ticks

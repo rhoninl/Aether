@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::{
-    FidelityMode, PlatformKind, PlatformProfile, QualityClass, SceneScaleMode, VisualMode, WasmExecutionMode,
+    FidelityMode, PlatformKind, PlatformProfile, QualityClass, SceneScaleMode, VisualMode,
+    WasmExecutionMode,
 };
 
 #[derive(Debug, Clone)]
@@ -36,7 +37,7 @@ pub struct PlatformRuntimeInput {
     pub session_intents: Vec<PlatformSessionIntent>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct PlatformRuntimeOutput {
     pub now_ms: u64,
     pub active_session_count: usize,
@@ -45,20 +46,6 @@ pub struct PlatformRuntimeOutput {
     pub script_mode_decisions: Vec<String>,
     pub script_mode_overrides: Vec<String>,
     pub diagnostics: Vec<String>,
-}
-
-impl Default for PlatformRuntimeOutput {
-    fn default() -> Self {
-        Self {
-            now_ms: 0,
-            active_session_count: 0,
-            switched_profiles: Vec::new(),
-            profile_rejections: Vec::new(),
-            script_mode_decisions: Vec::new(),
-            script_mode_overrides: Vec::new(),
-            diagnostics: Vec::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -120,7 +107,8 @@ impl PlatformRuntime {
         }
 
         for intent in input.session_intents {
-            if self.sessions.len() >= self.cfg.max_active_sessions && !self.sessions.contains_key(&intent.session_id)
+            if self.sessions.len() >= self.cfg.max_active_sessions
+                && !self.sessions.contains_key(&intent.session_id)
             {
                 output
                     .profile_rejections
@@ -128,7 +116,12 @@ impl PlatformRuntime {
                 continue;
             }
 
-            let selected = self.pick_profile(input.now_ms, &intent, &input.available_profiles, &mut output);
+            let selected = self.pick_profile(
+                input.now_ms,
+                &intent,
+                &input.available_profiles,
+                &mut output,
+            );
             let requested_mode = intent
                 .requested_script_mode
                 .unwrap_or(self.cfg.default_script_mode);
@@ -145,9 +138,15 @@ impl PlatformRuntime {
                 intent.session_id.clone(),
                 selected,
                 effective_mode,
-                intent.requested_fidelity.unwrap_or(self.cfg.default_fidelity),
-                intent.requested_scene_scale.unwrap_or(self.cfg.default_scene_scale),
-                intent.requested_visual_mode.unwrap_or(self.cfg.default_visual_mode),
+                intent
+                    .requested_fidelity
+                    .unwrap_or(self.cfg.default_fidelity),
+                intent
+                    .requested_scene_scale
+                    .unwrap_or(self.cfg.default_scene_scale),
+                intent
+                    .requested_visual_mode
+                    .unwrap_or(self.cfg.default_visual_mode),
                 &mut output,
             );
             output.script_mode_decisions.push(format!(
@@ -160,6 +159,7 @@ impl PlatformRuntime {
         output
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn apply_session(
         &mut self,
         now_ms: u64,
@@ -189,7 +189,9 @@ impl PlatformRuntime {
                     || existing.scene_scale != scene_scale
                     || existing.visual_mode != visual_mode
                 {
-                    if now_ms.saturating_sub(existing.last_switch_ms) < self.cfg.profile_switch_cooldown_ms {
+                    if now_ms.saturating_sub(existing.last_switch_ms)
+                        < self.cfg.profile_switch_cooldown_ms
+                    {
                         output.profile_rejections.push(format!(
                             "switch_denied_cooldown:{}:{:?}",
                             session_id, now_ms
@@ -198,9 +200,7 @@ impl PlatformRuntime {
                     }
                     output.switched_profiles.push(format!(
                         "session_switch:{}:{:?}->{:?}",
-                        session_id,
-                        existing.profile.kind,
-                        profile.kind
+                        session_id, existing.profile.kind, profile.kind
                     ));
                     existing.profile = profile;
                     existing.script_mode = script_mode;

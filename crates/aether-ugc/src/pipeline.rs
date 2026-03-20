@@ -27,4 +27,3 @@ pub struct ContentAddress {
     pub size: u64,
     pub object_key: String,
 }
-

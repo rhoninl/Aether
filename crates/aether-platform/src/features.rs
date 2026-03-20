@@ -77,10 +77,9 @@ impl FeatureFlags {
                 Feature::HighResTextures,
                 Feature::RayTracing,
             ]),
-            Platform::WebBrowser => Self::from_features(&[
-                Feature::WasmClientScripting,
-                Feature::SpatialAudio,
-            ]),
+            Platform::WebBrowser => {
+                Self::from_features(&[Feature::WasmClientScripting, Feature::SpatialAudio])
+            }
         }
     }
 

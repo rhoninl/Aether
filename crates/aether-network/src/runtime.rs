@@ -2,9 +2,10 @@ use std::collections::{HashMap, VecDeque};
 use std::time::Duration;
 
 use crate::{
-    ClientBudget, ClientPrediction, ClientProfile, DatagramMode, EntitySnapshot, InputSample,
-    InterestManager, InterpolationConfig, JitterBufferConfig, NetEntity, QuantizedFrame, Reconciliation,
-    Reliability, StateDiff, TransportMessage, TransportProfile, VoicePayload, xor_patch,
+    xor_patch, ClientBudget, ClientPrediction, ClientProfile, DatagramMode, EntitySnapshot,
+    InputSample, InterestManager, InterpolationConfig, JitterBufferConfig, NetEntity,
+    QuantizedFrame, Reconciliation, Reliability, StateDiff, TransportMessage, TransportProfile,
+    VoicePayload,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -132,7 +133,11 @@ pub struct RuntimeScheduler {
 
 impl RuntimeScheduler {
     pub fn new(tick_hz: u32) -> Self {
-        let interval_ms = if tick_hz == 0 { 0 } else { 1000 / tick_hz as u64 };
+        let interval_ms = if tick_hz == 0 {
+            0
+        } else {
+            1000 / tick_hz as u64
+        };
         Self {
             interval_ms,
             remainder_ms: 0,
@@ -250,14 +255,15 @@ impl ClientRuntimeState {
             self.last_snapshot_ticks.clear();
         }
         self.last_entity_snapshots.insert(frame.entity_id, frame);
-        self.last_snapshot_ticks
-            .insert(frame.entity_id, tick);
+        self.last_snapshot_ticks.insert(frame.entity_id, tick);
     }
 
     fn known_snapshot(&self, entity_id: &u64) -> Option<(&QuantizedFrame, u64)> {
-        self.last_entity_snapshots
-            .get(entity_id)
-            .and_then(|frame| self.last_snapshot_ticks.get(entity_id).map(|tick| (frame, *tick)))
+        self.last_entity_snapshots.get(entity_id).and_then(|frame| {
+            self.last_snapshot_ticks
+                .get(entity_id)
+                .map(|tick| (frame, *tick))
+        })
     }
 }
 
@@ -299,6 +305,7 @@ impl NetworkRuntime {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn step(
         &self,
         tick_input: NetworkTickInput,
@@ -337,12 +344,20 @@ impl NetworkRuntime {
         }
 
         for payload in voice {
-            self.process_voice_payload(tick_input, profiles, client_states, payload, &mut packets, &mut dropped_bytes);
+            self.process_voice_payload(
+                tick_input,
+                profiles,
+                client_states,
+                payload,
+                &mut packets,
+                &mut dropped_bytes,
+            );
         }
 
         RuntimeOutput::from_packets(packets, reconciliations, dropped_bytes, 0)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn step_with_transport<T: RuntimeTransport>(
         &self,
         transport: &mut T,
@@ -450,6 +465,7 @@ impl NetworkRuntime {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn process_client(
         &self,
         tick_input: NetworkTickInput,
@@ -465,7 +481,7 @@ impl NetworkRuntime {
     ) {
         let candidates: Vec<(u64, crate::types::Vec3, f32)> = hints
             .iter()
-            .filter(|h| self.hint_visible(&profile, h))
+            .filter(|h| self.hint_visible(profile, h))
             .map(|h| (h.entity_id, h.position, h.importance))
             .collect();
 
@@ -474,9 +490,9 @@ impl NetworkRuntime {
             effective_budget.max_entities = self.config.interest_budget_limit;
         }
 
-        let visible = self
-            .interest
-            .top_n_entities(&candidates, &effective_budget, profile.position);
+        let visible =
+            self.interest
+                .top_n_entities(&candidates, &effective_budget, profile.position);
 
         let budgeted_entities = visible
             .into_iter()
@@ -506,7 +522,11 @@ impl NetworkRuntime {
             }
 
             used_bytes += payload.len();
-            state.remember_snapshot(tick_input.tick, quantized, self.config.max_snapshots_per_client);
+            state.remember_snapshot(
+                tick_input.tick,
+                quantized,
+                self.config.max_snapshots_per_client,
+            );
 
             let mut msg = TransportMessage {
                 to_client_id: profile.client_id,
@@ -519,7 +539,13 @@ impl NetworkRuntime {
             packets.push(msg);
         }
 
-        self.apply_input_reconciliation(tick_input, profile.client_id, inputs, state, reconciliations);
+        self.apply_input_reconciliation(
+            tick_input,
+            profile.client_id,
+            inputs,
+            state,
+            reconciliations,
+        );
         state.last_tick = tick_input.tick;
     }
 
@@ -537,20 +563,22 @@ impl NetworkRuntime {
             return;
         }
 
-        let Some(sender_profile) = profiles.iter().find(|p| p.client_id == payload.sender_id) else {
+        let Some(sender_profile) = profiles.iter().find(|p| p.client_id == payload.sender_id)
+        else {
             *dropped_bytes += payload.bytes.len();
             return;
         };
 
         let mut delivered = false;
-        for (profile, state) in profiles
-            .iter()
-            .zip(client_states.iter_mut())
-            .filter(|(recipient, state)| {
-                recipient.client_id != payload.sender_id
-                    && recipient.world_id == sender_profile.world_id
-                    && state.client_id == recipient.client_id
-            })
+        for (profile, state) in
+            profiles
+                .iter()
+                .zip(client_states.iter_mut())
+                .filter(|(recipient, state)| {
+                    recipient.client_id != payload.sender_id
+                        && recipient.world_id == sender_profile.world_id
+                        && state.client_id == recipient.client_id
+                })
         {
             let jittered = self.apply_voice_jitter_buffer(state, payload, tick_input.now_ms);
             let Some(frame) = jittered else {
@@ -677,10 +705,7 @@ impl NetworkRuntime {
     }
 
     fn diff_snapshot_payload(&self, previous: &[u8], next: &[u8]) -> Vec<u8> {
-        let StateDiff {
-            xor_bytes,
-            ..
-        } = xor_patch(previous, next);
+        let StateDiff { xor_bytes, .. } = xor_patch(previous, next);
         if xor_bytes.is_empty() {
             return Vec::new();
         }
@@ -719,8 +744,7 @@ impl NetworkRuntime {
                 continue;
             }
 
-            let stale =
-                input.client_tick + self.config.min_sequence_gap_ms < tick_input.tick;
+            let stale = input.client_tick + self.config.min_sequence_gap_ms < tick_input.tick;
             if stale {
                 continue;
             }
@@ -734,7 +758,8 @@ impl NetworkRuntime {
             return;
         }
 
-        let interpolation_ok = self.config.interpolation.buffer_time_ms <= (tick_input.now_ms as f32);
+        let interpolation_ok =
+            self.config.interpolation.buffer_time_ms <= (tick_input.now_ms as f32);
         let tick = if interpolation_ok {
             tick_input.tick
         } else {
@@ -861,17 +886,23 @@ mod tests {
             },
         ]];
         let output = runtime.step(
-            NetworkTickInput { tick: 1, now_ms: 16 },
+            NetworkTickInput {
+                tick: 1,
+                now_ms: 16,
+            },
             &profile,
             &budgets,
             &hints,
             &snaps,
             &mut state,
-            &[(11, InputSample {
-                client_tick: 1,
-                seq: 1,
-                payload: vec![1, 2, 3],
-            })],
+            &[(
+                11,
+                InputSample {
+                    client_tick: 1,
+                    seq: 1,
+                    payload: vec![1, 2, 3],
+                },
+            )],
             &[],
         );
 
@@ -917,7 +948,10 @@ mod tests {
         }]];
         let result = runtime.step_with_transport(
             &mut transport,
-            NetworkTickInput { tick: 1, now_ms: 16 },
+            NetworkTickInput {
+                tick: 1,
+                now_ms: 16,
+            },
             &profile,
             &budgets,
             &hints,
@@ -934,7 +968,10 @@ mod tests {
 
     #[test]
     fn transport_tick_interval_defined() {
-        let runtime = NetworkRuntime::new(RuntimeConfig::default(), InterestManager::new(InterestPolicy::default()));
+        let runtime = NetworkRuntime::new(
+            RuntimeConfig::default(),
+            InterestManager::new(InterestPolicy::default()),
+        );
         assert!(runtime.tick_interval_ms() > 0);
         let next = runtime.next_tick(34).expect("tick should exist");
         assert!(next.tick > 0);
@@ -950,7 +987,10 @@ mod tests {
 
     #[test]
     fn snapshot_delta_encoding_is_tighter_than_full() {
-        let runtime = NetworkRuntime::new(RuntimeConfig::default(), InterestManager::new(InterestPolicy::default()));
+        let runtime = NetworkRuntime::new(
+            RuntimeConfig::default(),
+            InterestManager::new(InterestPolicy::default()),
+        );
         let mut state = ClientRuntimeState::new(11);
 
         let mut budget = ClientBudget {

@@ -96,21 +96,20 @@ impl ValidationPipeline {
 
         // Stage 5: Approval
         let mut workflow = ApprovalWorkflow::new();
-        let approval_status =
-            if self
-                .approval_policy
-                .should_auto_approve(&request.creator_id, size_bytes)
-            {
-                workflow
-                    .transition(ApprovalStatus::Approved)
-                    .map_err(|e| PipelineError::ApprovalFailed(e.to_string()))?
-                    .clone()
-            } else {
-                workflow
-                    .transition(ApprovalStatus::Scanning)
-                    .map_err(|e| PipelineError::ApprovalFailed(e.to_string()))?
-                    .clone()
-            };
+        let approval_status = if self
+            .approval_policy
+            .should_auto_approve(&request.creator_id, size_bytes)
+        {
+            workflow
+                .transition(ApprovalStatus::Approved)
+                .map_err(|e| PipelineError::ApprovalFailed(e.to_string()))?
+                .clone()
+        } else {
+            workflow
+                .transition(ApprovalStatus::Scanning)
+                .map_err(|e| PipelineError::ApprovalFailed(e.to_string()))?
+                .clone()
+        };
 
         let stage = match &approval_status {
             ApprovalStatus::Approved => PipelineStage::Approved,
@@ -151,7 +150,10 @@ mod tests {
         let mut history = VersionHistory::new(asset_id);
 
         let request = make_request("model.glb", b"some data", FileType::Glb);
-        let result = pipeline.process(&request, &mut history, &storage).await.unwrap();
+        let result = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap();
 
         assert_eq!(result.version, 1);
         assert_eq!(result.stage, PipelineStage::Stored);
@@ -178,7 +180,10 @@ mod tests {
             parent_version: None,
         };
 
-        let result = pipeline.process(&request, &mut history, &storage).await.unwrap();
+        let result = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap();
         assert_eq!(result.stage, PipelineStage::Approved);
         assert_eq!(result.approval_status, ApprovalStatus::Approved);
     }
@@ -194,7 +199,10 @@ mod tests {
         let mut history = VersionHistory::new(Uuid::new_v4());
 
         let request = make_request("small.png", &[0u8; 100], FileType::Png);
-        let result = pipeline.process(&request, &mut history, &storage).await.unwrap();
+        let result = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap();
         assert_eq!(result.stage, PipelineStage::Approved);
     }
 
@@ -205,7 +213,10 @@ mod tests {
         let mut history = VersionHistory::new(Uuid::new_v4());
 
         let request = make_request("model.glb", b"", FileType::Glb);
-        let err = pipeline.process(&request, &mut history, &storage).await.unwrap_err();
+        let err = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap_err();
         assert!(matches!(err, PipelineError::Upload(UploadError::EmptyData)));
     }
 
@@ -220,7 +231,10 @@ mod tests {
         let mut history = VersionHistory::new(Uuid::new_v4());
 
         let request = make_request("big.glb", &[0u8; 100], FileType::Glb);
-        let err = pipeline.process(&request, &mut history, &storage).await.unwrap_err();
+        let err = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap_err();
         assert!(matches!(
             err,
             PipelineError::Upload(UploadError::SizeExceeded { .. })
@@ -234,7 +248,10 @@ mod tests {
         let mut history = VersionHistory::new(Uuid::new_v4());
 
         let request = make_request("file.xyz", b"data", FileType::Unknown);
-        let err = pipeline.process(&request, &mut history, &storage).await.unwrap_err();
+        let err = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap_err();
         assert!(matches!(
             err,
             PipelineError::Upload(UploadError::UnsupportedType(_))
@@ -250,7 +267,10 @@ mod tests {
 
         let data = b"asset data here";
         let request = make_request("model.glb", data, FileType::Glb);
-        let result = pipeline.process(&request, &mut history, &storage).await.unwrap();
+        let result = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap();
 
         let key = format!("{}/{}", asset_id, result.content_hash);
         let stored = storage.retrieve(&key).await.unwrap();
@@ -280,7 +300,10 @@ mod tests {
 
         let data = b"hash me";
         let request = make_request("m.glb", data, FileType::Glb);
-        let result = pipeline.process(&request, &mut history, &storage).await.unwrap();
+        let result = pipeline
+            .process(&request, &mut history, &storage)
+            .await
+            .unwrap();
 
         let expected = compute_content_hash(data);
         assert_eq!(result.content_hash, expected);
@@ -304,7 +327,10 @@ mod tests {
             data: b"v2".to_vec(),
             parent_version: Some(99),
         };
-        let err = pipeline.process(&r2, &mut history, &storage).await.unwrap_err();
+        let err = pipeline
+            .process(&r2, &mut history, &storage)
+            .await
+            .unwrap_err();
         assert!(matches!(err, PipelineError::Version(_)));
     }
 }

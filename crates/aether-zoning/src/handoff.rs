@@ -59,14 +59,9 @@ pub enum HandoffOutcome {
         sequence: u64,
     },
     /// Handoff was rejected or failed.
-    Failure {
-        entity_id: u64,
-        reason: String,
-    },
+    Failure { entity_id: u64, reason: String },
     /// Duplicate request -- already processed.
-    DuplicateIgnored {
-        idempotency_key: u128,
-    },
+    DuplicateIgnored { idempotency_key: u128 },
     /// Handoff is still in progress.
     InProgress {
         idempotency_key: u128,
@@ -145,17 +140,29 @@ impl HandoffCoordinator {
     }
 
     /// Target zone acknowledged readiness.
-    pub fn mark_acknowledged(&mut self, idempotency_key: u128, now_ms: u64) -> Option<HandoffOutcome> {
+    pub fn mark_acknowledged(
+        &mut self,
+        idempotency_key: u128,
+        now_ms: u64,
+    ) -> Option<HandoffOutcome> {
         self.transition(idempotency_key, HandoffPhase::Acknowledged, now_ms)
     }
 
     /// Begin authority transfer.
-    pub fn mark_transferring(&mut self, idempotency_key: u128, now_ms: u64) -> Option<HandoffOutcome> {
+    pub fn mark_transferring(
+        &mut self,
+        idempotency_key: u128,
+        now_ms: u64,
+    ) -> Option<HandoffOutcome> {
         self.transition(idempotency_key, HandoffPhase::Transferring, now_ms)
     }
 
     /// Complete the handoff.
-    pub fn mark_completed(&mut self, idempotency_key: u128, _now_ms: u64) -> Option<HandoffOutcome> {
+    pub fn mark_completed(
+        &mut self,
+        idempotency_key: u128,
+        _now_ms: u64,
+    ) -> Option<HandoffOutcome> {
         let handoff = self.in_flight.remove(&idempotency_key)?;
         self.record_completed(idempotency_key);
 
@@ -231,12 +238,12 @@ impl HandoffCoordinator {
         let handoff = self.in_flight.get_mut(&idempotency_key)?;
 
         // Validate transition order
-        let valid = match (&handoff.phase, &target_phase) {
-            (HandoffPhase::Initiated, HandoffPhase::Preparing) => true,
-            (HandoffPhase::Preparing, HandoffPhase::Acknowledged) => true,
-            (HandoffPhase::Acknowledged, HandoffPhase::Transferring) => true,
-            _ => false,
-        };
+        let valid = matches!(
+            (&handoff.phase, &target_phase),
+            (HandoffPhase::Initiated, HandoffPhase::Preparing)
+                | (HandoffPhase::Preparing, HandoffPhase::Acknowledged)
+                | (HandoffPhase::Acknowledged, HandoffPhase::Transferring)
+        );
 
         if !valid {
             let reason = format!(
@@ -246,10 +253,7 @@ impl HandoffCoordinator {
             let entity_id = handoff.request.entity_id;
             self.in_flight.remove(&idempotency_key);
             self.record_completed(idempotency_key);
-            return Some(HandoffOutcome::Failure {
-                entity_id,
-                reason,
-            });
+            return Some(HandoffOutcome::Failure { entity_id, reason });
         }
 
         handoff.phase = target_phase.clone();
@@ -274,6 +278,7 @@ impl HandoffCoordinator {
     }
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for HandoffCoordinator {
     fn default() -> Self {
         Self::new()
@@ -343,7 +348,10 @@ mod tests {
 
         // Completed
         let result = coord.mark_completed(1000, 400).unwrap();
-        assert!(matches!(result, HandoffOutcome::Success { entity_id: 42, .. }));
+        assert!(matches!(
+            result,
+            HandoffOutcome::Success { entity_id: 42, .. }
+        ));
 
         assert_eq!(coord.in_flight_count(), 0);
     }
@@ -411,7 +419,10 @@ mod tests {
         // Now timed out
         let outcomes = coord.tick_timeouts(1500);
         assert_eq!(outcomes.len(), 1);
-        assert!(matches!(outcomes[0], HandoffOutcome::Failure { entity_id: 42, .. }));
+        assert!(matches!(
+            outcomes[0],
+            HandoffOutcome::Failure { entity_id: 42, .. }
+        ));
         assert_eq!(coord.in_flight_count(), 0);
     }
 
@@ -425,7 +436,10 @@ mod tests {
         let result = coord
             .mark_failed(6000, "zone unavailable".to_string(), 200)
             .unwrap();
-        assert!(matches!(result, HandoffOutcome::Failure { entity_id: 42, .. }));
+        assert!(matches!(
+            result,
+            HandoffOutcome::Failure { entity_id: 42, .. }
+        ));
         assert_eq!(coord.in_flight_count(), 0);
     }
 

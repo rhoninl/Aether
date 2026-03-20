@@ -63,7 +63,8 @@ impl SessionManager {
     }
 
     pub fn add_instance(&mut self, instance: ServerInstance) {
-        self.instances.insert(instance.instance_id.clone(), instance);
+        self.instances
+            .insert(instance.instance_id.clone(), instance);
     }
 
     pub fn route_player(&self, region: &str) -> MatchOutcome {
@@ -79,4 +80,3 @@ impl SessionManager {
             .unwrap_or(MatchOutcome::NotFound)
     }
 }
-

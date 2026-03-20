@@ -120,7 +120,13 @@ fn main() {
         render_shadows(&mut fb, &camera, &world, &scene);
         render_trigger(&mut fb, &camera, &world, &scene, &trigger_queue);
         render_objects(&mut fb, &camera, &world, &scene);
-        render::render_hud(&mut fb, tick, world.entity_count(), trigger_queue.active_pair_count(), frame_time_ms);
+        render::render_hud(
+            &mut fb,
+            tick,
+            world.entity_count(),
+            trigger_queue.active_pair_count(),
+            frame_time_ms,
+        );
 
         window.update_with_buffer(&fb.buf, WIDTH, HEIGHT).unwrap();
 
@@ -177,7 +183,7 @@ mod tests {
         let mut world = World::new();
         let scene = scene::setup_scene(&mut world);
         assert_eq!(world.entity_count(), 11);
-        assert!(world.is_alive(scene.ground));
+        assert!(world.is_alive(scene._ground));
         assert!(world.is_alive(scene.player));
         assert_eq!(scene.spheres.len(), 5);
         assert_eq!(scene.cubes.len(), 3);
@@ -286,7 +292,13 @@ mod tests {
         fb.clear();
         render::render_ground(&mut fb, &cam);
         render_objects(&mut fb, &cam, &world, &scene);
-        render::render_hud(&mut fb, 0, world.entity_count(), queue.active_pair_count(), 0.0);
+        render::render_hud(
+            &mut fb,
+            0,
+            world.entity_count(),
+            queue.active_pair_count(),
+            0.0,
+        );
 
         // Verify some pixels were written (not all sky gradient)
         let center = fb.buf[HEIGHT / 2 * WIDTH + WIDTH / 2];

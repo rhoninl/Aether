@@ -43,7 +43,7 @@ pub struct ScriptArtifact {
     pub blob_path: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct WAsmArtifactManifest {
     pub script_id: u64,
     pub canonical_wasm_sha256: [u8; 32],
@@ -60,22 +60,17 @@ pub struct CompilationProfile {
 impl CompilationProfile {
     pub fn policy_for(platform: PlatformFamily) -> PlatformRuntimeProfile {
         match platform {
-            PlatformFamily::LinuxX64 | PlatformFamily::LinuxAArch64 => PlatformRuntimeProfile::ServerAlwaysAot,
-            PlatformFamily::WindowsX64 | PlatformFamily::MacArm => PlatformRuntimeProfile::ClientJit,
-            PlatformFamily::Android | PlatformFamily::VisionOs | PlatformFamily::Ps5 | PlatformFamily::Quest => {
-                PlatformRuntimeProfile::ClientAotOnly
+            PlatformFamily::LinuxX64 | PlatformFamily::LinuxAArch64 => {
+                PlatformRuntimeProfile::ServerAlwaysAot
             }
+            PlatformFamily::WindowsX64 | PlatformFamily::MacArm => {
+                PlatformRuntimeProfile::ClientJit
+            }
+            PlatformFamily::Android
+            | PlatformFamily::VisionOs
+            | PlatformFamily::Ps5
+            | PlatformFamily::Quest => PlatformRuntimeProfile::ClientAotOnly,
             PlatformFamily::Generic => PlatformRuntimeProfile::ClientJit,
-        }
-    }
-}
-
-impl Default for WAsmArtifactManifest {
-    fn default() -> Self {
-        Self {
-            script_id: 0,
-            canonical_wasm_sha256: [0u8; 32],
-            artifacts: BTreeMap::new(),
         }
     }
 }

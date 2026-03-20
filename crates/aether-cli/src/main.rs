@@ -109,7 +109,11 @@ fn resolve_dimension(two_d: bool, three_d: bool) -> Result<&'static str, String>
     }
 }
 
-fn resolve_bump_level(major: bool, minor: bool, patch: bool) -> Result<commands::world::BumpLevel, String> {
+fn resolve_bump_level(
+    major: bool,
+    minor: bool,
+    patch: bool,
+) -> Result<commands::world::BumpLevel, String> {
     let count = [major, minor, patch].iter().filter(|&&b| b).count();
     if count > 1 {
         return Err("specify at most one of --major, --minor, --patch".to_string());

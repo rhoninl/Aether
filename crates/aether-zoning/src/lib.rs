@@ -21,7 +21,7 @@ pub use authority::{
     PendingTransfer, SingleWriterMode, TransferResult, TransferState,
 };
 pub use config::{
-    AxisChoice, LoadMetrics, MergeThreshold, SplitPolicy, SplitResult, ZoneSplitPolicy, ZoneSpec,
+    AxisChoice, LoadMetrics, MergeThreshold, SplitPolicy, SplitResult, ZoneSpec, ZoneSplitPolicy,
 };
 pub use fence::{FenceResult, PendingMessage, SequenceFenceTracker};
 pub use ghost::{
@@ -43,12 +43,9 @@ pub use protocol::{
     HandoffResult, SequenceFence,
 };
 pub use runtime::{
-    ZoningRuntime, ZoningRuntimeConfig, ZoningRuntimeInput, ZoningRuntimeOutput,
-    ZoningRuntimeState,
+    ZoningRuntime, ZoningRuntimeConfig, ZoningRuntimeInput, ZoningRuntimeOutput, ZoningRuntimeState,
 };
 pub use session_handoff::{
     PlayerStateSnapshot, SessionHandoffEnvelope, SessionHandoffError, SessionToken,
 };
-pub use split_merge::{
-    AdjacentZonePair, SplitMergeConfig, SplitMergeDecision, SplitMergeManager,
-};
+pub use split_merge::{AdjacentZonePair, SplitMergeConfig, SplitMergeDecision, SplitMergeManager};

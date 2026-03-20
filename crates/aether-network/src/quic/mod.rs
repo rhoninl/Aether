@@ -19,9 +19,9 @@ pub mod server;
 pub mod tls;
 pub mod transport;
 
-pub use client::{QuicClient, ClientError};
+pub use client::{ClientError, QuicClient};
 pub use config::QuicConfig;
 pub use connection::{ConnectionError, ConnectionState, HandshakeStatus, QuicConnection};
 pub use server::{QuicServer, ServerError};
-pub use tls::{TlsCertPair, TlsError, generate_self_signed};
+pub use tls::{generate_self_signed, TlsCertPair, TlsError};
 pub use transport::QuicTransport;

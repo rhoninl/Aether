@@ -8,15 +8,9 @@ pub enum VerificationResult {
     /// Asset matches expected hash and size.
     Valid,
     /// Hash mismatch between computed and expected.
-    HashMismatch {
-        expected: String,
-        actual: String,
-    },
+    HashMismatch { expected: String, actual: String },
     /// Size mismatch between actual data and expected.
-    SizeMismatch {
-        expected: u64,
-        actual: u64,
-    },
+    SizeMismatch { expected: u64, actual: u64 },
     /// Both hash and size mismatch.
     BothMismatch {
         expected_hash: String,
@@ -135,7 +129,10 @@ mod tests {
         };
         let result = verify_asset(data, &expected);
         match result {
-            VerificationResult::HashMismatch { expected: e, actual: a } => {
+            VerificationResult::HashMismatch {
+                expected: e,
+                actual: a,
+            } => {
                 assert_eq!(
                     e,
                     "0000000000000000000000000000000000000000000000000000000000000000"

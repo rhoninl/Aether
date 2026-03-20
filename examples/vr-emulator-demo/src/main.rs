@@ -2,14 +2,11 @@ mod scene;
 
 use std::time::Instant;
 
-use aether_vr_emulator::{
-    HeadsetPreset, VrEmulator,
-    config::ViewMode,
-};
+use aether_vr_emulator::{config::ViewMode, HeadsetPreset, VrEmulator};
 
 fn main() {
-    let mut emulator = VrEmulator::new_windowed(HeadsetPreset::Quest2)
-        .expect("failed to create VR emulator");
+    let mut emulator =
+        VrEmulator::new_windowed(HeadsetPreset::Quest2).expect("failed to create VR emulator");
 
     let mut frame_time_ms: f32 = 0.0;
 
@@ -53,9 +50,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether_vr_emulator::{
-        EmulatorConfig, VrEmulator,
-    };
+    use aether_vr_emulator::{EmulatorConfig, VrEmulator};
 
     fn headless_emulator() -> VrEmulator {
         VrEmulator::new_headless(EmulatorConfig::default()).unwrap()

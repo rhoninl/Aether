@@ -22,4 +22,3 @@ pub struct ChunkStreamingPolicy {
     pub min_prefetch_distance: f32,
     pub target_bytes_per_second: u64,
 }
-

@@ -1,8 +1,6 @@
 //! Prop placement and manipulation commands.
 
-use crate::scene::{
-    EditorScene, ObjectId, ObjectKind, Position, Rotation, Scale, SceneObject,
-};
+use crate::scene::{EditorScene, ObjectId, ObjectKind, Position, Rotation, Scale, SceneObject};
 use crate::undo::{CommandError, CommandResult, EditorCommand};
 
 /// Snap a float value to the nearest grid increment.
@@ -453,10 +451,7 @@ mod tests {
 
         stack
             .push(
-                Box::new(RotatePropCommand::new(
-                    id,
-                    Rotation::new(90.0, 0.0, 0.0),
-                )),
+                Box::new(RotatePropCommand::new(id, Rotation::new(90.0, 0.0, 0.0))),
                 &mut scene,
             )
             .unwrap();
@@ -482,10 +477,7 @@ mod tests {
 
         stack
             .push(
-                Box::new(RotatePropCommand::new(
-                    id,
-                    Rotation::new(180.0, 0.0, 0.0),
-                )),
+                Box::new(RotatePropCommand::new(id, Rotation::new(180.0, 0.0, 0.0))),
                 &mut scene,
             )
             .unwrap();
@@ -634,10 +626,7 @@ mod tests {
         // Rotate
         stack
             .push(
-                Box::new(RotatePropCommand::new(
-                    id,
-                    Rotation::new(90.0, 0.0, 0.0),
-                )),
+                Box::new(RotatePropCommand::new(id, Rotation::new(90.0, 0.0, 0.0))),
                 &mut scene,
             )
             .unwrap();

@@ -21,4 +21,3 @@ pub struct RoutedRequest {
     pub route_id: RouteId,
     pub target_region: String,
 }
-

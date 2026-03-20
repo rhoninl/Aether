@@ -392,7 +392,11 @@ mod tests {
         renderer.start_activation(0);
 
         renderer.tick(500);
-        if let PortalRenderState::Activating { progress, elapsed_ms } = renderer.state() {
+        if let PortalRenderState::Activating {
+            progress,
+            elapsed_ms,
+        } = renderer.state()
+        {
             assert!((progress - 0.5).abs() < 0.01);
             assert_eq!(*elapsed_ms, 500);
         } else {

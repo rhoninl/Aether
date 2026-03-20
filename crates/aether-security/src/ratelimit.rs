@@ -22,4 +22,3 @@ pub struct RateLimitBucket {
     pub window_start_ms: u64,
     pub allowance: i32,
 }
-

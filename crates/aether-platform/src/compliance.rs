@@ -13,4 +13,3 @@ pub struct StoreCompliance {
     pub age_rating: String,
     pub certifications: Vec<String>,
 }
-

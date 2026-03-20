@@ -97,8 +97,7 @@ impl ManipulationResult {
 
     /// Returns true if this result represents no change.
     pub fn is_identity(&self) -> bool {
-        self.scale_factor == 1.0
-            && self.rotation_delta == math::QUAT_IDENTITY
+        self.scale_factor == 1.0 && self.rotation_delta == math::QUAT_IDENTITY
     }
 }
 
@@ -175,10 +174,8 @@ impl ManipulationState {
         self.prev_inter_hand_distance = Some(dist);
 
         // Compute a midpoint rotation from the two hands
-        let midpoint_rotation = self.compute_midpoint_rotation(
-            left_transform.rotation,
-            right_transform.rotation,
-        );
+        let midpoint_rotation =
+            self.compute_midpoint_rotation(left_transform.rotation, right_transform.rotation);
         self.prev_midpoint_rotation = Some(midpoint_rotation);
     }
 
@@ -224,9 +221,7 @@ impl ManipulationState {
         left_transform: &Transform,
         right_transform: &Transform,
     ) -> ManipulationResult {
-        if self.mode != ManipulationMode::RotateAndScale
-            && self.mode != ManipulationMode::Scale
-        {
+        if self.mode != ManipulationMode::RotateAndScale && self.mode != ManipulationMode::Scale {
             return ManipulationResult::identity();
         }
 
@@ -239,7 +234,8 @@ impl ManipulationState {
                 // Apply sensitivity
                 let sensitive_scale = 1.0 + (raw_scale - 1.0) * self.config.scale_sensitivity;
                 let new_scale = self.current_scale * sensitive_scale;
-                let clamped_scale = math::clamp(new_scale, self.config.scale_min, self.config.scale_max);
+                let clamped_scale =
+                    math::clamp(new_scale, self.config.scale_min, self.config.scale_max);
                 let factor = clamped_scale / self.current_scale;
                 self.current_scale = clamped_scale;
                 factor
@@ -249,10 +245,8 @@ impl ManipulationState {
 
         // Compute rotation delta
         let rotation_delta = if self.mode == ManipulationMode::RotateAndScale {
-            let midpoint_rotation = self.compute_midpoint_rotation(
-                left_transform.rotation,
-                right_transform.rotation,
-            );
+            let midpoint_rotation =
+                self.compute_midpoint_rotation(left_transform.rotation, right_transform.rotation);
 
             let delta = match self.prev_midpoint_rotation {
                 Some(prev) => {

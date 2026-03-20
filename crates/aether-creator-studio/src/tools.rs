@@ -26,4 +26,3 @@ pub struct ScriptEdit {
     pub mode: ScriptMode,
     pub path: String,
 }
-

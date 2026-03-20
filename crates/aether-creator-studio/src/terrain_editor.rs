@@ -422,11 +422,7 @@ mod tests {
     fn test_sculpt_lower() {
         let mut scene = scene_with_terrain(8, 8);
         // Set initial height
-        scene
-            .terrain
-            .as_mut()
-            .unwrap()
-            .set_height(4, 4, 10.0);
+        scene.terrain.as_mut().unwrap().set_height(4, 4, 10.0);
 
         let mut stack = UndoStack::new();
         stack
@@ -444,11 +440,7 @@ mod tests {
     fn test_sculpt_smooth() {
         let mut scene = scene_with_terrain(8, 8);
         // Create a spike
-        scene
-            .terrain
-            .as_mut()
-            .unwrap()
-            .set_height(4, 4, 10.0);
+        scene.terrain.as_mut().unwrap().set_height(4, 4, 10.0);
 
         let mut stack = UndoStack::new();
         stack
@@ -466,16 +458,8 @@ mod tests {
     #[test]
     fn test_sculpt_flatten() {
         let mut scene = scene_with_terrain(8, 8);
-        scene
-            .terrain
-            .as_mut()
-            .unwrap()
-            .set_height(4, 4, 5.0);
-        scene
-            .terrain
-            .as_mut()
-            .unwrap()
-            .set_height(5, 4, 10.0);
+        scene.terrain.as_mut().unwrap().set_height(4, 4, 5.0);
+        scene.terrain.as_mut().unwrap().set_height(5, 4, 10.0);
 
         let mut stack = UndoStack::new();
         // Use radius=2 so the neighbor at distance 1 gets a non-zero falloff
@@ -496,12 +480,7 @@ mod tests {
         let mut scene = scene_with_terrain(8, 8);
         let mut stack = UndoStack::new();
 
-        let original = scene
-            .terrain
-            .as_ref()
-            .unwrap()
-            .get_height(4, 4)
-            .unwrap();
+        let original = scene.terrain.as_ref().unwrap().get_height(4, 4).unwrap();
 
         stack
             .push(
@@ -510,21 +489,11 @@ mod tests {
             )
             .unwrap();
 
-        let raised = scene
-            .terrain
-            .as_ref()
-            .unwrap()
-            .get_height(4, 4)
-            .unwrap();
+        let raised = scene.terrain.as_ref().unwrap().get_height(4, 4).unwrap();
         assert!(raised != original);
 
         stack.undo(&mut scene).unwrap();
-        let restored = scene
-            .terrain
-            .as_ref()
-            .unwrap()
-            .get_height(4, 4)
-            .unwrap();
+        let restored = scene.terrain.as_ref().unwrap().get_height(4, 4).unwrap();
         assert_eq!(restored, original);
     }
 
@@ -548,14 +517,10 @@ mod tests {
 
         let mut stack = UndoStack::new();
         stack
-            .push(
-                Box::new(PaintCommand::new(0, 4, 4, 0, 0.5)),
-                &mut scene,
-            )
+            .push(Box::new(PaintCommand::new(0, 4, 4, 0, 0.5)), &mut scene)
             .unwrap();
 
-        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights
-            [4 * 8 + 4];
+        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights[4 * 8 + 4];
         assert!(w > 0.0);
     }
 
@@ -570,14 +535,10 @@ mod tests {
 
         let mut stack = UndoStack::new();
         stack
-            .push(
-                Box::new(PaintCommand::new(0, 4, 4, 0, 2.0)),
-                &mut scene,
-            )
+            .push(Box::new(PaintCommand::new(0, 4, 4, 0, 2.0)), &mut scene)
             .unwrap();
 
-        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights
-            [4 * 8 + 4];
+        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights[4 * 8 + 4];
         assert!(w <= 1.0, "weight should be clamped to 1.0");
     }
 
@@ -592,16 +553,12 @@ mod tests {
 
         let mut stack = UndoStack::new();
         stack
-            .push(
-                Box::new(PaintCommand::new(0, 4, 4, 1, 0.8)),
-                &mut scene,
-            )
+            .push(Box::new(PaintCommand::new(0, 4, 4, 1, 0.8)), &mut scene)
             .unwrap();
 
         stack.undo(&mut scene).unwrap();
 
-        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights
-            [4 * 8 + 4];
+        let w = scene.terrain.as_ref().unwrap().paint_layers[0].weights[4 * 8 + 4];
         assert_eq!(w, 0.0, "should be restored to original");
     }
 
@@ -643,10 +600,7 @@ mod tests {
 
         stack
             .push(
-                Box::new(PlaceVegetationCommand::new(
-                    "bush".into(),
-                    Position::zero(),
-                )),
+                Box::new(PlaceVegetationCommand::new("bush".into(), Position::zero())),
                 &mut scene,
             )
             .unwrap();

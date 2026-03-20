@@ -15,8 +15,8 @@ pub mod version;
 
 pub use approval::{ApprovalError, ApprovalPolicy, ApprovalStatus, ApprovalWorkflow};
 pub use artifact::{ArtifactDescriptor, ArtifactState, ArtifactType, ArtifactUploadSession};
-pub use ingest::{ChunkUpload, UploadSession};
 pub use ingest::UploadRequest as IngestUploadRequest;
+pub use ingest::{ChunkUpload, UploadSession};
 pub use manifest::{ManifestBuilder, ManifestEntry, SignedManifest};
 pub use moderation::{ModerationSignal, ModerationStatus, ModerationStatusUpdate};
 pub use orchestrator::{PipelineError, PipelineResult, PipelineStage, ValidationPipeline};

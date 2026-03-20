@@ -253,11 +253,7 @@ mod tests {
 
         stack
             .push(
-                Box::new(PlaceLightProbeCommand::new(
-                    Position::zero(),
-                    5.0,
-                    1.0,
-                )),
+                Box::new(PlaceLightProbeCommand::new(Position::zero(), 5.0, 1.0)),
                 &mut scene,
             )
             .unwrap();
@@ -276,21 +272,14 @@ mod tests {
 
         stack
             .push(
-                Box::new(PlaceLightProbeCommand::new(
-                    Position::zero(),
-                    5.0,
-                    1.0,
-                )),
+                Box::new(PlaceLightProbeCommand::new(Position::zero(), 5.0, 1.0)),
                 &mut scene,
             )
             .unwrap();
         let id = scene.objects[0].id;
 
         stack
-            .push(
-                Box::new(RemoveLightProbeCommand::new(id)),
-                &mut scene,
-            )
+            .push(Box::new(RemoveLightProbeCommand::new(id)), &mut scene)
             .unwrap();
         assert_eq!(scene.objects.len(), 0);
         assert_eq!(scene.lighting.probes.len(), 0);
@@ -314,10 +303,7 @@ mod tests {
         let id = scene.objects[0].id;
 
         stack
-            .push(
-                Box::new(RemoveLightProbeCommand::new(id)),
-                &mut scene,
-            )
+            .push(Box::new(RemoveLightProbeCommand::new(id)), &mut scene)
             .unwrap();
 
         stack.undo(&mut scene).unwrap();

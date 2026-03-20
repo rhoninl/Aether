@@ -134,7 +134,12 @@ pub struct LodCurve {
 
 impl LodCurve {
     pub fn select(level_policy: &LODPolicy, distance_m: f32, prev: LODLevel) -> LODLevel {
-        let boundaries = [level_policy.near, level_policy.mid, level_policy.far, level_policy.very_far];
+        let boundaries = [
+            level_policy.near,
+            level_policy.mid,
+            level_policy.far,
+            level_policy.very_far,
+        ];
         let hysteresis = level_policy.hysteresis_ratio;
 
         let target = if distance_m <= boundaries[0] {

@@ -223,6 +223,7 @@ fn draw_filled_circle(fb: &mut FrameBuffer, cx: i32, cy: i32, r: i32, z: f32, co
     }
 }
 
+#[allow(dead_code)]
 fn draw_dashed_circle(fb: &mut FrameBuffer, cx: i32, cy: i32, r: i32, z: f32, color: u32) {
     let segments = 48;
     for i in 0..segments {
@@ -259,7 +260,11 @@ pub fn render_ground(fb: &mut FrameBuffer, cam: &Camera) {
             if projected.len() == 4 {
                 let avg_z = projected.iter().map(|p| p.2).sum::<f32>() / 4.0;
                 let is_checker = (gx + gz) % 2 == 0;
-                let color = if is_checker { GROUND_COLOR } else { darken(GROUND_COLOR, 0.85) };
+                let color = if is_checker {
+                    GROUND_COLOR
+                } else {
+                    darken(GROUND_COLOR, 0.85)
+                };
                 fill_quad(fb, &projected, avg_z, color);
             }
         }
@@ -270,19 +275,40 @@ pub fn render_ground(fb: &mut FrameBuffer, cam: &Camera) {
         let p0 = [i as f32 * spacing, 0.01, -grid_half as f32 * spacing];
         let p1 = [i as f32 * spacing, 0.01, grid_half as f32 * spacing];
         if let (Some(a), Some(b)) = (vp.project(p0), vp.project(p1)) {
-            draw_line(fb, a.0 as i32, a.1 as i32, b.0 as i32, b.1 as i32, a.2.min(b.2), GRID_COLOR);
+            draw_line(
+                fb,
+                a.0 as i32,
+                a.1 as i32,
+                b.0 as i32,
+                b.1 as i32,
+                a.2.min(b.2),
+                GRID_COLOR,
+            );
         }
         let p0 = [-grid_half as f32 * spacing, 0.01, i as f32 * spacing];
         let p1 = [grid_half as f32 * spacing, 0.01, i as f32 * spacing];
         if let (Some(a), Some(b)) = (vp.project(p0), vp.project(p1)) {
-            draw_line(fb, a.0 as i32, a.1 as i32, b.0 as i32, b.1 as i32, a.2.min(b.2), GRID_COLOR);
+            draw_line(
+                fb,
+                a.0 as i32,
+                a.1 as i32,
+                b.0 as i32,
+                b.1 as i32,
+                a.2.min(b.2),
+                GRID_COLOR,
+            );
         }
     }
 }
 
 fn fill_quad(fb: &mut FrameBuffer, pts: &[(f32, f32, f32)], z: f32, color: u32) {
     let min_y = pts.iter().map(|p| p.1 as i32).min().unwrap().max(0);
-    let max_y = pts.iter().map(|p| p.1 as i32).max().unwrap().min(HEIGHT as i32 - 1);
+    let max_y = pts
+        .iter()
+        .map(|p| p.1 as i32)
+        .max()
+        .unwrap()
+        .min(HEIGHT as i32 - 1);
     for y in min_y..=max_y {
         let mut min_x = WIDTH as i32;
         let mut max_x = 0i32;
@@ -346,9 +372,18 @@ pub fn render_cube(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], half: f32)
         [pos[0] - h, pos[1] + h, pos[2] + h],
     ];
     let edges = [
-        (0, 1), (1, 2), (2, 3), (3, 0),
-        (4, 5), (5, 6), (6, 7), (7, 4),
-        (0, 4), (1, 5), (2, 6), (3, 7),
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7),
     ];
     // Face normals for backface culling
     let faces: [[usize; 4]; 6] = [
@@ -378,7 +413,10 @@ pub fn render_cube(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], half: f32)
             continue;
         }
 
-        let projected: Vec<_> = face.iter().filter_map(|&i| vp.project(corners[i])).collect();
+        let projected: Vec<_> = face
+            .iter()
+            .filter_map(|&i| vp.project(corners[i]))
+            .collect();
         if projected.len() == 4 {
             let avg_z = projected.iter().map(|p| p.2).sum::<f32>() / 4.0;
             face_order.push((fi, avg_z));
@@ -389,7 +427,10 @@ pub fn render_cube(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], half: f32)
 
     for &(fi, _) in &face_order {
         let face = &faces[fi];
-        let projected: Vec<_> = face.iter().filter_map(|&i| vp.project(corners[i])).collect();
+        let projected: Vec<_> = face
+            .iter()
+            .filter_map(|&i| vp.project(corners[i]))
+            .collect();
         if projected.len() == 4 {
             let min_z = projected.iter().map(|p| p.2).fold(f32::MAX, f32::min);
             fill_quad(fb, &projected, min_z, darken(CUBE_COLOR, face_shades[fi]));
@@ -399,7 +440,15 @@ pub fn render_cube(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], half: f32)
     for (a, b) in &edges {
         if let (Some(pa), Some(pb)) = (vp.project(corners[*a]), vp.project(corners[*b])) {
             let z = pa.2.min(pb.2);
-            draw_line(fb, pa.0 as i32, pa.1 as i32, pb.0 as i32, pb.1 as i32, z - 0.01, darken(CUBE_COLOR, 1.4));
+            draw_line(
+                fb,
+                pa.0 as i32,
+                pa.1 as i32,
+                pb.0 as i32,
+                pb.1 as i32,
+                z - 0.01,
+                darken(CUBE_COLOR, 1.4),
+            );
         }
     }
 }
@@ -415,33 +464,84 @@ pub fn render_player(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3]) {
         let z = bot.2.min(top.2);
         // Body (thick line)
         for dx in -2..=2 {
-            draw_line(fb, bot.0 as i32 + dx, bot.1 as i32, top.0 as i32 + dx, top.1 as i32, z, PLAYER_COLOR);
+            draw_line(
+                fb,
+                bot.0 as i32 + dx,
+                bot.1 as i32,
+                top.0 as i32 + dx,
+                top.1 as i32,
+                z,
+                PLAYER_COLOR,
+            );
         }
         // Arms
         let arm_y = [pos[0], pos[1] + 1.2, pos[2]];
         let arm_l = [pos[0] - 0.6, pos[1] + 0.8, pos[2]];
         let arm_r = [pos[0] + 0.6, pos[1] + 0.8, pos[2]];
-        if let (Some(ay), Some(al), Some(ar)) = (vp.project(arm_y), vp.project(arm_l), vp.project(arm_r)) {
-            draw_line(fb, al.0 as i32, al.1 as i32, ay.0 as i32, ay.1 as i32, z - 0.01, PLAYER_COLOR);
-            draw_line(fb, ay.0 as i32, ay.1 as i32, ar.0 as i32, ar.1 as i32, z - 0.01, PLAYER_COLOR);
+        if let (Some(ay), Some(al), Some(ar)) =
+            (vp.project(arm_y), vp.project(arm_l), vp.project(arm_r))
+        {
+            draw_line(
+                fb,
+                al.0 as i32,
+                al.1 as i32,
+                ay.0 as i32,
+                ay.1 as i32,
+                z - 0.01,
+                PLAYER_COLOR,
+            );
+            draw_line(
+                fb,
+                ay.0 as i32,
+                ay.1 as i32,
+                ar.0 as i32,
+                ar.1 as i32,
+                z - 0.01,
+                PLAYER_COLOR,
+            );
         }
     }
     // Head
     if let Some((hx, hy, hz)) = vp.project(head) {
         if let Some(hr) = vp.project_radius(head, 0.25) {
-            draw_filled_circle(fb, hx as i32, hy as i32, hr.max(3.0) as i32, hz, PLAYER_COLOR);
+            draw_filled_circle(
+                fb,
+                hx as i32,
+                hy as i32,
+                hr.max(3.0) as i32,
+                hz,
+                PLAYER_COLOR,
+            );
         }
     }
 }
 
-pub fn render_trigger_zone(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], radius: f32, active: bool) {
+pub fn render_trigger_zone(
+    fb: &mut FrameBuffer,
+    cam: &Camera,
+    pos: [f32; 3],
+    radius: f32,
+    active: bool,
+) {
     let vp = ViewProj::new(cam);
     // Draw as horizontal dashed circle at the trigger's Y
     if let Some((cx, cy, z)) = vp.project(pos) {
         if let Some(sr) = vp.project_radius(pos, radius) {
             let r = sr.max(4.0) as i32;
-            let color = if active { TRIGGER_COLOR } else { darken(TRIGGER_COLOR, 0.5) };
-            dashed_ellipse(fb, cx as i32, cy as i32, r, (r as f32 * 0.4) as i32, z + 0.1, color);
+            let color = if active {
+                TRIGGER_COLOR
+            } else {
+                darken(TRIGGER_COLOR, 0.5)
+            };
+            dashed_ellipse(
+                fb,
+                cx as i32,
+                cy as i32,
+                r,
+                (r as f32 * 0.4) as i32,
+                z + 0.1,
+                color,
+            );
         }
     }
 }
@@ -468,7 +568,11 @@ const FONT: &[u8] = include_bytes!("font5x7.bin");
 
 pub fn draw_text(fb: &mut FrameBuffer, text: &str, mut x: i32, y: i32, color: u32) {
     for ch in text.chars() {
-        let idx = if ch.is_ascii() { ch as usize } else { b'?' as usize };
+        let idx = if ch.is_ascii() {
+            ch as usize
+        } else {
+            b'?' as usize
+        };
         if idx >= 128 {
             x += 6;
             continue;
@@ -485,9 +589,24 @@ pub fn draw_text(fb: &mut FrameBuffer, text: &str, mut x: i32, y: i32, color: u3
     }
 }
 
-pub fn render_hud(fb: &mut FrameBuffer, tick: u32, entity_count: usize, triggers: usize, fps_ms: f32) {
-    draw_text(fb, &format!("Aether VR Engine - 3D Demo"), 10, 10, HUD_COLOR);
-    draw_text(fb, &format!("Tick: {}  Entities: {}  Triggers: {}", tick, entity_count, triggers), 10, 22, HUD_COLOR);
+pub fn render_hud(
+    fb: &mut FrameBuffer,
+    tick: u32,
+    entity_count: usize,
+    triggers: usize,
+    fps_ms: f32,
+) {
+    draw_text(fb, "Aether VR Engine - 3D Demo", 10, 10, HUD_COLOR);
+    draw_text(
+        fb,
+        &format!(
+            "Tick: {}  Entities: {}  Triggers: {}",
+            tick, entity_count, triggers
+        ),
+        10,
+        22,
+        HUD_COLOR,
+    );
     draw_text(fb, &format!("Frame: {:.1}ms", fps_ms), 10, 34, HUD_COLOR);
     // Legend
     let ly = HEIGHT as i32 - 50;
@@ -514,12 +633,15 @@ fn buf_darken_pixel(fb: &mut FrameBuffer, idx: usize, factor: f32) {
 pub fn render_shadow_blob(fb: &mut FrameBuffer, cam: &Camera, pos: [f32; 3], radius: f32) {
     let shadow_pos = [pos[0], 0.02, pos[2]];
     let vp = ViewProj::new(cam);
-    if let Some((cx, cy, z)) = vp.project(shadow_pos) {
+    if let Some((cx, cy, _z)) = vp.project(shadow_pos) {
         if let Some(sr) = vp.project_radius(shadow_pos, radius) {
             let r = sr.max(1.0) as i32;
             let ry = (r as f32 * 0.35) as i32;
             for dy in -ry..=ry {
-                let half_w = ((1.0 - (dy as f32 / ry.max(1) as f32).powi(2)).max(0.0).sqrt() * r as f32) as i32;
+                let half_w = ((1.0 - (dy as f32 / ry.max(1) as f32).powi(2))
+                    .max(0.0)
+                    .sqrt()
+                    * r as f32) as i32;
                 for dx in -half_w..=half_w {
                     let px = cx as i32 + dx;
                     let py = cy as i32 + dy;

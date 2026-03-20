@@ -60,7 +60,13 @@ impl EventDispatcher {
     }
 
     /// Queue a game event for distribution.
-    pub fn emit(&mut self, event_type: &str, scope: EventScope, payload: Vec<u8>, tick: u64) -> u64 {
+    pub fn emit(
+        &mut self,
+        event_type: &str,
+        scope: EventScope,
+        payload: Vec<u8>,
+        tick: u64,
+    ) -> u64 {
         let event_id = self.next_event_id;
         self.next_event_id += 1;
 
@@ -120,7 +126,9 @@ impl EventDispatcher {
                 }
                 EventScope::NearEntity { entity_id, radius } => {
                     // Find the entity's position
-                    if let Some(entity_pos) = entity_positions.iter().find(|e| e.entity_id == *entity_id) {
+                    if let Some(entity_pos) =
+                        entity_positions.iter().find(|e| e.entity_id == *entity_id)
+                    {
                         let radius_sq = radius * radius;
 
                         for &player_id in connected_players {
@@ -267,9 +275,7 @@ mod tests {
 
         dispatcher.emit(
             "party_buff",
-            EventScope::Group {
-                player_ids: group,
-            },
+            EventScope::Group { player_ids: group },
             vec![],
             1,
         );
@@ -398,7 +404,10 @@ mod tests {
         let deliveries = dispatcher.distribute(&players, &[], &HashMap::new());
         assert_eq!(deliveries.len(), 2);
 
-        let types: Vec<&str> = deliveries.iter().map(|d| d.event.event_type.as_str()).collect();
+        let types: Vec<&str> = deliveries
+            .iter()
+            .map(|d| d.event.event_type.as_str())
+            .collect();
         assert!(types.contains(&"chat"));
         assert!(types.contains(&"system"));
     }

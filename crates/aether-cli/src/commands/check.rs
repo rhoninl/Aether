@@ -156,11 +156,7 @@ list = ["main"]
         fs::create_dir_all(tmp.path().join("assets")).unwrap();
         fs::create_dir_all(tmp.path().join("terrain")).unwrap();
         fs::create_dir_all(tmp.path().join(".aether")).unwrap();
-        fs::write(
-            tmp.path().join(".aether/versions.toml"),
-            "# versions",
-        )
-        .unwrap();
+        fs::write(tmp.path().join(".aether/versions.toml"), "# versions").unwrap();
 
         let result = check_project(tmp.path().to_str().unwrap());
         assert!(result.is_err());
@@ -190,11 +186,7 @@ list = ["main", "dungeon"]
             "[scene]\nname = \"Main\"",
         )
         .unwrap();
-        fs::write(
-            tmp.path().join(".aether/versions.toml"),
-            "# versions",
-        )
-        .unwrap();
+        fs::write(tmp.path().join(".aether/versions.toml"), "# versions").unwrap();
         // Note: dungeon.scene.toml does NOT exist
 
         let result = check_project(tmp.path().to_str().unwrap());

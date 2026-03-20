@@ -72,13 +72,13 @@ pub fn calibrate_from_tpose(
     let right_arm_len = vec3_distance(rh, head);
     let arm_span = left_arm_len + right_arm_len;
 
-    if arm_span < MIN_ARM_SPAN || arm_span > MAX_ARM_SPAN {
+    if !(MIN_ARM_SPAN..=MAX_ARM_SPAN).contains(&arm_span) {
         return Err(CalibrationError::ImplausibleArmSpan(arm_span));
     }
 
     // Compute height from head to floor
     let height = frame.head.y - floor_y;
-    if height < MIN_HEIGHT || height > MAX_HEIGHT {
+    if !(MIN_HEIGHT..=MAX_HEIGHT).contains(&height) {
         return Err(CalibrationError::ImplausibleHeight(height));
     }
 

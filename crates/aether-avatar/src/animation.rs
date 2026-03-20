@@ -61,4 +61,3 @@ pub struct BlendStateInput {
     pub locomotion: LocomotionIntent,
     pub in_air: bool,
 }
-

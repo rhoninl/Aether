@@ -102,7 +102,7 @@ fn assign_layers(graph: &NodeGraph) -> HashMap<NodeId, usize> {
             for &next in neighbors {
                 let new_layer = current_layer + 1;
                 let existing = layers.get(&next).copied();
-                if existing.map_or(true, |l| l < new_layer) {
+                if existing.is_none_or(|l| l < new_layer) {
                     layers.insert(next, new_layer);
                     queue.push_back(next);
                 }
@@ -132,10 +132,7 @@ fn assign_layers(graph: &NodeGraph) -> HashMap<NodeId, usize> {
 /// Order nodes within each layer using a barycenter heuristic.
 ///
 /// Returns layers as a Vec of Vec<NodeId>, where index is the layer number.
-fn order_within_layers(
-    graph: &NodeGraph,
-    layer_map: &HashMap<NodeId, usize>,
-) -> Vec<Vec<NodeId>> {
+fn order_within_layers(graph: &NodeGraph, layer_map: &HashMap<NodeId, usize>) -> Vec<Vec<NodeId>> {
     if layer_map.is_empty() {
         return Vec::new();
     }

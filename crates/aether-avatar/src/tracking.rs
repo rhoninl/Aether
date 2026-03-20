@@ -31,4 +31,3 @@ pub struct IkConfiguration {
     pub solver_iterations: u16,
     pub source: TrackingSource,
 }
-

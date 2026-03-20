@@ -31,8 +31,7 @@ async fn main() {
     let server_addr: SocketAddr = std::env::args()
         .nth(1)
         .unwrap_or_else(|| {
-            std::env::var("AETHER_SERVER_ADDR")
-                .unwrap_or_else(|_| DEFAULT_SERVER_ADDR.to_string())
+            std::env::var("AETHER_SERVER_ADDR").unwrap_or_else(|_| DEFAULT_SERVER_ADDR.to_string())
         })
         .parse()
         .unwrap_or_else(|_| DEFAULT_SERVER_ADDR.parse().unwrap());
@@ -66,17 +65,9 @@ async fn main() {
         let avatar = AvatarState {
             head_position: [angle.cos() * radius, 1.7, angle.sin() * radius],
             head_rotation: [0.0, (angle / 2.0).sin(), 0.0, (angle / 2.0).cos()],
-            left_hand_position: [
-                angle.cos() * radius - 0.3,
-                1.0,
-                angle.sin() * radius - 0.3,
-            ],
+            left_hand_position: [angle.cos() * radius - 0.3, 1.0, angle.sin() * radius - 0.3],
             left_hand_rotation: [0.0, 0.0, 0.0, 1.0],
-            right_hand_position: [
-                angle.cos() * radius + 0.3,
-                1.0,
-                angle.sin() * radius - 0.3,
-            ],
+            right_hand_position: [angle.cos() * radius + 0.3, 1.0, angle.sin() * radius - 0.3],
             right_hand_rotation: [0.0, 0.0, 0.0, 1.0],
         };
 
@@ -86,7 +77,7 @@ async fn main() {
         }
 
         // Print state every 60 ticks (~3 seconds)
-        if tick_count % 60 == 0 {
+        if tick_count.is_multiple_of(60) {
             let state = client.world_state().await;
             tracing::info!(
                 tick = state.last_tick,

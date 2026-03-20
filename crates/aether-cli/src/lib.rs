@@ -1,10 +1,7 @@
 pub mod commands;
 pub mod manifest;
 
-pub const AVAILABLE_EXAMPLES: &[&str] = &[
-    "3d-demo",
-    "vr-emulator",
-];
+pub const AVAILABLE_EXAMPLES: &[&str] = &["3d-demo", "vr-emulator"];
 
 /// Map a user-facing example name to the actual binary name.
 pub fn example_binary_name(example: &str) -> Option<&'static str> {
@@ -37,7 +34,10 @@ mod tests {
     #[test]
     fn test_example_binary_names() {
         assert_eq!(example_binary_name("3d-demo"), Some("aether-3d-demo"));
-        assert_eq!(example_binary_name("vr-emulator"), Some("aether-vr-emulator-demo"));
+        assert_eq!(
+            example_binary_name("vr-emulator"),
+            Some("aether-vr-emulator-demo")
+        );
     }
 
     #[test]

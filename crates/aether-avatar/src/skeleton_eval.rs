@@ -81,7 +81,10 @@ impl BoneTransform {
             s * (1.0 - (xx + yy)),
             0.0,
             // Column 3
-            tx, ty, tz, 1.0,
+            tx,
+            ty,
+            tz,
+            1.0,
         ]
     }
 }
@@ -505,10 +508,7 @@ mod tests {
         // Rotate root 90 degrees around Z
         let s = std::f32::consts::FRAC_PI_4.sin();
         let c = std::f32::consts::FRAC_PI_4.cos();
-        pose.set_transform(
-            0,
-            BoneTransform::from_rotation([0.0, 0.0, s, c]),
-        );
+        pose.set_transform(0, BoneTransform::from_rotation([0.0, 0.0, s, c]));
         let world = compute_world_transforms(&skel, &pose);
         // Root should have the rotation
         // Child inherits parent rotation, so its world position changes

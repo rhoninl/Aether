@@ -69,11 +69,7 @@ impl QuicClient {
     /// Connect to the server and perform the handshake.
     ///
     /// Returns the server tick from the handshake response.
-    pub async fn connect(
-        &mut self,
-        client_id: u64,
-        token: &[u8],
-    ) -> Result<u64, ClientError> {
+    pub async fn connect(&mut self, client_id: u64, token: &[u8]) -> Result<u64, ClientError> {
         let server_name = server_name_from_addr(&self.config.server_addr);
 
         let connecting = self

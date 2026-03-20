@@ -59,10 +59,22 @@ impl Transform {
         let wz = qw * z2;
 
         [
-            (1.0 - yy - zz) * sx, (xy + wz) * sx,       (xz - wy) * sx,       0.0,
-            (xy - wz) * sy,       (1.0 - xx - zz) * sy,  (yz + wx) * sy,       0.0,
-            (xz + wy) * sz,       (yz - wx) * sz,        (1.0 - xx - yy) * sz, 0.0,
-            self.position[0],     self.position[1],      self.position[2],      1.0,
+            (1.0 - yy - zz) * sx,
+            (xy + wz) * sx,
+            (xz - wy) * sx,
+            0.0,
+            (xy - wz) * sy,
+            (1.0 - xx - zz) * sy,
+            (yz + wx) * sy,
+            0.0,
+            (xz + wy) * sz,
+            (yz - wx) * sz,
+            (1.0 - xx - yy) * sz,
+            0.0,
+            self.position[0],
+            self.position[1],
+            self.position[2],
+            1.0,
         ]
     }
 
@@ -72,15 +84,39 @@ impl Transform {
         // For uniform scale, normal matrix = rotation matrix (no need to invert).
         // For non-uniform scale, we compute the inverse transpose of the 3x3.
         let [sx, sy, sz] = self.scale;
-        let inv_sx = if sx.abs() > f32::EPSILON { 1.0 / sx } else { 0.0 };
-        let inv_sy = if sy.abs() > f32::EPSILON { 1.0 / sy } else { 0.0 };
-        let inv_sz = if sz.abs() > f32::EPSILON { 1.0 / sz } else { 0.0 };
+        let inv_sx = if sx.abs() > f32::EPSILON {
+            1.0 / sx
+        } else {
+            0.0
+        };
+        let inv_sy = if sy.abs() > f32::EPSILON {
+            1.0 / sy
+        } else {
+            0.0
+        };
+        let inv_sz = if sz.abs() > f32::EPSILON {
+            1.0 / sz
+        } else {
+            0.0
+        };
 
         [
-            m[0] * inv_sx, m[1] * inv_sx, m[2] * inv_sx, 0.0,
-            m[4] * inv_sy, m[5] * inv_sy, m[6] * inv_sy, 0.0,
-            m[8] * inv_sz, m[9] * inv_sz, m[10] * inv_sz, 0.0,
-            0.0,           0.0,           0.0,            1.0,
+            m[0] * inv_sx,
+            m[1] * inv_sx,
+            m[2] * inv_sx,
+            0.0,
+            m[4] * inv_sy,
+            m[5] * inv_sy,
+            m[6] * inv_sy,
+            0.0,
+            m[8] * inv_sz,
+            m[9] * inv_sz,
+            m[10] * inv_sz,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         ]
     }
 }
@@ -225,10 +261,8 @@ impl CameraState {
         let dot_f = f[0] * eye[0] + f[1] * eye[1] + f[2] * eye[2];
 
         [
-            s[0],  u[0],  -f[0], 0.0,
-            s[1],  u[1],  -f[1], 0.0,
-            s[2],  u[2],  -f[2], 0.0,
-            dot_s, dot_u, dot_f, 1.0,
+            s[0], u[0], -f[0], 0.0, s[1], u[1], -f[1], 0.0, s[2], u[2], -f[2], 0.0, dot_s, dot_u,
+            dot_f, 1.0,
         ]
     }
 
@@ -238,10 +272,22 @@ impl CameraState {
         let range_inv = 1.0 / (self.near - self.far);
 
         [
-            f / self.aspect, 0.0, 0.0,                           0.0,
-            0.0,             f,   0.0,                           0.0,
-            0.0,             0.0, self.far * range_inv,         -1.0,
-            0.0,             0.0, self.near * self.far * range_inv, 0.0,
+            f / self.aspect,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            f,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            self.far * range_inv,
+            -1.0,
+            0.0,
+            0.0,
+            self.near * self.far * range_inv,
+            0.0,
         ]
     }
 }
@@ -263,16 +309,11 @@ fn cross_vec3(a: [f32; 3], b: [f32; 3]) -> [f32; 3] {
 }
 
 /// Whether we're running in offline (no network) or online mode.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub enum NetworkMode {
+    #[default]
     Offline,
     Online,
-}
-
-impl Default for NetworkMode {
-    fn default() -> Self {
-        Self::Offline
-    }
 }
 
 #[cfg(test)]
@@ -306,10 +347,7 @@ mod tests {
         let m = t.model_matrix();
         // Should be identity matrix
         let expected = [
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
         ];
         for (a, b) in m.iter().zip(expected.iter()) {
             assert!((a - b).abs() < 1e-6, "got {a}, expected {b}");

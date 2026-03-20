@@ -64,7 +64,9 @@ impl PortalResolver {
     ///
     /// Format: `aether://<world_id>[/<spawn_point>][?instance=<hint>]`
     pub fn parse_portal_url(uri: &str) -> Result<PortalUrl, PortalError> {
-        let rest = uri.strip_prefix("aether://").ok_or(PortalError::InvalidScheme)?;
+        let rest = uri
+            .strip_prefix("aether://")
+            .ok_or(PortalError::InvalidScheme)?;
 
         if rest.is_empty() {
             return Err(PortalError::MissingWorldId);
@@ -83,8 +85,7 @@ impl PortalResolver {
             return Err(PortalError::MissingWorldId);
         }
 
-        let world_id =
-            Uuid::parse_str(segments[0]).map_err(|_| PortalError::InvalidWorldId)?;
+        let world_id = Uuid::parse_str(segments[0]).map_err(|_| PortalError::InvalidWorldId)?;
 
         let spawn_point = if segments.len() > 1 {
             Some(segments[1..].join("/"))
@@ -94,15 +95,14 @@ impl PortalResolver {
 
         // Parse query parameters for instance hint
         let instance_hint = query_part.and_then(|q| {
-            q.split('&')
-                .find_map(|param| {
-                    let (key, value) = param.split_once('=')?;
-                    if key == "instance" {
-                        Some(value.to_string())
-                    } else {
-                        None
-                    }
-                })
+            q.split('&').find_map(|param| {
+                let (key, value) = param.split_once('=')?;
+                if key == "instance" {
+                    Some(value.to_string())
+                } else {
+                    None
+                }
+            })
         });
 
         Ok(PortalUrl {

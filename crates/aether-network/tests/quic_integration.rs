@@ -43,7 +43,10 @@ async fn server_binds_and_accepts_client() {
     });
 
     // Client connects
-    let server_tick = client.connect(42, b"test-token").await.expect("client should connect");
+    let server_tick = client
+        .connect(42, b"test-token")
+        .await
+        .expect("client should connect");
     assert_eq!(server_tick, 0); // Default server tick is 0
 
     // Server should have accepted
@@ -96,7 +99,10 @@ async fn reliable_message_roundtrip_client_to_server() {
     let server = accept_handle.await.unwrap();
 
     // Client sends reliable message to server
-    client.send_reliable(b"hello from client").await.expect("send");
+    client
+        .send_reliable(b"hello from client")
+        .await
+        .expect("send");
 
     // Server receives it
     let received = server.recv_reliable(10).await.expect("recv");
@@ -121,7 +127,10 @@ async fn reliable_message_roundtrip_server_to_client() {
     let server = accept_handle.await.unwrap();
 
     // Server sends reliable message to client
-    server.send_reliable(20, b"hello from server").await.expect("send");
+    server
+        .send_reliable(20, b"hello from server")
+        .await
+        .expect("send");
 
     // Client receives it
     let received = client.recv_reliable().await.expect("recv");
@@ -203,10 +212,16 @@ async fn multiple_clients_connect() {
     });
 
     let mut client1 = create_test_client(addr);
-    client1.connect(100, b"token1").await.expect("connect client 1");
+    client1
+        .connect(100, b"token1")
+        .await
+        .expect("connect client 1");
 
     let mut client2 = create_test_client(addr);
-    client2.connect(200, b"token2").await.expect("connect client 2");
+    client2
+        .connect(200, b"token2")
+        .await
+        .expect("connect client 2");
 
     let server = server_handle.await.unwrap();
 
@@ -267,7 +282,9 @@ async fn quic_transport_implements_runtime_transport() {
 #[tokio::test]
 async fn quic_transport_with_network_runtime() {
     // Verify QuicTransport works with the full NetworkRuntime::step_with_transport
-    use aether_network::interest::{ClientBudget, ClientProfile, InterestManager, InterestPolicy, CameraFrustum};
+    use aether_network::interest::{
+        CameraFrustum, ClientBudget, ClientProfile, InterestManager, InterestPolicy,
+    };
     use aether_network::runtime::{
         ClientRuntimeState, NetworkRuntime, NetworkTickInput, RuntimeConfig, RuntimeEntityHint,
         RuntimeSnapshotInput,
@@ -282,7 +299,11 @@ async fn quic_transport_with_network_runtime() {
     let profiles = vec![ClientProfile {
         client_id: 1,
         world_id: 1,
-        position: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+        position: Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
         frustum: CameraFrustum::default(),
     }];
     let budgets = vec![ClientBudget {
@@ -292,7 +313,11 @@ async fn quic_transport_with_network_runtime() {
     }];
     let hints = vec![vec![RuntimeEntityHint {
         entity_id: 1,
-        position: Vec3 { x: 1.0, y: 0.0, z: 2.0 },
+        position: Vec3 {
+            x: 1.0,
+            y: 0.0,
+            z: 2.0,
+        },
         importance: 1.0,
     }]];
     let snaps = vec![vec![RuntimeSnapshotInput {
@@ -303,7 +328,10 @@ async fn quic_transport_with_network_runtime() {
 
     let result = runtime.step_with_transport(
         &mut transport,
-        NetworkTickInput { tick: 1, now_ms: 16 },
+        NetworkTickInput {
+            tick: 1,
+            now_ms: 16,
+        },
         &profiles,
         &budgets,
         &hints,

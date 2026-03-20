@@ -68,14 +68,19 @@ impl fmt::Display for DataType {
 }
 
 /// A runtime value in the visual script.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub enum Value {
+    #[default]
     None,
     Bool(bool),
     Int(i32),
     Float(f32),
     String(String),
-    Vec3 { x: f32, y: f32, z: f32 },
+    Vec3 {
+        x: f32,
+        y: f32,
+        z: f32,
+    },
     Entity(u64),
 }
 
@@ -104,12 +109,6 @@ impl Value {
             (Value::None, _) => Some(self.clone()),
             _ => None,
         }
-    }
-}
-
-impl Default for Value {
-    fn default() -> Self {
-        Value::None
     }
 }
 

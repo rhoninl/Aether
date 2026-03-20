@@ -36,24 +36,14 @@ impl TemplateKind {
     /// Description of what this template does.
     pub fn description(self) -> &'static str {
         match self {
-            TemplateKind::OnInteractLog => {
-                "Logs a message when a player interacts with an entity."
-            }
+            TemplateKind::OnInteractLog => "Logs a message when a player interacts with an entity.",
             TemplateKind::OnEnterTeleport => {
                 "Teleports the player to a position when they enter a trigger zone."
             }
-            TemplateKind::TimerLog => {
-                "Logs a message periodically on a timer."
-            }
-            TemplateKind::OnStartInitialize => {
-                "Initializes a variable when the world starts."
-            }
-            TemplateKind::OnInteractBranch => {
-                "Branches based on a condition when interacted with."
-            }
-            TemplateKind::OnCollisionDestroy => {
-                "Destroys the other entity on collision."
-            }
+            TemplateKind::TimerLog => "Logs a message periodically on a timer.",
+            TemplateKind::OnStartInitialize => "Initializes a variable when the world starts.",
+            TemplateKind::OnInteractBranch => "Branches based on a condition when interacted with.",
+            TemplateKind::OnCollisionDestroy => "Destroys the other entity on collision.",
         }
     }
 }
@@ -94,7 +84,12 @@ fn build_on_interact_log(graph: &mut NodeGraph) {
     let event = graph.add_node_at(NodeKind::OnInteract, 0.0, 0.0).unwrap();
     let log = graph.add_node_at(NodeKind::Log, 250.0, 0.0).unwrap();
 
-    let exec_out = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
+    let exec_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
     let exec_in = graph.get_node(log).unwrap().find_input("exec").unwrap().id;
     graph.connect(event, exec_out, log, exec_in).unwrap();
 }
@@ -105,13 +100,35 @@ fn build_on_enter_teleport(graph: &mut NodeGraph) {
         .add_node_at(NodeKind::SetPosition, 250.0, 0.0)
         .unwrap();
 
-    let exec_out = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
-    let exec_in = graph.get_node(set_pos).unwrap().find_input("exec").unwrap().id;
+    let exec_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
+    let exec_in = graph
+        .get_node(set_pos)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(event, exec_out, set_pos, exec_in).unwrap();
 
-    let entity_out = graph.get_node(event).unwrap().find_output("entity").unwrap().id;
-    let entity_in = graph.get_node(set_pos).unwrap().find_input("entity").unwrap().id;
-    graph.connect(event, entity_out, set_pos, entity_in).unwrap();
+    let entity_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("entity")
+        .unwrap()
+        .id;
+    let entity_in = graph
+        .get_node(set_pos)
+        .unwrap()
+        .find_input("entity")
+        .unwrap()
+        .id;
+    graph
+        .connect(event, entity_out, set_pos, entity_in)
+        .unwrap();
 }
 
 fn build_timer_log(graph: &mut NodeGraph) {
@@ -120,7 +137,12 @@ fn build_timer_log(graph: &mut NodeGraph) {
         .unwrap();
     let log = graph.add_node_at(NodeKind::Log, 250.0, 0.0).unwrap();
 
-    let exec_out = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
+    let exec_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
     let exec_in = graph.get_node(log).unwrap().find_input("exec").unwrap().id;
     graph.connect(event, exec_out, log, exec_in).unwrap();
 }
@@ -137,8 +159,18 @@ fn build_on_start_initialize(graph: &mut NodeGraph) {
         )
         .unwrap();
 
-    let exec_out = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
-    let exec_in = graph.get_node(set_var).unwrap().find_input("exec").unwrap().id;
+    let exec_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
+    let exec_in = graph
+        .get_node(set_var)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(event, exec_out, set_var, exec_in).unwrap();
 }
 
@@ -148,29 +180,67 @@ fn build_on_interact_branch(graph: &mut NodeGraph) {
     let log_true = graph.add_node_at(NodeKind::Log, 500.0, -50.0).unwrap();
     let log_false = graph.add_node_at(NodeKind::Log, 500.0, 50.0).unwrap();
 
-    let ev_exec = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
-    let br_in = graph.get_node(branch).unwrap().find_input("exec").unwrap().id;
+    let ev_exec = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
+    let br_in = graph
+        .get_node(branch)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(event, ev_exec, branch, br_in).unwrap();
 
-    let br_true = graph.get_node(branch).unwrap().find_output("true").unwrap().id;
-    let lt_in = graph.get_node(log_true).unwrap().find_input("exec").unwrap().id;
+    let br_true = graph
+        .get_node(branch)
+        .unwrap()
+        .find_output("true")
+        .unwrap()
+        .id;
+    let lt_in = graph
+        .get_node(log_true)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(branch, br_true, log_true, lt_in).unwrap();
 
-    let br_false = graph.get_node(branch).unwrap().find_output("false").unwrap().id;
-    let lf_in = graph.get_node(log_false).unwrap().find_input("exec").unwrap().id;
+    let br_false = graph
+        .get_node(branch)
+        .unwrap()
+        .find_output("false")
+        .unwrap()
+        .id;
+    let lf_in = graph
+        .get_node(log_false)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(branch, br_false, log_false, lf_in).unwrap();
 }
 
 fn build_on_collision_destroy(graph: &mut NodeGraph) {
-    let event = graph
-        .add_node_at(NodeKind::OnCollision, 0.0, 0.0)
-        .unwrap();
+    let event = graph.add_node_at(NodeKind::OnCollision, 0.0, 0.0).unwrap();
     let destroy = graph
         .add_node_at(NodeKind::DestroyEntity, 250.0, 0.0)
         .unwrap();
 
-    let exec_out = graph.get_node(event).unwrap().find_output("exec").unwrap().id;
-    let exec_in = graph.get_node(destroy).unwrap().find_input("exec").unwrap().id;
+    let exec_out = graph
+        .get_node(event)
+        .unwrap()
+        .find_output("exec")
+        .unwrap()
+        .id;
+    let exec_in = graph
+        .get_node(destroy)
+        .unwrap()
+        .find_input("exec")
+        .unwrap()
+        .id;
     graph.connect(event, exec_out, destroy, exec_in).unwrap();
 
     let other_entity = graph
@@ -179,7 +249,12 @@ fn build_on_collision_destroy(graph: &mut NodeGraph) {
         .find_output("other_entity")
         .unwrap()
         .id;
-    let entity_in = graph.get_node(destroy).unwrap().find_input("entity").unwrap().id;
+    let entity_in = graph
+        .get_node(destroy)
+        .unwrap()
+        .find_input("entity")
+        .unwrap()
+        .id;
     graph
         .connect(event, other_entity, destroy, entity_in)
         .unwrap();
@@ -209,7 +284,11 @@ mod tests {
     fn test_template_descriptions() {
         for kind in all_templates() {
             let desc = kind.description();
-            assert!(!desc.is_empty(), "template {:?} has empty description", kind);
+            assert!(
+                !desc.is_empty(),
+                "template {:?} has empty description",
+                kind
+            );
         }
     }
 
@@ -321,6 +400,9 @@ mod tests {
             .iter()
             .map(|(x, y)| ((*x * 100.0) as i32, (*y * 100.0) as i32))
             .collect();
-        assert!(unique.len() >= 3, "should have at least 3 distinct positions");
+        assert!(
+            unique.len() >= 3,
+            "should have at least 3 distinct positions"
+        );
     }
 }

@@ -164,7 +164,11 @@ mod tests {
     fn all_platforms_support_wasm() {
         for platform in crate::detection::all_platforms() {
             let caps = PlatformCapabilities::for_platform(*platform);
-            assert!(caps.supports_wasm_client, "{:?} should support wasm", platform);
+            assert!(
+                caps.supports_wasm_client,
+                "{:?} should support wasm",
+                platform
+            );
         }
     }
 

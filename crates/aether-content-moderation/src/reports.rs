@@ -1,5 +1,4 @@
 /// Moderation report types for internal tracking and escalation.
-
 use crate::severity::ContentSeverity;
 
 /// Severity levels for moderation reports (internal use).

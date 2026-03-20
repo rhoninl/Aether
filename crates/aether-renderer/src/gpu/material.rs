@@ -31,7 +31,12 @@ impl Default for MaterialUniformData {
         Self {
             albedo: DEFAULT_ALBEDO,
             metallic_roughness: [DEFAULT_METALLIC, DEFAULT_ROUGHNESS, 0.0, 0.0],
-            emissive: [DEFAULT_EMISSIVE[0], DEFAULT_EMISSIVE[1], DEFAULT_EMISSIVE[2], 0.0],
+            emissive: [
+                DEFAULT_EMISSIVE[0],
+                DEFAULT_EMISSIVE[1],
+                DEFAULT_EMISSIVE[2],
+                0.0,
+            ],
         }
     }
 }

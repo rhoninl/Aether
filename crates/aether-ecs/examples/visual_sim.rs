@@ -308,10 +308,18 @@ fn main() {
         {
             let mut vx = 0.0f32;
             let mut vy = 0.0f32;
-            if window.is_key_down(Key::W) || window.is_key_down(Key::Up) { vy -= 1.0; }
-            if window.is_key_down(Key::S) || window.is_key_down(Key::Down) { vy += 1.0; }
-            if window.is_key_down(Key::A) || window.is_key_down(Key::Left) { vx -= 1.0; }
-            if window.is_key_down(Key::D) || window.is_key_down(Key::Right) { vx += 1.0; }
+            if window.is_key_down(Key::W) || window.is_key_down(Key::Up) {
+                vy -= 1.0;
+            }
+            if window.is_key_down(Key::S) || window.is_key_down(Key::Down) {
+                vy += 1.0;
+            }
+            if window.is_key_down(Key::A) || window.is_key_down(Key::Left) {
+                vx -= 1.0;
+            }
+            if window.is_key_down(Key::D) || window.is_key_down(Key::Right) {
+                vx += 1.0;
+            }
             let len = (vx * vx + vy * vy).sqrt();
             if len > 0.0 {
                 vx = (vx / len) * PLAYER_SPEED;
@@ -337,7 +345,12 @@ fn main() {
                         y: facing_y * PROJECTILE_SPEED,
                     },
                 );
-                world.add_component(proj, ProjectileState { lifetime: PROJECTILE_LIFETIME });
+                world.add_component(
+                    proj,
+                    ProjectileState {
+                        lifetime: PROJECTILE_LIFETIME,
+                    },
+                );
                 projectiles.push(proj);
             }
         }
@@ -443,7 +456,12 @@ fn main() {
                 // Off-screen check
                 let offscreen = world
                     .get_component::<Transform>(proj)
-                    .map(|t| t.x < -20.0 || t.x > WIDTH as f32 + 20.0 || t.y < -20.0 || t.y > HEIGHT as f32 + 20.0)
+                    .map(|t| {
+                        t.x < -20.0
+                            || t.x > WIDTH as f32 + 20.0
+                            || t.y < -20.0
+                            || t.y > HEIGHT as f32 + 20.0
+                    })
                     .unwrap_or(true);
 
                 if expired || offscreen {
@@ -579,5 +597,10 @@ fn main() {
         window.update_with_buffer(&buf, WIDTH, HEIGHT).unwrap();
     }
 
-    println!("Kills: {}, Ticks: {}, Final entities: {}", kills, tick, world.entity_count());
+    println!(
+        "Kills: {}, Ticks: {}, Final entities: {}",
+        kills,
+        tick,
+        world.entity_count()
+    );
 }

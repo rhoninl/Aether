@@ -13,7 +13,7 @@ const PLAYER_NET_ID: u64 = 1;
 const DT: f32 = 1.0 / TICK_RATE_HZ as f32;
 
 pub struct SceneEntities {
-    pub ground: Entity,
+    pub _ground: Entity,
     pub spheres: Vec<Entity>,
     pub cubes: Vec<Entity>,
     pub player: Entity,
@@ -28,7 +28,13 @@ pub fn setup_scene(world: &mut World) -> SceneEntities {
     let player = spawn_player(world);
     let trigger_zone = spawn_trigger_zone(world);
     add_systems(world);
-    SceneEntities { ground, spheres, cubes, player, trigger_zone }
+    SceneEntities {
+        _ground: ground,
+        spheres,
+        cubes,
+        player,
+        trigger_zone,
+    }
 }
 
 fn register_components(world: &mut World) {
@@ -102,7 +108,9 @@ fn spawn_trigger_zone(world: &mut World) -> Entity {
 
 fn add_systems(world: &mut World) {
     world.add_system(
-        SystemBuilder::new("input_poll", |_: &World| {}).stage(Stage::Input).build(),
+        SystemBuilder::new("input_poll", |_: &World| {})
+            .stage(Stage::Input)
+            .build(),
     );
     world.add_system(
         SystemBuilder::new("gravity_apply", |_: &World| {})
@@ -125,7 +133,9 @@ fn add_systems(world: &mut World) {
             .build(),
     );
     world.add_system(
-        SystemBuilder::new("trigger_detect", |_: &World| {}).stage(Stage::PostPhysics).build(),
+        SystemBuilder::new("trigger_detect", |_: &World| {})
+            .stage(Stage::PostPhysics)
+            .build(),
     );
     world.add_system(
         SystemBuilder::new("lod_select", |_: &World| {})
@@ -134,7 +144,9 @@ fn add_systems(world: &mut World) {
             .build(),
     );
     world.add_system(
-        SystemBuilder::new("render_submit", |_: &World| {}).stage(Stage::Render).build(),
+        SystemBuilder::new("render_submit", |_: &World| {})
+            .stage(Stage::Render)
+            .build(),
     );
     world.add_system(
         SystemBuilder::new("network_sync", |_: &World| {})
@@ -153,7 +165,9 @@ pub fn apply_gravity(world: &mut World, scene: &SceneEntities) {
 }
 
 pub fn integrate_physics(world: &mut World, scene: &SceneEntities) {
-    let entities: Vec<Entity> = scene.spheres.iter()
+    let entities: Vec<Entity> = scene
+        .spheres
+        .iter()
         .chain(scene.cubes.iter())
         .chain(std::iter::once(&scene.player))
         .copied()
@@ -188,7 +202,12 @@ pub fn detect_triggers(world: &World, queue: &mut TriggerEventQueue, scene: &Sce
     };
     let trigger_radius = 3.0f32;
 
-    for &entity in scene.spheres.iter().chain(scene.cubes.iter()).chain(std::iter::once(&scene.player)) {
+    for &entity in scene
+        .spheres
+        .iter()
+        .chain(scene.cubes.iter())
+        .chain(std::iter::once(&scene.player))
+    {
         if let Some(transform) = world.get_component::<Transform>(entity) {
             let dx = transform.position[0] - trigger_pos[0];
             let dy = transform.position[1] - trigger_pos[1];
@@ -230,7 +249,8 @@ pub fn reset_physics(world: &mut World, scene: &SceneEntities) {
 }
 
 pub fn get_position(world: &World, entity: Entity) -> [f32; 3] {
-    world.get_component::<Transform>(entity)
+    world
+        .get_component::<Transform>(entity)
         .map(|t| t.position)
         .unwrap_or([0.0; 3])
 }

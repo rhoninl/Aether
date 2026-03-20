@@ -102,11 +102,7 @@ impl EmulatedControllers {
         head_position: [f32; 3],
         head_yaw_rad: f32,
     ) -> ControllerState {
-        let position = compute_controller_position(
-            head_position,
-            head_yaw_rad,
-            LEFT_HAND_OFFSET,
-        );
+        let position = compute_controller_position(head_position, head_yaw_rad, LEFT_HAND_OFFSET);
 
         let controller_yaw = head_yaw_rad + self.left_yaw_offset;
         let rotation = yaw_pitch_to_quaternion(controller_yaw, 0.0);
@@ -152,11 +148,7 @@ impl EmulatedControllers {
         head_position: [f32; 3],
         head_yaw_rad: f32,
     ) -> ControllerState {
-        let position = compute_controller_position(
-            head_position,
-            head_yaw_rad,
-            RIGHT_HAND_OFFSET,
-        );
+        let position = compute_controller_position(head_position, head_yaw_rad, RIGHT_HAND_OFFSET);
 
         // Right controller aims where mouse points
         let aim_pitch = -input.right_aim_y * std::f32::consts::FRAC_PI_4;
@@ -291,11 +283,7 @@ mod tests {
 
     #[test]
     fn right_controller_offset_from_head() {
-        let pos = compute_controller_position(
-            [0.0, 1.7, 0.0],
-            0.0,
-            RIGHT_HAND_OFFSET,
-        );
+        let pos = compute_controller_position([0.0, 1.7, 0.0], 0.0, RIGHT_HAND_OFFSET);
         assert!(approx_eq(pos[0], 0.2), "x={}", pos[0]);
         assert!(approx_eq(pos[1], 1.4), "y={}", pos[1]);
         assert!(approx_eq(pos[2], -0.4), "z={}", pos[2]);

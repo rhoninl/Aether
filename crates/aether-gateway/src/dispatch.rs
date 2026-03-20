@@ -230,11 +230,7 @@ mod tests {
         let dispatcher = Dispatcher::new();
         let mut params = HashMap::new();
         params.insert("*".to_string(), "uploads/image.png".to_string());
-        let rm = make_route_match(
-            ServiceTarget::UgcService,
-            params,
-            "/api/v1/ugc/*",
-        );
+        let rm = make_route_match(ServiceTarget::UgcService, params, "/api/v1/ugc/*");
         let ctx = dispatcher.dispatch(&rm, Some(3)).unwrap();
         assert_eq!(ctx.service, ServiceTarget::UgcService);
         assert_eq!(ctx.params.get("*").unwrap(), "uploads/image.png");

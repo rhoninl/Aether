@@ -17,4 +17,3 @@ pub enum VertexCompression {
     Draco,
     None,
 }
-

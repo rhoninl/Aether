@@ -1,5 +1,4 @@
 /// User-submitted report handling with category classification and aggregation.
-
 use uuid::Uuid;
 
 /// Categories for user-submitted reports.
@@ -226,11 +225,7 @@ mod tests {
         let mut agg = ReportAggregator::new(3);
         agg.submit_report(make_report("content-1", "user-1", ReportCategory::Spam));
         agg.submit_report(make_report("content-1", "user-2", ReportCategory::Spam));
-        agg.submit_report(make_report(
-            "content-1",
-            "user-3",
-            ReportCategory::Violence,
-        ));
+        agg.submit_report(make_report("content-1", "user-3", ReportCategory::Violence));
 
         let summary = agg.summarize("content-1");
         assert_eq!(summary.total_reports, 3);
@@ -244,11 +239,7 @@ mod tests {
     fn test_summarize_duplicate_reporter() {
         let mut agg = ReportAggregator::new(5);
         agg.submit_report(make_report("content-1", "user-1", ReportCategory::Spam));
-        agg.submit_report(make_report(
-            "content-1",
-            "user-1",
-            ReportCategory::Violence,
-        ));
+        agg.submit_report(make_report("content-1", "user-1", ReportCategory::Violence));
 
         let summary = agg.summarize("content-1");
         assert_eq!(summary.total_reports, 2);

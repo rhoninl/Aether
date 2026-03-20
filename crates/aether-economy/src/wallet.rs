@@ -100,7 +100,7 @@ impl WalletAccount {
 }
 
 /// Manages a collection of wallets keyed by wallet_id.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct WalletManager {
     wallets: HashMap<String, WalletAccount>,
 }
@@ -113,11 +113,7 @@ impl WalletManager {
     }
 
     /// Creates a new wallet. Returns `Err` if wallet_id already exists.
-    pub fn create_wallet(
-        &mut self,
-        wallet_id: &str,
-        owner: u64,
-    ) -> Result<(), WalletError> {
+    pub fn create_wallet(&mut self, wallet_id: &str, owner: u64) -> Result<(), WalletError> {
         if self.wallets.contains_key(wallet_id) {
             return Err(WalletError::AlreadyExists);
         }
@@ -258,10 +254,7 @@ mod tests {
     #[test]
     fn freeze_nonexistent_wallet_fails() {
         let mut mgr = WalletManager::new();
-        assert_eq!(
-            mgr.freeze("ghost").unwrap_err(),
-            WalletError::NotFound
-        );
+        assert_eq!(mgr.freeze("ghost").unwrap_err(), WalletError::NotFound);
     }
 
     #[test]

@@ -120,13 +120,28 @@ mod tests {
     #[test]
     fn default_config_has_expected_values() {
         let config = QuicConfig::default();
-        assert_eq!(config.bind_addr, DEFAULT_BIND_ADDR.parse::<SocketAddr>().unwrap());
-        assert_eq!(config.server_addr, DEFAULT_SERVER_ADDR.parse::<SocketAddr>().unwrap());
+        assert_eq!(
+            config.bind_addr,
+            DEFAULT_BIND_ADDR.parse::<SocketAddr>().unwrap()
+        );
+        assert_eq!(
+            config.server_addr,
+            DEFAULT_SERVER_ADDR.parse::<SocketAddr>().unwrap()
+        );
         assert!(config.cert_path.is_none());
         assert!(config.key_path.is_none());
-        assert_eq!(config.connect_timeout, Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS));
-        assert_eq!(config.idle_timeout, Duration::from_secs(DEFAULT_IDLE_TIMEOUT_SECS));
-        assert_eq!(config.reconnect_timeout, Duration::from_secs(DEFAULT_RECONNECT_TIMEOUT_SECS));
+        assert_eq!(
+            config.connect_timeout,
+            Duration::from_secs(DEFAULT_CONNECT_TIMEOUT_SECS)
+        );
+        assert_eq!(
+            config.idle_timeout,
+            Duration::from_secs(DEFAULT_IDLE_TIMEOUT_SECS)
+        );
+        assert_eq!(
+            config.reconnect_timeout,
+            Duration::from_secs(DEFAULT_RECONNECT_TIMEOUT_SECS)
+        );
     }
 
     #[test]

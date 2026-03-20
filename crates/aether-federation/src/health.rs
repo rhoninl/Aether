@@ -111,16 +111,16 @@ impl HealthMonitor {
     }
 
     fn get_or_create(&mut self, server_id: &str) -> &mut HealthRecord {
-        self.records.entry(server_id.to_string()).or_insert_with(|| {
-            HealthRecord {
+        self.records
+            .entry(server_id.to_string())
+            .or_insert_with(|| HealthRecord {
                 server_id: server_id.to_string(),
                 status: HealthStatus::Healthy,
                 last_check_ms: 0,
                 consecutive_failures: 0,
                 total_checks: 0,
                 total_failures: 0,
-            }
-        })
+            })
     }
 }
 

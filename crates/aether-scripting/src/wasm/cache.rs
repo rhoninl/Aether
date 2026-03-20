@@ -56,11 +56,7 @@ impl ModuleCache {
     }
 
     /// Stores a compiled module in the cache.
-    pub fn store(
-        &self,
-        module: &wasmtime::Module,
-        hash: &[u8; 32],
-    ) -> Result<(), wasmtime::Error> {
+    pub fn store(&self, module: &wasmtime::Module, hash: &[u8; 32]) -> Result<(), wasmtime::Error> {
         let path = self.cache_path(hash);
         let bytes = module.serialize()?;
         std::fs::write(&path, &bytes).map_err(|e| {

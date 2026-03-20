@@ -36,4 +36,3 @@ pub struct ArtifactUploadSession {
     pub created_ms: u64,
     pub updated_ms: u64,
 }
-

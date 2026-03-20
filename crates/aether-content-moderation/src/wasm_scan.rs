@@ -1,5 +1,4 @@
 /// WASM bytecode static analysis for detecting malicious patterns.
-
 use crate::severity::ContentSeverity;
 
 /// Categories of WASM violations.

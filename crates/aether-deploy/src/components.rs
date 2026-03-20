@@ -31,4 +31,3 @@ pub struct InfraComponent {
     pub replicas: u16,
     pub enabled: bool,
 }
-

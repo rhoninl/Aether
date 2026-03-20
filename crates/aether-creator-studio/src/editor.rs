@@ -27,4 +27,3 @@ pub struct ErrorReport {
     pub message: String,
     pub recoverable: bool,
 }
-

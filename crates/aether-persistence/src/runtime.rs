@@ -1,13 +1,13 @@
-use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::DefaultHasher;
+use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-use crate::{
-    CriticalStatePriority, CriticalWriteResult, PodPlacementHint, Snapshot,
-    SnapshotRecorder, SyncStateMutation, WorldManifest, WorldPersistenceProfile, WalAppendError,
-    WalAppendResult, WalDurability, WalReplayRecord, WalWriteCoordinator,
-};
 use crate::transactions::{CriticalStateKey as TxStateKey, SyncStateChannel};
+use crate::{
+    CriticalStatePriority, CriticalWriteResult, PodPlacementHint, Snapshot, SnapshotRecorder,
+    SyncStateMutation, WalAppendError, WalAppendResult, WalDurability, WalReplayRecord,
+    WalWriteCoordinator, WorldManifest, WorldPersistenceProfile,
+};
 
 #[derive(Debug, Clone)]
 pub struct PersistenceRuntimeConfig {
@@ -134,11 +134,8 @@ impl RuntimeWorldState {
         let replays = self.wal.replay();
         let mut restored_scripts = Vec::new();
         for replay in replays.iter().take(max_replay_records) {
-            if let Some((script, payload)) =
-                self.sequence_to_script_payload.get(&replay.sequence)
-            {
-                self.script_state
-                    .insert(script.clone(), payload.clone());
+            if let Some((script, payload)) = self.sequence_to_script_payload.get(&replay.sequence) {
+                self.script_state.insert(script.clone(), payload.clone());
                 restored_scripts.push((script.clone(), payload.clone()));
             }
         }
@@ -156,7 +153,6 @@ impl RuntimeWorldState {
             replay_records: replays,
         }
     }
-
 }
 
 #[derive(Debug, Default)]
@@ -169,13 +165,15 @@ pub struct PersistenceRuntime {
     cfg: PersistenceRuntimeConfig,
 }
 
+impl Default for PersistenceRuntime {
+    fn default() -> Self {
+        Self::new(PersistenceRuntimeConfig::default())
+    }
+}
+
 impl PersistenceRuntime {
     pub fn new(cfg: PersistenceRuntimeConfig) -> Self {
         Self { cfg }
-    }
-
-    pub fn default() -> Self {
-        Self::new(PersistenceRuntimeConfig::default())
     }
 
     pub fn resolve_placement(&self, manifest: &WorldManifest) -> PodPlacementHint {
@@ -198,8 +196,12 @@ impl PersistenceRuntime {
                 .unwrap_or_else(|| RuntimeWorldState::new(profile, &self.cfg));
             world_state.update_profile(profile);
 
-            output.placement_hints.push(world_state.placement_hint.clone());
-            world_state.snapshot_recorder.prune_older_than_ms(self.cfg.snapshot_keep_ms, input.now_ms);
+            output
+                .placement_hints
+                .push(world_state.placement_hint.clone());
+            world_state
+                .snapshot_recorder
+                .prune_older_than_ms(self.cfg.snapshot_keep_ms, input.now_ms);
 
             if let Some(ack_upto) = world.wal_ack_upto {
                 let committed = world_state.wal.ack(ack_upto);
@@ -213,17 +215,21 @@ impl PersistenceRuntime {
                     .restored_snapshot
                     .as_ref()
                     .map_or(0, |snapshot| snapshot.id);
-                output.wal_replays.extend_from_slice(&recovery.replay_records);
+                output
+                    .wal_replays
+                    .extend_from_slice(&recovery.replay_records);
                 output.recovery.push(recovery);
                 output
                     .recovered_worlds
                     .push((profile.world_id.clone(), recovered_snapshot_id));
             }
 
-            if let Some(snapshot) = world_state
-                .snapshot_recorder
-                .push(profile, input.tick, input.now_ms, world.actor_count)
-            {
+            if let Some(snapshot) = world_state.snapshot_recorder.push(
+                profile,
+                input.tick,
+                input.now_ms,
+                world.actor_count,
+            ) {
                 output.produced_snapshots.push(snapshot);
             }
 
@@ -244,15 +250,13 @@ impl PersistenceRuntime {
                 } else {
                     WalDurability::Ephemeral
                 };
-                match world_state
-                    .wal
-                    .append(
-                        profile.world_id.clone(),
-                        key.clone(),
-                        crc,
-                        durability,
-                        input.now_ms,
-                    ) {
+                match world_state.wal.append(
+                    profile.world_id.clone(),
+                    key.clone(),
+                    crc,
+                    durability,
+                    input.now_ms,
+                ) {
                     Ok(appended) => {
                         output.wal_appends.push(appended.clone());
                         if let TxStateKey::ScriptState(script) = &mutation.key {
@@ -265,7 +269,9 @@ impl PersistenceRuntime {
                                 .script_state
                                 .insert(script.clone(), payload.clone());
                         }
-                        let record = world_state.sync.enqueue(profile.world_id.clone(), mutation.clone());
+                        let record = world_state
+                            .sync
+                            .enqueue(profile.world_id.clone(), mutation.clone());
                         output
                             .critical_writes
                             .push(world_state.sync.commit(record.mutation_id));
@@ -374,7 +380,10 @@ mod tests {
             }],
             &mut state,
         );
-        assert!(recover.recovered_worlds.iter().any(|(world_id, _)| world_id == "world-1"));
+        assert!(recover
+            .recovered_worlds
+            .iter()
+            .any(|(world_id, _)| world_id == "world-1"));
     }
 
     #[test]
@@ -428,6 +437,9 @@ mod tests {
             expected_players: profile.expected_players,
             economy_enabled: profile.has_economy_state,
         };
-        assert_eq!(runtime.resolve_placement(&manifest).pod_class, crate::PodRuntimeClass::StatefulSet);
+        assert_eq!(
+            runtime.resolve_placement(&manifest).pod_class,
+            crate::PodRuntimeClass::StatefulSet
+        );
     }
 }

@@ -34,4 +34,3 @@ pub enum DdosDefenseState {
     Challenge,
     Blackhole,
 }
-

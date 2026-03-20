@@ -7,7 +7,6 @@ use crate::loader::AudioAsset;
 use crate::runtime::AudioMixInstruction;
 use crate::types::AudioId;
 
-
 /// Renders a mono source into stereo using HRTF parameters.
 pub struct SpatialRenderer {
     profile: HrtfProfile,
@@ -19,11 +18,7 @@ impl SpatialRenderer {
     }
 
     /// Apply HRTF spatialization to mono samples, producing interleaved stereo output.
-    pub fn render_stereo(
-        &self,
-        mono_samples: &[f32],
-        params: &HrtfTransportParams,
-    ) -> Vec<f32> {
+    pub fn render_stereo(&self, mono_samples: &[f32], params: &HrtfTransportParams) -> Vec<f32> {
         let hrtf = HrtfSample::for_profile(self.profile, params.azimuth_deg);
         let gain = params.distance_gain;
         let dry_mix = 1.0 - params.reflectivity.clamp(0.0, 0.5);
@@ -192,10 +187,7 @@ impl OutputPipeline {
             *sample = sample.clamp(-1.0, 1.0);
         }
 
-        let mut buf = self
-            .output_buffer
-            .lock()
-            .unwrap_or_else(|e| e.into_inner());
+        let mut buf = self.output_buffer.lock().unwrap_or_else(|e| e.into_inner());
         buf.extend_from_slice(&mix_buf);
     }
 
@@ -404,7 +396,7 @@ mod tests {
         let buf = pipeline.output_buffer();
         let data = buf.lock().unwrap();
         assert_eq!(data.len(), 100); // 50 frames * 2 channels
-        // All samples should be non-zero (signal was 0.5 * 0.8 * hrtf gain)
+                                     // All samples should be non-zero (signal was 0.5 * 0.8 * hrtf gain)
         assert!(data.iter().any(|s| *s != 0.0));
     }
 
@@ -433,7 +425,10 @@ mod tests {
         let buf = pipeline.output_buffer();
         let data = buf.lock().unwrap();
         for sample in data.iter() {
-            assert!(*sample >= -1.0 && *sample <= 1.0, "sample out of range: {sample}");
+            assert!(
+                *sample >= -1.0 && *sample <= 1.0,
+                "sample out of range: {sample}"
+            );
         }
     }
 

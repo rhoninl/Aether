@@ -129,7 +129,12 @@ pub fn create_project(name: &str, dimension: &str) -> Result<(), String> {
             fs::create_dir_all(path.join("tilemaps"))
                 .map_err(|e| format!("failed to create tilemaps directory: {e}"))?;
         }
-        _ => return Err(format!("invalid dimension '{}': must be \"2D\" or \"3D\"", dimension)),
+        _ => {
+            return Err(format!(
+                "invalid dimension '{}': must be \"2D\" or \"3D\"",
+                dimension
+            ))
+        }
     }
 
     // Write world.toml

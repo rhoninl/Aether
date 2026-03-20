@@ -16,6 +16,8 @@ pub struct ModerationStatusUpdate {
 #[derive(Debug)]
 pub enum ModerationSignal {
     TriggerScan,
-    ScanComplete { approved: bool, reason: Option<String> },
+    ScanComplete {
+        approved: bool,
+        reason: Option<String>,
+    },
 }
-

@@ -375,8 +375,16 @@ fn test_value_truthiness() {
     assert!(!value_is_truthy(&Value::Float(0.0)));
     assert!(value_is_truthy(&Value::String("hi".into())));
     assert!(!value_is_truthy(&Value::String("".into())));
-    assert!(value_is_truthy(&Value::Vec3 { x: 1.0, y: 0.0, z: 0.0 }));
-    assert!(!value_is_truthy(&Value::Vec3 { x: 0.0, y: 0.0, z: 0.0 }));
+    assert!(value_is_truthy(&Value::Vec3 {
+        x: 1.0,
+        y: 0.0,
+        z: 0.0
+    }));
+    assert!(!value_is_truthy(&Value::Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0
+    }));
     assert!(value_is_truthy(&Value::Entity(1)));
     assert!(!value_is_truthy(&Value::Entity(0)));
 }
@@ -397,8 +405,16 @@ fn test_values_equal_same_types() {
     ));
     assert!(values_equal(&Value::Entity(1), &Value::Entity(1)));
     assert!(values_equal(
-        &Value::Vec3 { x: 1.0, y: 2.0, z: 3.0 },
-        &Value::Vec3 { x: 1.0, y: 2.0, z: 3.0 },
+        &Value::Vec3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0
+        },
+        &Value::Vec3 {
+            x: 1.0,
+            y: 2.0,
+            z: 3.0
+        },
     ));
 }
 
@@ -450,10 +466,24 @@ fn test_compute_and_branch() {
         vec![
             IrInstruction::LoadConst(0, Value::Int(3)),
             IrInstruction::LoadConst(1, Value::Int(4)),
-            IrInstruction::BinaryOp { op: BinaryOp::Add, dest: 2, lhs: 0, rhs: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Add,
+                dest: 2,
+                lhs: 0,
+                rhs: 1,
+            },
             IrInstruction::LoadConst(3, Value::Int(5)),
-            IrInstruction::BinaryOp { op: BinaryOp::Greater, dest: 4, lhs: 2, rhs: 3 },
-            IrInstruction::Branch { condition: 4, true_label: 0, false_label: 1 },
+            IrInstruction::BinaryOp {
+                op: BinaryOp::Greater,
+                dest: 4,
+                lhs: 2,
+                rhs: 3,
+            },
+            IrInstruction::Branch {
+                condition: 4,
+                true_label: 0,
+                false_label: 1,
+            },
             IrInstruction::Label(0),
             IrInstruction::LoadConst(5, Value::String("big".into())),
             IrInstruction::Return,
@@ -473,7 +503,14 @@ fn test_multiple_api_calls() {
     let script = make_script(
         vec![
             IrInstruction::LoadConst(0, Value::Entity(1)),
-            IrInstruction::LoadConst(1, Value::Vec3 { x: 1.0, y: 2.0, z: 3.0 }),
+            IrInstruction::LoadConst(
+                1,
+                Value::Vec3 {
+                    x: 1.0,
+                    y: 2.0,
+                    z: 3.0,
+                },
+            ),
             IrInstruction::Call {
                 function: "set_position".into(),
                 args: vec![0, 1],

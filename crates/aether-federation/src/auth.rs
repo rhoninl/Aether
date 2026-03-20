@@ -19,4 +19,3 @@ pub struct FederationAuthResult {
     pub reason: Option<String>,
     pub central_verified: bool,
 }
-

@@ -2,8 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{
-    BufferSize, Device, Host, SampleRate, Stream, StreamConfig,
-    SupportedStreamConfigRange,
+    BufferSize, Device, Host, SampleRate, Stream, StreamConfig, SupportedStreamConfigRange,
 };
 
 const DEFAULT_SAMPLE_RATE: u32 = 48_000;
@@ -168,10 +167,7 @@ impl AudioDeviceManager {
 
     /// List available input devices.
     pub fn list_input_devices(&self) -> Result<Vec<DeviceInfo>, DeviceError> {
-        let default_name = self
-            .host
-            .default_input_device()
-            .and_then(|d| d.name().ok());
+        let default_name = self.host.default_input_device().and_then(|d| d.name().ok());
 
         let devices = self
             .host

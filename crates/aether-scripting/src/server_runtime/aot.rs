@@ -266,11 +266,7 @@ mod tests {
             .compile_with_optimization(&wasm, AotTarget::LinuxX64, OptimizationLevel::Speed)
             .unwrap();
         let both = compiler
-            .compile_with_optimization(
-                &wasm,
-                AotTarget::LinuxX64,
-                OptimizationLevel::SpeedAndSize,
-            )
+            .compile_with_optimization(&wasm, AotTarget::LinuxX64, OptimizationLevel::SpeedAndSize)
             .unwrap();
 
         // All should produce valid artifacts

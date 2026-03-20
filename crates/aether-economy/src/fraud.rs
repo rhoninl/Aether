@@ -33,4 +33,3 @@ impl AnomalySignal {
         self.score.score >= threshold
     }
 }
-

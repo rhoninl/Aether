@@ -85,9 +85,7 @@ pub enum MovementResult {
         max_allowed: f32,
     },
     /// Invalid input (e.g., zero or negative delta time).
-    InvalidInput {
-        reason: String,
-    },
+    InvalidInput { reason: String },
 }
 
 impl fmt::Display for MovementResult {
@@ -345,8 +343,7 @@ mod tests {
         let dt = 1.0;
         let prev_speed = 0.0;
         // speed = 5 m/s, accel = 5 m/s^2, limit = 50 * 1.1 = 55 -> valid
-        let result =
-            validate_movement_with_acceleration(&prev, &next, prev_speed, dt, &config);
+        let result = validate_movement_with_acceleration(&prev, &next, prev_speed, dt, &config);
         assert!(matches!(result, MovementResult::Valid { .. }));
     }
 
@@ -359,8 +356,7 @@ mod tests {
         let next = Vec3::new(2.0, 0.0, 0.0);
         let dt = 0.1;
         let prev_speed = 0.0;
-        let result =
-            validate_movement_with_acceleration(&prev, &next, prev_speed, dt, &config);
+        let result = validate_movement_with_acceleration(&prev, &next, prev_speed, dt, &config);
         assert!(matches!(
             result,
             MovementResult::AccelerationViolation { .. }
@@ -374,16 +370,14 @@ mod tests {
         let prev = Vec3::zero();
         let next = Vec3::new(30.0, 0.0, 0.0);
         let dt = 1.0;
-        let result =
-            validate_movement_with_acceleration(&prev, &next, 0.0, dt, &config);
+        let result = validate_movement_with_acceleration(&prev, &next, 0.0, dt, &config);
         assert!(matches!(result, MovementResult::SpeedViolation { .. }));
     }
 
     #[test]
     fn test_acceleration_zero_dt() {
         let pos = Vec3::zero();
-        let result =
-            validate_movement_with_acceleration(&pos, &pos, 0.0, 0.0, &default_config());
+        let result = validate_movement_with_acceleration(&pos, &pos, 0.0, 0.0, &default_config());
         assert!(matches!(result, MovementResult::InvalidInput { .. }));
     }
 

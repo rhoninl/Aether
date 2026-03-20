@@ -20,7 +20,11 @@ impl Resources {
     /// Returns the previous value if one existed.
     pub fn insert<T: 'static + Send + Sync>(&mut self, value: T) -> Option<T> {
         let prev = self.data.insert(TypeId::of::<T>(), Box::new(value));
-        prev.map(|boxed| *boxed.downcast::<T>().expect("type mismatch in resource map"))
+        prev.map(|boxed| {
+            *boxed
+                .downcast::<T>()
+                .expect("type mismatch in resource map")
+        })
     }
 
     /// Get an immutable reference to a resource.
@@ -39,16 +43,17 @@ impl Resources {
 
     /// Remove a resource and return it.
     pub fn remove<T: 'static + Send + Sync>(&mut self) -> Option<T> {
-        self.data
-            .remove(&TypeId::of::<T>())
-            .map(|boxed| *boxed.downcast::<T>().expect("type mismatch in resource map"))
+        self.data.remove(&TypeId::of::<T>()).map(|boxed| {
+            *boxed
+                .downcast::<T>()
+                .expect("type mismatch in resource map")
+        })
     }
 
     /// Check whether a resource of type T exists.
     pub fn contains<T: 'static + Send + Sync>(&self) -> bool {
         self.data.contains_key(&TypeId::of::<T>())
     }
-
 }
 
 impl Default for Resources {

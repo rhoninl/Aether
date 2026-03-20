@@ -34,4 +34,6 @@ pub use scanner::{
 };
 pub use severity::{ContentSeverity, EnforcementAction};
 pub use status::{InvalidTransition, ModerationStatus};
-pub use wasm_scan::{WasmAnalysisResult, WasmAnalyzer, WasmPattern, WasmViolation, WasmViolationKind};
+pub use wasm_scan::{
+    WasmAnalysisResult, WasmAnalyzer, WasmPattern, WasmViolation, WasmViolationKind,
+};

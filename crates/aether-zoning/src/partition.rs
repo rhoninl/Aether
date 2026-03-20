@@ -122,7 +122,10 @@ impl KdTree {
                 AxisChoice::Y => KdAxis::Y,
                 AxisChoice::Z => KdAxis::Z,
             };
-            if candidate.iter().any(|(span, candidate_axis)| *candidate_axis == selected && *span > 0.1) {
+            if candidate
+                .iter()
+                .any(|(span, candidate_axis)| *candidate_axis == selected && *span > 0.1)
+            {
                 return selected;
             }
         }
@@ -151,9 +154,15 @@ impl KdTree {
             return None;
         }
         let split_value = match axis {
-            KdAxis::X => players.iter().map(|sample| sample.position.x).sum::<f32>() / players.len() as f32,
-            KdAxis::Y => players.iter().map(|sample| sample.position.y).sum::<f32>() / players.len() as f32,
-            KdAxis::Z => players.iter().map(|sample| sample.position.z).sum::<f32>() / players.len() as f32,
+            KdAxis::X => {
+                players.iter().map(|sample| sample.position.x).sum::<f32>() / players.len() as f32
+            }
+            KdAxis::Y => {
+                players.iter().map(|sample| sample.position.y).sum::<f32>() / players.len() as f32
+            }
+            KdAxis::Z => {
+                players.iter().map(|sample| sample.position.z).sum::<f32>() / players.len() as f32
+            }
         };
         let (left_count, right_count) = players.iter().fold((0usize, 0usize), |(l, r), sample| {
             let value = match axis {
@@ -175,4 +184,3 @@ impl KdTree {
         })
     }
 }
-

@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 use crate::{
-    AssetIntegrityPolicy, CentralServiceGate, FederationAssetReference, HashMismatchAction, ModifiedSinceApproval,
-    FederationAuthRequest, FederationAuthResult, RegistrationState, SelfHostedWorld,
+    AssetIntegrityPolicy, CentralServiceGate, FederationAssetReference, FederationAuthRequest,
+    FederationAuthResult, HashMismatchAction, ModifiedSinceApproval, RegistrationState,
+    SelfHostedWorld,
 };
 
 #[derive(Debug)]
@@ -56,21 +57,11 @@ pub struct FederationRuntime {
     state: FederationRuntimeState,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct FederationRuntimeState {
     auth_cache: HashMap<String, u64>,
     worlds: HashMap<String, SelfHostedWorld>,
     tx_seen: HashMap<String, u64>,
-}
-
-impl Default for FederationRuntimeState {
-    fn default() -> Self {
-        Self {
-            auth_cache: HashMap::new(),
-            worlds: HashMap::new(),
-            tx_seen: HashMap::new(),
-        }
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -137,36 +128,37 @@ impl FederationRuntime {
         output
     }
 
-    fn process_auth(
-        &mut self,
-        req: &FederationAuthRequest,
-        now_ms: u64,
-    ) -> FederationAuthResult {
-        let has_live_token = self
-            .state
-            .auth_cache
-            .contains_key(&req.session_token)
+    fn process_auth(&mut self, req: &FederationAuthRequest, now_ms: u64) -> FederationAuthResult {
+        let has_live_token = self.state.auth_cache.contains_key(&req.session_token)
             && self
                 .state
                 .auth_cache
                 .get(&req.session_token)
                 .copied()
                 .is_some_and(|issued| now_ms.saturating_sub(issued) <= self.cfg.token_ttl_ms);
-        let allowed = if self.cfg.gate.require_auth_service && req.mode == crate::auth::AuthCheckMode::CentralToken {
-            req.session_token.starts_with("federation:")
-                && has_live_token
+        let allowed = if self.cfg.gate.require_auth_service
+            && req.mode == crate::auth::AuthCheckMode::CentralToken
+        {
+            req.session_token.starts_with("federation:") && has_live_token
         } else {
             !req.world_id.is_empty() && req.player_id > 0
         };
 
         if allowed {
             if self.state.auth_cache.len() >= self.cfg.max_cache_tokens {
-                if let Some(oldest) = self.state.auth_cache.iter().map(|(k, v)| (k.clone(), *v)).min_by_key(|(_, v)| *v)
+                if let Some(oldest) = self
+                    .state
+                    .auth_cache
+                    .iter()
+                    .map(|(k, v)| (k.clone(), *v))
+                    .min_by_key(|(_, v)| *v)
                 {
                     self.state.auth_cache.remove(&oldest.0);
                 }
             }
-            self.state.auth_cache.insert(req.session_token.clone(), now_ms);
+            self.state
+                .auth_cache
+                .insert(req.session_token.clone(), now_ms);
         }
 
         FederationAuthResult {
@@ -176,7 +168,9 @@ impl FederationRuntime {
             } else {
                 Some("federation auth rejected".into())
             },
-            central_verified: allowed && self.cfg.gate.require_auth_service && req.mode == crate::auth::AuthCheckMode::CentralToken,
+            central_verified: allowed
+                && self.cfg.gate.require_auth_service
+                && req.mode == crate::auth::AuthCheckMode::CentralToken,
         }
     }
 
@@ -200,10 +194,9 @@ impl FederationRuntime {
         };
         let endpoint_ok = !world.endpoint.is_empty();
         if !endpoint_ok {
-            output.world_state_events.push(format!(
-                "world_reject:{}:missing_endpoint",
-                world.world_id
-            ));
+            output
+                .world_state_events
+                .push(format!("world_reject:{}:missing_endpoint", world.world_id));
             world.state = RegistrationState::Rejected;
             self.state.worlds.insert(world.world_id.clone(), world);
             return;
@@ -218,11 +211,19 @@ impl FederationRuntime {
             "world:{}:{}:{}",
             if existed { "updated" } else { "registered" },
             world.world_id,
-            if world.discovered { "discovered" } else { "pending_discovery" }
+            if world.discovered {
+                "discovered"
+            } else {
+                "pending_discovery"
+            }
         ));
     }
 
-    fn route_transaction(&mut self, tx: FederationTransactionRequest, now_ms: u64) -> FederationTransactionResult {
+    fn route_transaction(
+        &mut self,
+        tx: FederationTransactionRequest,
+        now_ms: u64,
+    ) -> FederationTransactionResult {
         if self.state.tx_seen.contains_key(&tx.tx_id) {
             return FederationTransactionResult {
                 tx_id: tx.tx_id,
@@ -243,17 +244,16 @@ impl FederationRuntime {
         }
 
         let world = self.state.worlds.get(&tx.world_id);
-        let can_route_central = self.cfg.gate.require_aec_routing && world.is_some_and(|entry| {
-            if self.cfg.gate.require_auth_service {
-                self.state
-                    .auth_cache
-                    .contains_key(&tx.session_token)
-                    && !tx.session_token.is_empty()
-            } else {
-                entry.discovered
-            }
-        });
-        let accepted = self.state.auth_cache.contains_key(&tx.session_token) || tx.central_only == false;
+        let can_route_central = self.cfg.gate.require_aec_routing
+            && world.is_some_and(|entry| {
+                if self.cfg.gate.require_auth_service {
+                    self.state.auth_cache.contains_key(&tx.session_token)
+                        && !tx.session_token.is_empty()
+                } else {
+                    entry.discovered
+                }
+            });
+        let accepted = self.state.auth_cache.contains_key(&tx.session_token) || !tx.central_only;
         self.state.tx_seen.insert(tx.tx_id.clone(), now_ms);
 
         FederationTransactionResult {
@@ -271,20 +271,22 @@ impl FederationRuntime {
         }
     }
 
-    fn validate_asset(&self, asset: FederationAssetReference, output: &mut FederationRuntimeOutput) {
+    fn validate_asset(
+        &self,
+        asset: FederationAssetReference,
+        output: &mut FederationRuntimeOutput,
+    ) {
         if self.cfg.integrity.verify_download && !asset.approved {
             match self.cfg.integrity.on_mismatch {
                 HashMismatchAction::Reject => {
-                    output.asset_events.push(format!(
-                        "asset_reject:{}:reject_unapproved",
-                        asset.asset_id
-                    ));
+                    output
+                        .asset_events
+                        .push(format!("asset_reject:{}:reject_unapproved", asset.asset_id));
                 }
                 HashMismatchAction::Report => {
-                    output.asset_events.push(format!(
-                        "asset_warn:{}:requires_review",
-                        asset.asset_id
-                    ));
+                    output
+                        .asset_events
+                        .push(format!("asset_warn:{}:requires_review", asset.asset_id));
                 }
                 HashMismatchAction::Quarantine => {
                     output.asset_events.push(format!(
@@ -297,12 +299,20 @@ impl FederationRuntime {
         }
 
         if self.cfg.integrity.require_signature && !asset.sha256.starts_with("sig:") {
-            output.asset_events.push(format!("asset_warn:{}:sig_missing", asset.asset_id));
+            output
+                .asset_events
+                .push(format!("asset_warn:{}:sig_missing", asset.asset_id));
             return;
         }
-        output
-            .asset_events
-            .push(format!("asset_ok:{}:{}", asset.asset_id, if asset.approved { "approved" } else { "pending" }));
+        output.asset_events.push(format!(
+            "asset_ok:{}:{}",
+            asset.asset_id,
+            if asset.approved {
+                "approved"
+            } else {
+                "pending"
+            }
+        ));
     }
 
     fn purge_expired_cache(&mut self, now_ms: u64) {

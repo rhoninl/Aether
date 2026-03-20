@@ -84,8 +84,7 @@ impl GoogleOAuthProvider {
     /// Creates from environment variables. Returns `None` if client ID is not set.
     pub fn from_env(redirect_uri: String) -> Option<Self> {
         let client_id = env::var(ENV_OAUTH_GOOGLE_CLIENT_ID).ok()?;
-        let client_secret =
-            env::var(ENV_OAUTH_GOOGLE_CLIENT_SECRET).unwrap_or_default();
+        let client_secret = env::var(ENV_OAUTH_GOOGLE_CLIENT_SECRET).unwrap_or_default();
         Some(Self::new(OAuthConfig {
             client_id,
             client_secret,
@@ -138,8 +137,7 @@ impl DiscordOAuthProvider {
     /// Creates from environment variables. Returns `None` if client ID is not set.
     pub fn from_env(redirect_uri: String) -> Option<Self> {
         let client_id = env::var(ENV_OAUTH_DISCORD_CLIENT_ID).ok()?;
-        let client_secret =
-            env::var(ENV_OAUTH_DISCORD_CLIENT_SECRET).unwrap_or_default();
+        let client_secret = env::var(ENV_OAUTH_DISCORD_CLIENT_SECRET).unwrap_or_default();
         Some(Self::new(OAuthConfig {
             client_id,
             client_secret,

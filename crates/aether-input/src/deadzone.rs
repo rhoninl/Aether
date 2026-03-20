@@ -326,11 +326,7 @@ mod tests {
 
     #[test]
     fn custom_curve_interpolation() {
-        let curve = SensitivityCurve::Custom(vec![
-            (0.0, 0.0),
-            (0.5, 0.8),
-            (1.0, 1.0),
-        ]);
+        let curve = SensitivityCurve::Custom(vec![(0.0, 0.0), (0.5, 0.8), (1.0, 1.0)]);
         // At 0.25, interpolate between (0,0) and (0.5,0.8): t=0.5, output=0.4
         assert!(approx_eq(apply_sensitivity(0.25, &curve), 0.4));
         // At 0.0

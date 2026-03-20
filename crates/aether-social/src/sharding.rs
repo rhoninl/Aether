@@ -13,4 +13,3 @@ impl ShardMapPolicy {
         (user_id & u64::from(mask)) as u32
     }
 }
-

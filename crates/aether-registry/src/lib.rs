@@ -7,8 +7,9 @@ pub mod session;
 
 pub use discovery::{DiscoveryFilter, DiscoveryResult, DiscoverySort, MatchCriteria};
 pub use manifest::{
-    WorldCategory, WorldManifest, WorldManifestError, WorldStatus, validate_manifest,
+    validate_manifest, WorldCategory, WorldManifest, WorldManifestError, WorldStatus,
 };
-pub use portal::{PortalRoute, PortalResolver, PortalScheme};
-pub use session::{MatchOutcome, RegionPolicy, ServerInstance, SessionManager, SessionManagerPolicy, SessionState};
-
+pub use portal::{PortalResolver, PortalRoute, PortalScheme};
+pub use session::{
+    MatchOutcome, RegionPolicy, ServerInstance, SessionManager, SessionManagerPolicy, SessionState,
+};

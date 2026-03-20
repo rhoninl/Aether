@@ -94,7 +94,9 @@ impl InterestManager {
     ) -> Vec<u64> {
         let mut sorted = Vec::new();
         for (id, pos, _importance) in candidates {
-            let distance = (pos.x - viewer_pos.x).abs() + (pos.y - viewer_pos.y).abs() + (pos.z - viewer_pos.z).abs();
+            let distance = (pos.x - viewer_pos.x).abs()
+                + (pos.y - viewer_pos.y).abs()
+                + (pos.z - viewer_pos.z).abs();
             let bucket = self.bucket_by_distance(distance);
             let priority = (bucket as i32) * 1_000_000 + (1_000.0 - distance).max(0.0) as i32;
             sorted.push((priority, *id));
@@ -133,11 +135,39 @@ mod tests {
             max_entities: 2,
             max_bytes_per_tick: 1024,
         };
-        let viewer = Vec3 { x: 0.0, y: 0.0, z: 0.0 };
+        let viewer = Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        };
         let candidates = vec![
-            (1, Vec3 { x: 1.0, y: 0.0, z: 0.0 }, 1.0),
-            (2, Vec3 { x: 2.0, y: 0.0, z: 0.0 }, 1.0),
-            (3, Vec3 { x: 3.0, y: 0.0, z: 0.0 }, 1.0),
+            (
+                1,
+                Vec3 {
+                    x: 1.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                1.0,
+            ),
+            (
+                2,
+                Vec3 {
+                    x: 2.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                1.0,
+            ),
+            (
+                3,
+                Vec3 {
+                    x: 3.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                1.0,
+            ),
         ];
         let selected = mgr.top_n_entities(&candidates, &budget, viewer);
         assert_eq!(selected.len(), 2);

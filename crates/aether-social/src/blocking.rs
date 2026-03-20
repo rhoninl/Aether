@@ -33,7 +33,10 @@ impl BlockList {
         if user_id == target_id {
             return Err(SocialError::SelfAction);
         }
-        let set = self.blocked.get_mut(&user_id).ok_or(SocialError::NotBlocked)?;
+        let set = self
+            .blocked
+            .get_mut(&user_id)
+            .ok_or(SocialError::NotBlocked)?;
         if !set.remove(&target_id) {
             return Err(SocialError::NotBlocked);
         }
@@ -47,7 +50,7 @@ impl BlockList {
     pub fn has_blocked(&self, user_id: u64, target_id: u64) -> bool {
         self.blocked
             .get(&user_id)
-            .map_or(false, |set| set.contains(&target_id))
+            .is_some_and(|set| set.contains(&target_id))
     }
 
     /// Check if either user has blocked the other (bidirectional).

@@ -58,6 +58,7 @@ impl TextureManager {
     }
 
     /// Upload RGBA8 pixel data as a texture.
+    #[allow(clippy::too_many_arguments)]
     pub fn upload_rgba8(
         &mut self,
         device: &wgpu::Device,
@@ -148,7 +149,15 @@ impl TextureManager {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
     ) -> TextureId {
-        self.upload_rgba8(device, queue, 1, 1, &[255, 255, 255, 255], "default-white", true)
+        self.upload_rgba8(
+            device,
+            queue,
+            1,
+            1,
+            &[255, 255, 255, 255],
+            "default-white",
+            true,
+        )
     }
 
     /// Get a GPU texture by ID.

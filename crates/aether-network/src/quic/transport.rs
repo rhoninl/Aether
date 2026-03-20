@@ -364,7 +364,8 @@ mod tests {
 
     #[test]
     fn bytes_to_transport_message_creates_correct_message() {
-        let msg = bytes_to_transport_message(42, 100, Reliability::ReliableOrdered, vec![1, 2, 3], false);
+        let msg =
+            bytes_to_transport_message(42, 100, Reliability::ReliableOrdered, vec![1, 2, 3], false);
         assert_eq!(msg.to_client_id, 42);
         assert_eq!(msg.entity, NetEntity(100));
         assert_eq!(msg.payload, vec![1, 2, 3]);

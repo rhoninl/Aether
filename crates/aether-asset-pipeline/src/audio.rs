@@ -82,11 +82,7 @@ impl std::error::Error for AudioError {}
 /// Trait for audio encoding backends.
 pub trait AudioEncoder {
     /// Encode PCM audio to the specified codec.
-    fn encode(
-        &self,
-        input: &AudioInput,
-        codec: AudioCodec,
-    ) -> Result<EncodedAudio, AudioError>;
+    fn encode(&self, input: &AudioInput, codec: AudioCodec) -> Result<EncodedAudio, AudioError>;
 }
 
 /// Built-in passthrough audio encoder for testing.
@@ -96,21 +92,13 @@ pub trait AudioEncoder {
 pub struct PassthroughEncoder;
 
 impl AudioEncoder for PassthroughEncoder {
-    fn encode(
-        &self,
-        input: &AudioInput,
-        codec: AudioCodec,
-    ) -> Result<EncodedAudio, AudioError> {
+    fn encode(&self, input: &AudioInput, codec: AudioCodec) -> Result<EncodedAudio, AudioError> {
         if input.samples.is_empty() {
             return Err(AudioError::InvalidInput("empty samples".to_string()));
         }
 
         // Convert i16 samples to raw bytes
-        let data: Vec<u8> = input
-            .samples
-            .iter()
-            .flat_map(|s| s.to_le_bytes())
-            .collect();
+        let data: Vec<u8> = input.samples.iter().flat_map(|s| s.to_le_bytes()).collect();
 
         Ok(EncodedAudio {
             data,

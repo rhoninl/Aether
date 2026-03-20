@@ -98,7 +98,8 @@ impl EvictionPolicy {
         let mut remaining_bytes: u64 = candidates.iter().map(|c| c.size_bytes).sum();
 
         for (id, _score, size) in &scored {
-            if remaining_count <= self.max_cached_chunks && remaining_bytes <= self.max_cache_bytes {
+            if remaining_count <= self.max_cached_chunks && remaining_bytes <= self.max_cache_bytes
+            {
                 break;
             }
             evict_ids.push(*id);
@@ -120,7 +121,14 @@ mod tests {
     use super::*;
     use crate::chunk::coord::ChunkCoord;
 
-    fn make_candidate(id: u64, x: i32, y: i32, z: i32, last_access: u64, size: u64) -> EvictionCandidate {
+    fn make_candidate(
+        id: u64,
+        x: i32,
+        y: i32,
+        z: i32,
+        last_access: u64,
+        size: u64,
+    ) -> EvictionCandidate {
         EvictionCandidate {
             id: ChunkId(id),
             coord: ChunkCoord::new(x, y, z),
@@ -209,13 +217,13 @@ mod tests {
         let player = ChunkCoord::new(0, 0, 0);
         let candidates = vec![
             make_candidate(1, 0, 0, 0, 900, 1024), // close, recent
-            make_candidate(2, 5, 0, 0, 100, 1024),  // far, old (highest score)
-            make_candidate(3, 1, 0, 0, 500, 1024),  // medium
+            make_candidate(2, 5, 0, 0, 100, 1024), // far, old (highest score)
+            make_candidate(3, 1, 0, 0, 500, 1024), // medium
         ];
 
         let evictions = policy.select_evictions(&candidates, &player, 1000);
         assert_eq!(evictions.len(), 1); // Need to evict 1 to get to capacity 2
-        // The far-old chunk should be evicted first
+                                        // The far-old chunk should be evicted first
         assert_eq!(evictions[0], ChunkId(2));
     }
 
@@ -298,8 +306,8 @@ mod tests {
 
         let candidates = vec![
             make_candidate(1, 5, 5, 5, 990, 1024), // same chunk as player, very recent
-            make_candidate(2, 5, 5, 6, 950, 1024),  // adjacent, recent
-            make_candidate(3, 0, 0, 0, 100, 1024),   // far away, old
+            make_candidate(2, 5, 5, 6, 950, 1024), // adjacent, recent
+            make_candidate(3, 0, 0, 0, 100, 1024), // far away, old
             make_candidate(4, 10, 10, 10, 200, 1024), // far away, old
         ];
 

@@ -201,12 +201,7 @@ mod tests {
     async fn mixed_configured_and_unconfigured() {
         let db = MockDatabaseClient::healthy();
 
-        let report = check_all(
-            Some(&db as &dyn DatabaseClient),
-            None,
-            None,
-        )
-        .await;
+        let report = check_all(Some(&db as &dyn DatabaseClient), None, None).await;
 
         assert_eq!(report.database, BackendStatus::Healthy);
         assert_eq!(report.cache, BackendStatus::Unconfigured);

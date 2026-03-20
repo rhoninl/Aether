@@ -61,12 +61,7 @@ impl DataExporter {
     ///
     /// `name` is the category name, `data` is the JSON-serialized payload,
     /// and `record_count` is the number of records in this section.
-    pub fn add_section(
-        &mut self,
-        name: String,
-        data: String,
-        record_count: usize,
-    ) {
+    pub fn add_section(&mut self, name: String, data: String, record_count: usize) {
         self.sections.push(ExportSection {
             name,
             data,
@@ -140,11 +135,7 @@ mod tests {
     #[test]
     fn finalize_includes_all_sections() {
         let mut exporter = DataExporter::new(1, "req".into(), 0);
-        exporter.add_section(
-            "profile".into(),
-            r#"{"name":"Alice"}"#.into(),
-            1,
-        );
+        exporter.add_section("profile".into(), r#"{"name":"Alice"}"#.into(), 1);
         exporter.add_section("friends".into(), r#"["Bob"]"#.into(), 1);
         let bundle = exporter.finalize();
         assert_eq!(bundle.sections.len(), 2);

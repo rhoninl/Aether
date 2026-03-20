@@ -71,11 +71,8 @@ impl GpuRenderer {
             ctx.msaa_samples,
         );
 
-        let shadow_pipeline = pipeline::create_shadow_pipeline(
-            device,
-            &shadow_layouts,
-            ShadowPass::depth_format(),
-        );
+        let shadow_pipeline =
+            pipeline::create_shadow_pipeline(device, &shadow_layouts, ShadowPass::depth_format());
 
         let shadow_pass = ShadowPass::new(device, &shadow_layouts.light_vp_layout);
 
@@ -108,13 +105,8 @@ impl GpuRenderer {
             None
         };
 
-        let depth_texture = texture::create_depth_texture(
-            device,
-            w,
-            h,
-            ctx.msaa_samples,
-            ctx.depth_format,
-        );
+        let depth_texture =
+            texture::create_depth_texture(device, w, h, ctx.msaa_samples, ctx.depth_format);
 
         Ok(Self {
             ctx,
@@ -163,17 +155,20 @@ impl GpuRenderer {
 
     /// Update camera uniforms for the current frame.
     pub fn update_camera(&self, uniforms: &CameraUniforms) {
-        self.frame_resources.update_camera(&self.ctx.queue, uniforms);
+        self.frame_resources
+            .update_camera(&self.ctx.queue, uniforms);
     }
 
     /// Update a model's transform uniforms.
     pub fn update_model(&self, index: usize, uniforms: &ModelUniforms) {
-        self.frame_resources.update_model(&self.ctx.queue, index, uniforms);
+        self.frame_resources
+            .update_model(&self.ctx.queue, index, uniforms);
     }
 
     /// Update light and shadow uniforms for the current frame.
     pub fn update_light(&self, uniforms: &LightUniforms) {
-        self.shadow_pass.update_light_uniforms(&self.ctx.queue, uniforms);
+        self.shadow_pass
+            .update_light_uniforms(&self.ctx.queue, uniforms);
     }
 
     /// Render a frame with the given draw commands.
@@ -200,12 +195,12 @@ impl GpuRenderer {
                 .create_view(&wgpu::TextureViewDescriptor::default())
         });
 
-        let mut encoder =
-            self.ctx
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("aether-frame-encoder"),
-                });
+        let mut encoder = self
+            .ctx
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("aether-frame-encoder"),
+            });
 
         // --- Shadow passes ---
         for cascade in 0..ShadowPass::num_cascades() as usize {
@@ -300,18 +295,15 @@ impl GpuRenderer {
             for cmd in draw_commands {
                 if let Some(gpu_mesh) = self.mesh_manager.get(cmd.mesh_id) {
                     if let Some(gpu_mat) = self.material_manager.get(cmd.material_id) {
-                        if cmd.model_bind_group_index
-                            < self.frame_resources.model_bind_groups.len()
+                        if cmd.model_bind_group_index < self.frame_resources.model_bind_groups.len()
                         {
                             forward_pass.set_bind_group(
                                 1,
-                                &self.frame_resources.model_bind_groups
-                                    [cmd.model_bind_group_index],
+                                &self.frame_resources.model_bind_groups[cmd.model_bind_group_index],
                                 &[],
                             );
                             forward_pass.set_bind_group(2, &gpu_mat.bind_group, &[]);
-                            forward_pass
-                                .set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
+                            forward_pass.set_vertex_buffer(0, gpu_mesh.vertex_buffer.slice(..));
                             forward_pass.set_index_buffer(
                                 gpu_mesh.index_buffer.slice(..),
                                 gpu_mesh.index_format,
@@ -343,10 +335,7 @@ impl GpuRenderer {
     }
 
     /// Upload a material and return its ID.
-    pub fn upload_material(
-        &mut self,
-        material: material::PbrMaterial,
-    ) -> MaterialId {
+    pub fn upload_material(&mut self, material: material::PbrMaterial) -> MaterialId {
         // Ensure default white texture exists before borrowing anything
         self.ensure_default_white_texture();
 

@@ -59,11 +59,7 @@ pub enum TimeLimitStatus {
 /// - No age gate is set on the parental control, OR
 /// - The world has no minimum age requirement, OR
 /// - The user's age meets both the parental gate and the world minimum.
-pub fn check_age_gate(
-    control: &ParentalControl,
-    world_min_age: Option<u8>,
-    user_age: u8,
-) -> bool {
+pub fn check_age_gate(control: &ParentalControl, world_min_age: Option<u8>, user_age: u8) -> bool {
     if !control.enabled {
         return true;
     }

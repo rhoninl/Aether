@@ -387,10 +387,7 @@ mod tests {
         );
         assert_eq!(registry.count(), 2);
 
-        apply_server_message(
-            &ServerMessage::PlayerLeft { player_id: id1 },
-            &mut registry,
-        );
+        apply_server_message(&ServerMessage::PlayerLeft { player_id: id1 }, &mut registry);
         assert_eq!(registry.count(), 1);
         assert!(registry.get_transform(id2).is_some());
     }
@@ -399,14 +396,9 @@ mod tests {
     fn apply_world_state_with_multiple_avatars() {
         let mut registry = AvatarRegistry::new();
         let ids: Vec<Uuid> = (0..5).map(|_| Uuid::new_v4()).collect();
-        let avatars: Vec<(PlayerId, AvatarState)> = ids
-            .iter()
-            .map(|id| (*id, AvatarState::default()))
-            .collect();
-        let msg = ServerMessage::WorldState {
-            tick: 42,
-            avatars,
-        };
+        let avatars: Vec<(PlayerId, AvatarState)> =
+            ids.iter().map(|id| (*id, AvatarState::default())).collect();
+        let msg = ServerMessage::WorldState { tick: 42, avatars };
         apply_server_message(&msg, &mut registry);
         assert_eq!(registry.count(), 5);
     }

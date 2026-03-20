@@ -71,7 +71,11 @@ pub struct PlayerView {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamingEvent {
     /// A chunk should begin loading.
-    ChunkRequested { id: ChunkId, coord: ChunkCoord, lod: u8 },
+    ChunkRequested {
+        id: ChunkId,
+        coord: ChunkCoord,
+        lod: u8,
+    },
     /// A chunk was activated (ready for rendering).
     ChunkActivated { id: ChunkId, coord: ChunkCoord },
     /// A chunk was deactivated (no longer rendered but still cached).
@@ -102,7 +106,8 @@ impl StreamingEngine {
     /// Initialize the engine from a chunk manifest.
     pub fn load_manifest(&mut self, manifest: &ChunkManifest) {
         for chunk_ref in &manifest.chunks {
-            let entry = ChunkEntry::new(chunk_ref.id, chunk_ref.coord, chunk_ref.asset_path.clone());
+            let entry =
+                ChunkEntry::new(chunk_ref.id, chunk_ref.coord, chunk_ref.asset_path.clone());
             self.coord_to_id.insert(chunk_ref.coord, chunk_ref.id);
             self.chunks.insert(chunk_ref.id, entry);
         }
@@ -249,12 +254,20 @@ impl StreamingEngine {
     ) -> Vec<StreamingEvent> {
         let mut events = Vec::new();
 
-        let player_coord =
-            ChunkCoord::from_world_position(player.position[0], player.position[1], player.position[2], self.config.chunk_size);
+        let player_coord = ChunkCoord::from_world_position(
+            player.position[0],
+            player.position[1],
+            player.position[2],
+            self.config.chunk_size,
+        );
 
         let predicted_pos = self.predicted_position(player);
-        let predicted_coord =
-            ChunkCoord::from_world_position(predicted_pos[0], predicted_pos[1], predicted_pos[2], self.config.chunk_size);
+        let predicted_coord = ChunkCoord::from_world_position(
+            predicted_pos[0],
+            predicted_pos[1],
+            predicted_pos[2],
+            self.config.chunk_size,
+        );
 
         // Determine desired chunk sets
         let active_coords = player_coord.coords_within(self.config.active_radius);
@@ -327,10 +340,7 @@ impl StreamingEngine {
                     if entry.state == ChunkState::Cached {
                         if let Some(entry) = self.chunks.get_mut(&id) {
                             if entry.transition(ChunkState::Active, now_ms).is_ok() {
-                                events.push(StreamingEvent::ChunkActivated {
-                                    id,
-                                    coord: *coord,
-                                });
+                                events.push(StreamingEvent::ChunkActivated { id, coord: *coord });
                             }
                         }
                     }
@@ -391,11 +401,7 @@ impl StreamingEngine {
     }
 
     /// Run the eviction pass, returning events for chunks that begin eviction.
-    fn run_eviction(
-        &mut self,
-        player_coord: &ChunkCoord,
-        now_ms: u64,
-    ) -> Vec<StreamingEvent> {
+    fn run_eviction(&mut self, player_coord: &ChunkCoord, now_ms: u64) -> Vec<StreamingEvent> {
         let mut events = Vec::new();
 
         let candidates: Vec<EvictionCandidate> = self
@@ -474,9 +480,11 @@ mod tests {
             for z in -1..=1 {
                 let id = ((x + 2) * 10 + (z + 2)) as u64;
                 m.add_chunk(ChunkReference {
-                    id: ChunkId(id), coord: ChunkCoord::new(x, 0, z),
+                    id: ChunkId(id),
+                    coord: ChunkCoord::new(x, 0, z),
                     asset_path: format!("terrain/{x}_0_{z}.bin"),
-                    available_lods: vec![0, 1], size_per_lod: vec![1024, 512],
+                    available_lods: vec![0, 1],
+                    size_per_lod: vec![1024, 512],
                     label: String::new(),
                 });
             }
@@ -485,7 +493,12 @@ mod tests {
     }
 
     /// Helper: transition a chunk through Requested -> Loading -> target state.
-    fn load_chunk_to(engine: &mut StreamingEngine, coord: ChunkCoord, target: ChunkState, base_ms: u64) {
+    fn load_chunk_to(
+        engine: &mut StreamingEngine,
+        coord: ChunkCoord,
+        target: ChunkState,
+        base_ms: u64,
+    ) {
         let id = *engine.coord_to_id.get(&coord).unwrap();
         let e = engine.chunks.get_mut(&id).unwrap();
         e.transition(ChunkState::Requested, base_ms).unwrap();
@@ -557,12 +570,22 @@ mod tests {
         config.cache_radius = 0;
         let mut engine = StreamingEngine::new(config);
         engine.load_manifest(&manifest);
-        load_chunk_to(&mut engine, ChunkCoord::new(0, 0, 0), ChunkState::Cached, 100);
+        load_chunk_to(
+            &mut engine,
+            ChunkCoord::new(0, 0, 0),
+            ChunkState::Cached,
+            100,
+        );
 
-        let player = PlayerView { position: [32.0, 32.0, 32.0], velocity: [0.0, 0.0, 0.0] };
+        let player = PlayerView {
+            position: [32.0, 32.0, 32.0],
+            velocity: [0.0, 0.0, 0.0],
+        };
         let events = engine.tick(&player, &manifest, 1000);
-        let activations: Vec<_> = events.iter()
-            .filter(|e| matches!(e, StreamingEvent::ChunkActivated { .. })).collect();
+        let activations: Vec<_> = events
+            .iter()
+            .filter(|e| matches!(e, StreamingEvent::ChunkActivated { .. }))
+            .collect();
         assert_eq!(activations.len(), 1);
     }
 
@@ -574,13 +597,23 @@ mod tests {
         config.cache_radius = 2;
         let mut engine = StreamingEngine::new(config);
         engine.load_manifest(&manifest);
-        load_chunk_to(&mut engine, ChunkCoord::new(1, 0, 1), ChunkState::Active, 100);
+        load_chunk_to(
+            &mut engine,
+            ChunkCoord::new(1, 0, 1),
+            ChunkState::Active,
+            100,
+        );
 
         // active_radius=0, so chunk (1,0,1) should be deactivated
-        let player = PlayerView { position: [32.0, 32.0, 32.0], velocity: [0.0, 0.0, 0.0] };
+        let player = PlayerView {
+            position: [32.0, 32.0, 32.0],
+            velocity: [0.0, 0.0, 0.0],
+        };
         let events = engine.tick(&player, &manifest, 1000);
-        let deactivations: Vec<_> = events.iter()
-            .filter(|e| matches!(e, StreamingEvent::ChunkDeactivated { .. })).collect();
+        let deactivations: Vec<_> = events
+            .iter()
+            .filter(|e| matches!(e, StreamingEvent::ChunkDeactivated { .. }))
+            .collect();
         assert_eq!(deactivations.len(), 1);
     }
 
@@ -718,7 +751,12 @@ mod tests {
         let mut engine = StreamingEngine::new(make_config());
         engine.load_manifest(&manifest);
         let id = get_id(&engine, 0, 0, 0);
-        load_chunk_to(&mut engine, ChunkCoord::new(0, 0, 0), ChunkState::Cached, 100);
+        load_chunk_to(
+            &mut engine,
+            ChunkCoord::new(0, 0, 0),
+            ChunkState::Cached,
+            100,
+        );
         let e = engine.chunks.get_mut(&id).unwrap();
         e.size_bytes = 4096;
         e.transition(ChunkState::Evicting, 400).unwrap();
@@ -734,7 +772,12 @@ mod tests {
         let mut engine = StreamingEngine::new(make_config());
         engine.load_manifest(&manifest);
         let id = get_id(&engine, 0, 0, 0);
-        engine.chunks.get_mut(&id).unwrap().transition(ChunkState::Requested, 100).unwrap();
+        engine
+            .chunks
+            .get_mut(&id)
+            .unwrap()
+            .transition(ChunkState::Requested, 100)
+            .unwrap();
 
         engine.begin_load(id, 200).unwrap();
         assert_eq!(engine.get_chunk(&id).unwrap().state, ChunkState::Loading);
@@ -761,16 +804,26 @@ mod tests {
 
         let coords = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 0)];
         for (i, &(x, z)) in coords.iter().enumerate() {
-            load_chunk_to(&mut engine, ChunkCoord::new(x, 0, z), ChunkState::Cached, 100 + i as u64 * 10);
+            load_chunk_to(
+                &mut engine,
+                ChunkCoord::new(x, 0, z),
+                ChunkState::Cached,
+                100 + i as u64 * 10,
+            );
             let id = get_id(&engine, x, 0, z);
             engine.chunks.get_mut(&id).unwrap().size_bytes = 1024;
         }
         assert_eq!(engine.count_in_state(ChunkState::Cached), 5);
 
-        let player = PlayerView { position: [32.0, 32.0, 32.0], velocity: [0.0, 0.0, 0.0] };
+        let player = PlayerView {
+            position: [32.0, 32.0, 32.0],
+            velocity: [0.0, 0.0, 0.0],
+        };
         let events = engine.tick(&player, &manifest, 1000);
-        let evictions: Vec<_> = events.iter()
-            .filter(|e| matches!(e, StreamingEvent::ChunkEvicting { .. })).collect();
+        let evictions: Vec<_> = events
+            .iter()
+            .filter(|e| matches!(e, StreamingEvent::ChunkEvicting { .. }))
+            .collect();
         assert!(!evictions.is_empty());
     }
 
@@ -907,7 +960,8 @@ mod tests {
 
         // Predicted position: (32 + 64*2, 32, 32) = (160, 32, 32) = chunk (2,0,0)
         let predicted = engine.predicted_position(&player);
-        let predicted_coord = ChunkCoord::from_world_position(predicted[0], predicted[1], predicted[2], 64.0);
+        let predicted_coord =
+            ChunkCoord::from_world_position(predicted[0], predicted[1], predicted[2], 64.0);
         // With prefetch_time=2 and velocity=64, predicted chunk should be (2,0,0)
         assert_eq!(predicted_coord, ChunkCoord::new(2, 0, 0));
     }

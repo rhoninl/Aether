@@ -2,7 +2,6 @@
 ///
 /// These operate on `[f32; 3]` (vectors) and `[f32; 4]` (quaternions in x,y,z,w order)
 /// to avoid pulling in a full linear algebra crate for abstraction-level logic.
-
 /// Compute the dot product of two 3D vectors.
 pub fn dot(a: [f32; 3], b: [f32; 3]) -> f32 {
     a[0] * b[0] + a[1] * b[1] + a[2] * b[2]

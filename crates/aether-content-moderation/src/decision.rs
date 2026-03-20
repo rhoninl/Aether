@@ -1,5 +1,4 @@
 /// Auto-moderation decision engine with configurable rules and thresholds.
-
 use crate::scanner::{AggregatedScanResult, FlagCategory, ModerationAction};
 use crate::severity::ContentSeverity;
 

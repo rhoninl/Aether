@@ -256,13 +256,8 @@ impl TrackingSnapshot {
 
     /// Check if hand tracking is active for either hand.
     pub fn has_hand_tracking(&self) -> bool {
-        self.left_hand
-            .as_ref()
-            .map_or(false, |h| h.active)
-            || self
-                .right_hand
-                .as_ref()
-                .map_or(false, |h| h.active)
+        self.left_hand.as_ref().is_some_and(|h| h.active)
+            || self.right_hand.as_ref().is_some_and(|h| h.active)
     }
 }
 

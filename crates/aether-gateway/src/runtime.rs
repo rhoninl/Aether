@@ -68,17 +68,9 @@ pub struct BackendStepOutput {
 }
 
 /// The backend runtime processes gateway operations per tick.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct BackendRuntime {
     pub config: BackendRuntimeConfig,
-}
-
-impl Default for BackendRuntime {
-    fn default() -> Self {
-        Self {
-            config: BackendRuntimeConfig::default(),
-        }
-    }
 }
 
 impl BackendRuntime {
@@ -237,18 +229,8 @@ mod tests {
             accepted_issuers: vec!["local".into()],
         };
 
-        runtime.step(
-            BackendStepInput::default(),
-            &mut state,
-            &policy,
-            None,
-        );
-        runtime.step(
-            BackendStepInput::default(),
-            &mut state,
-            &policy,
-            None,
-        );
+        runtime.step(BackendStepInput::default(), &mut state, &policy, None);
+        runtime.step(BackendStepInput::default(), &mut state, &policy, None);
 
         assert_eq!(state.request_count, 2);
     }

@@ -28,16 +28,15 @@ pub use tools::{GizmoMode, PropPlacement, ScriptMode};
 
 // Re-export editor logic types.
 pub use lighting_editor::{
-    AmbientSettings, LightProbe, LightingState, PlaceLightProbeCommand,
-    RemoveLightProbeCommand, SetAmbientCommand,
+    AmbientSettings, LightProbe, LightingState, PlaceLightProbeCommand, RemoveLightProbeCommand,
+    SetAmbientCommand,
 };
 pub use manifest_editor::{
     apply_patch, create_default_manifest, validate_manifest, ManifestPatch,
     ManifestValidationError, PhysicsSettings, SpawnPoint, WorldManifest,
 };
 pub use prop_editor::{
-    DeletePropCommand, MovePropCommand, PlacePropCommand, RotatePropCommand,
-    ScalePropCommand,
+    DeletePropCommand, MovePropCommand, PlacePropCommand, RotatePropCommand, ScalePropCommand,
 };
 pub use scene::{EditorScene, ObjectId, ObjectKind, Position, Rotation, Scale, SceneObject};
 pub use selection::{ClearSelectionCommand, DeselectCommand, SelectCommand, Selection};
@@ -48,11 +47,11 @@ pub use undo::{CommandError, CommandResult, EditorCommand, UndoStack};
 
 // Re-export visual scripting types.
 pub use visual_script::{
-    compile, all_templates, instantiate_template, validate_graph, compute_layout, apply_layout,
-    BinaryOp, CompileError, CompiledScript, Connection, ConnectionId, DataType,
-    EngineApi, GraphError, IrInstruction, LayoutConfig, LayoutResult, NoOpApi, Node, NodeGraph,
-    NodeId, NodeKind, Port, PortDirection, PortId, RecordingApi, RuntimeError, ScriptVm,
-    Severity, TemplateKind, ValidationDiagnostic, ValidationResult, Value, VmConfig,
+    all_templates, apply_layout, compile, compute_layout, instantiate_template, validate_graph,
+    BinaryOp, CompileError, CompiledScript, Connection, ConnectionId, DataType, EngineApi,
+    GraphError, IrInstruction, LayoutConfig, LayoutResult, NoOpApi, Node, NodeGraph, NodeId,
+    NodeKind, Port, PortDirection, PortId, RecordingApi, RuntimeError, ScriptVm, Severity,
+    TemplateKind, ValidationDiagnostic, ValidationResult, Value, VmConfig,
 };
 
 // Re-export dimension types.
@@ -74,7 +73,7 @@ pub use scene_serde::{
 pub use project::{
     deserialize_manifest as deserialize_project_manifest,
     serialize_manifest as serialize_project_manifest,
-    validate_manifest as validate_project_manifest,
-    Bounds2D, CameraConfig2D, CameraMode2D, EnvironmentConfig, ParallaxLayer, PhysicsConfig,
-    PlayerConfig, SceneConfig, ValidationError, WorldInfo, WorldProjectManifest,
+    validate_manifest as validate_project_manifest, Bounds2D, CameraConfig2D, CameraMode2D,
+    EnvironmentConfig, ParallaxLayer, PhysicsConfig, PlayerConfig, SceneConfig, ValidationError,
+    WorldInfo, WorldProjectManifest,
 };

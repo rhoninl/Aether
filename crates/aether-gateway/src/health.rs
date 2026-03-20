@@ -160,10 +160,7 @@ mod tests {
     #[test]
     fn unknown_service_is_healthy() {
         let checker = default_checker();
-        assert_eq!(
-            checker.status("nonexistent"),
-            ServiceHealthState::Healthy
-        );
+        assert_eq!(checker.status("nonexistent"), ServiceHealthState::Healthy);
     }
 
     #[test]
@@ -196,7 +193,7 @@ mod tests {
     #[test]
     fn recovery_from_unhealthy() {
         let mut checker = default_checker(); // recovery_threshold = 2
-        // Drive to unhealthy.
+                                             // Drive to unhealthy.
         for t in 0..5 {
             checker.report_failure("svc_a", 1000 + t * 1000);
         }

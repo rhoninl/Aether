@@ -219,10 +219,7 @@ impl HandCollisionDetector {
             [0.0, 1.0, 0.0] // fallback normal
         };
 
-        let contact_point = math::add(
-            contact_pos,
-            math::scale(normal, self.config.radius),
-        );
+        let contact_point = math::add(contact_pos, math::scale(normal, self.config.radius));
 
         // Estimate force from velocity and penetration
         let motion_dist = math::distance(start, end);
@@ -355,7 +352,9 @@ mod tests {
     #[test]
     fn detect_simple_overlap() {
         let mut detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.5).with_ccd(false),
+            HandColliderConfig::default()
+                .with_radius(0.5)
+                .with_ccd(false),
         );
 
         let spheres = vec![CollisionSphere {
@@ -373,7 +372,9 @@ mod tests {
     #[test]
     fn detect_no_overlap() {
         let mut detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.1).with_ccd(false),
+            HandColliderConfig::default()
+                .with_radius(0.1)
+                .with_ccd(false),
         );
 
         let spheres = vec![CollisionSphere {
@@ -408,7 +409,10 @@ mod tests {
         // Second call: hand teleported across the sphere (fast motion)
         let results = detector.detect([10.0, 0.0, 0.0], 1.0 / 60.0, &spheres);
         assert!(!results.is_empty(), "CCD should detect the collision");
-        assert!(results[0].time_of_impact < 1.0, "Should hit before end of motion");
+        assert!(
+            results[0].time_of_impact < 1.0,
+            "Should hit before end of motion"
+        );
     }
 
     #[test]
@@ -435,7 +439,9 @@ mod tests {
     #[test]
     fn detect_multiple_collisions() {
         let mut detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.5).with_ccd(false),
+            HandColliderConfig::default()
+                .with_radius(0.5)
+                .with_ccd(false),
         );
 
         let spheres = vec![
@@ -458,7 +464,9 @@ mod tests {
     #[test]
     fn collision_result_has_valid_normal() {
         let mut detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.5).with_ccd(false),
+            HandColliderConfig::default()
+                .with_radius(0.5)
+                .with_ccd(false),
         );
 
         let spheres = vec![CollisionSphere {
@@ -491,7 +499,9 @@ mod tests {
     #[test]
     fn swept_sphere_test_direct() {
         let detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.1).with_ccd_substeps(10),
+            HandColliderConfig::default()
+                .with_radius(0.1)
+                .with_ccd_substeps(10),
         );
 
         let spheres = vec![CollisionSphere {
@@ -508,9 +518,8 @@ mod tests {
 
     #[test]
     fn swept_sphere_misses() {
-        let detector = HandCollisionDetector::with_config(
-            HandColliderConfig::default().with_radius(0.1),
-        );
+        let detector =
+            HandCollisionDetector::with_config(HandColliderConfig::default().with_radius(0.1));
 
         let spheres = vec![CollisionSphere {
             center: [0.0, 100.0, 0.0], // way off the path

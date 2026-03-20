@@ -1,5 +1,5 @@
-use crate::config::{FrameBudget, StreamPriority, StreamRequest};
 use crate::config::LODLevel;
+use crate::config::{FrameBudget, StreamPriority, StreamRequest};
 
 #[derive(Debug)]
 pub enum StreamError {
@@ -61,7 +61,10 @@ impl ProgressiveMeshStreaming {
             return Err(StreamError::NoBandwidth);
         }
 
-        if can_increase && bandwidth_available >= request.bytes && request.requested_level > current_level {
+        if can_increase
+            && bandwidth_available >= request.bytes
+            && request.requested_level > current_level
+        {
             if target < self.max_lod {
                 target += 1;
             }

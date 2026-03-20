@@ -78,10 +78,7 @@ pub enum HitResult {
     /// Hit is valid.
     Valid,
     /// Target is out of weapon range.
-    OutOfRange {
-        distance: f32,
-        max_range: f32,
-    },
+    OutOfRange { distance: f32, max_range: f32 },
     /// Hit timestamp is outside acceptable window.
     TimingViolation {
         time_diff_ms: u64,
@@ -95,10 +92,7 @@ pub enum HitResult {
         target_discrepancy: f32,
     },
     /// Attacker is not facing the target (line-of-sight check).
-    LineOfSightViolation {
-        angle_deg: f32,
-        max_angle_deg: f32,
-    },
+    LineOfSightViolation { angle_deg: f32, max_angle_deg: f32 },
 }
 
 impl fmt::Display for HitResult {
@@ -171,11 +165,9 @@ pub fn validate_hit(
     }
 
     // 2. Timing window check
-    let time_diff = if claim.timestamp_ms > server_state.server_timestamp_ms {
-        claim.timestamp_ms - server_state.server_timestamp_ms
-    } else {
-        server_state.server_timestamp_ms - claim.timestamp_ms
-    };
+    let time_diff = claim
+        .timestamp_ms
+        .abs_diff(server_state.server_timestamp_ms);
     if time_diff > config.hit_timing_window_ms {
         return HitResult::TimingViolation {
             time_diff_ms: time_diff,
@@ -202,12 +194,10 @@ pub fn validate_hit(
             server_state.target_pos.y - server_state.attacker_pos.y,
             server_state.target_pos.z - server_state.attacker_pos.z,
         );
-        let to_target_len = (to_target.x * to_target.x
-            + to_target.y * to_target.y
-            + to_target.z * to_target.z)
-            .sqrt();
-        let facing_len =
-            (facing.x * facing.x + facing.y * facing.y + facing.z * facing.z).sqrt();
+        let to_target_len =
+            (to_target.x * to_target.x + to_target.y * to_target.y + to_target.z * to_target.z)
+                .sqrt();
+        let facing_len = (facing.x * facing.x + facing.y * facing.y + facing.z * facing.z).sqrt();
 
         if to_target_len > f32::EPSILON && facing_len > f32::EPSILON {
             let dot = facing.x * to_target.x + facing.y * to_target.y + facing.z * to_target.z;
@@ -229,10 +219,7 @@ pub fn validate_hit(
 /// Computes the position discrepancy between client claim and server state.
 /// This is a separate check because small discrepancies are normal due to
 /// network latency.
-pub fn compute_position_discrepancy(
-    claim: &HitClaim,
-    server_state: &ServerHitState,
-) -> (f32, f32) {
+pub fn compute_position_discrepancy(claim: &HitClaim, server_state: &ServerHitState) -> (f32, f32) {
     let attacker_disc = claim.attacker_pos.distance_to(&server_state.attacker_pos);
     let target_disc = claim.target_pos.distance_to(&server_state.target_pos);
     (attacker_disc, target_disc)
@@ -450,11 +437,7 @@ mod tests {
 
     #[test]
     fn test_position_discrepancy_present() {
-        let claim = make_claim(
-            Vec3::new(1.0, 0.0, 0.0),
-            Vec3::new(10.0, 0.0, 0.0),
-            1000,
-        );
+        let claim = make_claim(Vec3::new(1.0, 0.0, 0.0), Vec3::new(10.0, 0.0, 0.0), 1000);
         let state = make_server_state(Vec3::zero(), Vec3::new(12.0, 0.0, 0.0), 1000);
         let (att, tgt) = compute_position_discrepancy(&claim, &state);
         assert!((att - 1.0).abs() < 1e-5);

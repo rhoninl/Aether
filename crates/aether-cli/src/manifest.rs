@@ -395,11 +395,7 @@ list = ["main"]
         fs::create_dir_all(dir.path().join("assets")).unwrap();
         fs::create_dir_all(dir.path().join("terrain")).unwrap();
         fs::create_dir_all(dir.path().join(".aether")).unwrap();
-        fs::write(
-            dir.path().join(".aether/versions.toml"),
-            "# versions",
-        )
-        .unwrap();
+        fs::write(dir.path().join(".aether/versions.toml"), "# versions").unwrap();
 
         let wt = WorldToml::default_for("test", "3D");
         let errors = validate_manifest(dir.path(), &wt);
@@ -413,11 +409,7 @@ list = ["main"]
         fs::create_dir_all(dir.path().join("assets")).unwrap();
         fs::create_dir_all(dir.path().join("terrain")).unwrap();
         fs::create_dir_all(dir.path().join(".aether")).unwrap();
-        fs::write(
-            dir.path().join(".aether/versions.toml"),
-            "# versions",
-        )
-        .unwrap();
+        fs::write(dir.path().join(".aether/versions.toml"), "# versions").unwrap();
         // Note: scenes/main.scene.toml does NOT exist
 
         let wt = WorldToml::default_for("test", "3D");

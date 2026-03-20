@@ -133,8 +133,8 @@ enum AppState {
     /// Running with a window, renderer, and scene.
     Running {
         window: Arc<Window>,
-        renderer: GpuRenderer,
-        scene: Scene,
+        renderer: Box<GpuRenderer>,
+        scene: Box<Scene>,
         camera: Camera,
         input: InputState,
         last_frame: Instant,
@@ -196,17 +196,20 @@ impl ApplicationHandler for App {
         };
 
         // Create GPU renderer (pass same instance that created the surface)
-        let mut renderer =
-            match pollster::block_on(GpuRenderer::new_with_surface(instance, surface, size.width, size.height))
-            {
-                Ok(r) => r,
-                Err(e) => {
-                    log::error!("failed to create GPU renderer: {e}");
-                    self.state = AppState::Failed(format!("renderer creation failed: {e}"));
-                    event_loop.exit();
-                    return;
-                }
-            };
+        let mut renderer = match pollster::block_on(GpuRenderer::new_with_surface(
+            instance,
+            surface,
+            size.width,
+            size.height,
+        )) {
+            Ok(r) => r,
+            Err(e) => {
+                log::error!("failed to create GPU renderer: {e}");
+                self.state = AppState::Failed(format!("renderer creation failed: {e}"));
+                event_loop.exit();
+                return;
+            }
+        };
 
         // Setup scene
         let scene = scene::setup_scene(&mut renderer);
@@ -224,8 +227,8 @@ impl ApplicationHandler for App {
 
         self.state = AppState::Running {
             window,
-            renderer,
-            scene,
+            renderer: Box::new(renderer),
+            scene: Box::new(scene),
             camera,
             input: InputState::default(),
             last_frame: now,
@@ -233,7 +236,11 @@ impl ApplicationHandler for App {
             fps_timer: now,
         };
 
-        log::info!("GPU demo initialized: width={}, height={}", size.width, size.height);
+        log::info!(
+            "GPU demo initialized: width={}, height={}",
+            size.width,
+            size.height
+        );
     }
 
     fn window_event(
@@ -265,7 +272,11 @@ impl ApplicationHandler for App {
                 if new_size.width > 0 && new_size.height > 0 {
                     renderer.resize(new_size.width, new_size.height);
                     camera.set_aspect_ratio(new_size.width, new_size.height);
-                    log::debug!("window resized: width={}, height={}", new_size.width, new_size.height);
+                    log::debug!(
+                        "window resized: width={}, height={}",
+                        new_size.width,
+                        new_size.height
+                    );
                 }
             }
 

@@ -25,4 +25,3 @@ pub struct ImportTask {
     pub source_type: String,
     pub requested_formats: Vec<TextureTranscode>,
 }
-

@@ -24,20 +24,24 @@ pub use capabilities::{
     Capability, CapabilityError, ControllerType, HeadsetProfile, InputActionPath, InputBackend,
     InputFrameHint,
 };
-pub use deadzone::{apply_dead_zone, apply_sensitivity, DeadZoneConfig, DeadZoneShape, SensitivityCurve};
-pub use desktop::{DesktopAdapter, DesktopAdapterConfig, DesktopInputState, KeyCode, MouseAxis, MouseButton};
+pub use deadzone::{
+    apply_dead_zone, apply_sensitivity, DeadZoneConfig, DeadZoneShape, SensitivityCurve,
+};
+pub use desktop::{
+    DesktopAdapter, DesktopAdapterConfig, DesktopInputState, KeyCode, MouseAxis, MouseButton,
+};
 pub use graph::{ActionEvent, ActionEventPhase, GestureDetector, InputGesture};
 pub use haptics::{HapticChannel, HapticEffect, HapticRequest, HapticWave};
-pub use locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile, TeleportAnchor};
+pub use locomotion::{
+    ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile, TeleportAnchor,
+};
 pub use mapping::{ActionBinding, ActionMap, InputSource};
 pub use movement::{
     compute_smooth_move, compute_smooth_turn, compute_snap_turn, compute_teleport,
     direction_from_keys, rotate_direction_by_yaw, TeleportResult,
 };
 pub use openxr::OpenXrAdapter;
-pub use openxr_haptics::{
-    clamp_amplitude, HapticAction, HapticDispatcher, HapticTarget,
-};
+pub use openxr_haptics::{clamp_amplitude, HapticAction, HapticDispatcher, HapticTarget};
 pub use openxr_session::{
     ReferenceSpace, ReferenceSpaceType, SessionConfig, SessionManager, SessionState,
     SessionTransitionError,

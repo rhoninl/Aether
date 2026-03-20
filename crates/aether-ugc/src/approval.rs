@@ -31,19 +31,10 @@ impl std::fmt::Display for ApprovalError {
 impl std::error::Error for ApprovalError {}
 
 /// Policy for auto-approval decisions.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ApprovalPolicy {
     pub auto_approve_below_bytes: u64,
     pub trusted_creator_ids: Vec<uuid::Uuid>,
-}
-
-impl Default for ApprovalPolicy {
-    fn default() -> Self {
-        Self {
-            auto_approve_below_bytes: 0,
-            trusted_creator_ids: Vec::new(),
-        }
-    }
 }
 
 impl ApprovalPolicy {
@@ -190,9 +181,7 @@ mod tests {
     fn error_contains_from_and_to() {
         let mut wf = ApprovalWorkflow::new();
         let err = wf
-            .transition(ApprovalStatus::Rejected {
-                reason: "x".into(),
-            })
+            .transition(ApprovalStatus::Rejected { reason: "x".into() })
             .unwrap_err();
         match err {
             ApprovalError::InvalidTransition { from, to } => {

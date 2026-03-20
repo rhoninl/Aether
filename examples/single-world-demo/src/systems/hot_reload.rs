@@ -179,9 +179,7 @@ mod tests {
     #[test]
     fn get_material_missing_returns_none() {
         let tracker = AssetTracker::new();
-        assert!(tracker
-            .get_material(Path::new("nonexistent.mat"))
-            .is_none());
+        assert!(tracker.get_material(Path::new("nonexistent.mat")).is_none());
     }
 
     #[test]
@@ -303,8 +301,12 @@ mod tests {
         let mut tracker = AssetTracker::new();
         let path = PathBuf::from("metal.mat");
         tracker.register_material(path.clone(), MaterialId(7));
-        let event =
-            ReloadEvent::new(path.clone(), AssetType::Material, ChangeKind::Modified, vec![]);
+        let event = ReloadEvent::new(
+            path.clone(),
+            AssetType::Material,
+            ChangeKind::Modified,
+            vec![],
+        );
         let actions = process_reload_event(&event, &tracker);
         assert_eq!(actions.len(), 1);
         assert_eq!(
@@ -320,8 +322,12 @@ mod tests {
     fn process_modified_script() {
         let tracker = AssetTracker::new();
         let path = PathBuf::from("logic.wasm");
-        let event =
-            ReloadEvent::new(path.clone(), AssetType::Script, ChangeKind::Modified, vec![]);
+        let event = ReloadEvent::new(
+            path.clone(),
+            AssetType::Script,
+            ChangeKind::Modified,
+            vec![],
+        );
         let actions = process_reload_event(&event, &tracker);
         assert_eq!(actions.len(), 1);
         assert_eq!(actions[0], ReloadAction::ReloadScript { path });
@@ -331,8 +337,7 @@ mod tests {
     fn process_created_script() {
         let tracker = AssetTracker::new();
         let path = PathBuf::from("new_script.lua");
-        let event =
-            ReloadEvent::new(path.clone(), AssetType::Script, ChangeKind::Created, vec![]);
+        let event = ReloadEvent::new(path.clone(), AssetType::Script, ChangeKind::Created, vec![]);
         let actions = process_reload_event(&event, &tracker);
         assert_eq!(actions.len(), 1);
         assert_eq!(actions[0], ReloadAction::ReloadScript { path });

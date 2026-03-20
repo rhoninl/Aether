@@ -78,7 +78,7 @@ impl AudioCodec for StubCodec {
     }
 
     fn decode(&mut self, data: &[u8]) -> Result<Vec<f32>, CodecEncodeError> {
-        if data.len() % 4 != 0 {
+        if !data.len().is_multiple_of(4) {
             return Err(CodecEncodeError::DecodeFailed(
                 "byte length not aligned to f32".to_string(),
             ));
@@ -116,7 +116,9 @@ mod tests {
         let mut codec = StubCodec::from_default();
         let frame_size = codec.frame_size();
 
-        let input: Vec<f32> = (0..frame_size).map(|i| (i as f32) / frame_size as f32).collect();
+        let input: Vec<f32> = (0..frame_size)
+            .map(|i| (i as f32) / frame_size as f32)
+            .collect();
         let encoded = codec.encode(&input).unwrap();
         let decoded = codec.decode(&encoded).unwrap();
 

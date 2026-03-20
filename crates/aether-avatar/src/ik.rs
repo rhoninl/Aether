@@ -160,6 +160,7 @@ pub fn solve_three_point(
 /// Solve 6-point IK: head + 2 hands + hip + 2 feet -> full body.
 ///
 /// Uses actual tracker positions for hip and feet instead of estimates.
+#[allow(clippy::too_many_arguments)]
 pub fn solve_six_point(
     head: &IkTarget,
     left_hand: &IkTarget,

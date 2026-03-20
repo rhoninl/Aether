@@ -207,8 +207,16 @@ mod tests {
     fn plane_uvs_in_range() {
         let (verts, _) = generate_plane(10.0, 8);
         for v in &verts {
-            assert!(v.uv[0] >= 0.0 && v.uv[0] <= 1.0, "u out of range: {}", v.uv[0]);
-            assert!(v.uv[1] >= 0.0 && v.uv[1] <= 1.0, "v out of range: {}", v.uv[1]);
+            assert!(
+                v.uv[0] >= 0.0 && v.uv[0] <= 1.0,
+                "u out of range: {}",
+                v.uv[0]
+            );
+            assert!(
+                v.uv[1] >= 0.0 && v.uv[1] <= 1.0,
+                "v out of range: {}",
+                v.uv[1]
+            );
         }
     }
 

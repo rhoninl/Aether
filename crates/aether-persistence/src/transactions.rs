@@ -54,7 +54,11 @@ pub struct SyncStateChannel {
 }
 
 impl SyncStateChannel {
-    pub fn enqueue(&mut self, world_id: impl Into<String>, mutation: SyncStateMutation) -> CriticalStateMutationRecord {
+    pub fn enqueue(
+        &mut self,
+        world_id: impl Into<String>,
+        mutation: SyncStateMutation,
+    ) -> CriticalStateMutationRecord {
         self.next_mutation = self.next_mutation.saturating_add(1);
         let record = CriticalStateMutationRecord {
             world_id: world_id.into(),
@@ -66,7 +70,8 @@ impl SyncStateChannel {
     }
 
     pub fn commit(&mut self, mutation_id: u64) -> CriticalWriteResult {
-        self.pending.retain(|record| record.mutation_id != mutation_id);
+        self.pending
+            .retain(|record| record.mutation_id != mutation_id);
         self.acknowledged.push(mutation_id);
         CriticalWriteResult {
             acknowledged: true,
@@ -79,4 +84,3 @@ impl SyncStateChannel {
         self.pending.len()
     }
 }
-

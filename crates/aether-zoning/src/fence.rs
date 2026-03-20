@@ -124,10 +124,7 @@ impl SequenceFenceTracker {
     /// Returns the number of pending (buffered) messages for a zone pair.
     pub fn pending_count(&self, source: &str, target: &str) -> usize {
         let key = (source.to_string(), target.to_string());
-        self.pending
-            .get(&key)
-            .map(|b| b.len())
-            .unwrap_or(0)
+        self.pending.get(&key).map(|b| b.len()).unwrap_or(0)
     }
 
     /// Reset tracking for a zone pair (e.g., after zone restart).

@@ -73,11 +73,7 @@ impl Camera {
     pub fn look_direction(&self) -> [f32; 3] {
         let (sin_yaw, cos_yaw) = self.yaw.sin_cos();
         let (sin_pitch, cos_pitch) = self.pitch.sin_cos();
-        [
-            sin_yaw * cos_pitch,
-            sin_pitch,
-            -cos_yaw * cos_pitch,
-        ]
+        [sin_yaw * cos_pitch, sin_pitch, -cos_yaw * cos_pitch]
     }
 
     /// Move the camera forward/backward and left/right.
@@ -137,11 +133,7 @@ impl Default for Camera {
 
 /// Compute a look-at view matrix (column-major).
 pub fn look_at(eye: [f32; 3], target: [f32; 3], up: [f32; 3]) -> [[f32; 4]; 4] {
-    let f = normalize([
-        target[0] - eye[0],
-        target[1] - eye[1],
-        target[2] - eye[2],
-    ]);
+    let f = normalize([target[0] - eye[0], target[1] - eye[1], target[2] - eye[2]]);
     let s = normalize(cross(f, up));
     let u = cross(s, f);
 

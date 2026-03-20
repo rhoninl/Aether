@@ -7,9 +7,7 @@ use std::time::Duration;
 
 use tokio::sync::Notify;
 
-use aether_multiplayer::{
-    AvatarState, MultiplayerClient, MultiplayerConfig, MultiplayerServer,
-};
+use aether_multiplayer::{AvatarState, MultiplayerClient, MultiplayerConfig, MultiplayerServer};
 
 /// Maximum number of poll attempts when waiting for world state updates.
 const MAX_POLL_ATTEMPTS: u32 = 200;
@@ -45,10 +43,12 @@ async fn start_server() -> (Arc<Notify>, SocketAddr) {
 
 /// Create and connect a client to the given server address.
 async fn connect_client(server_addr: SocketAddr) -> MultiplayerClient {
-    let mut client =
-        MultiplayerClient::new(server_addr).expect("client should initialize");
+    let mut client = MultiplayerClient::new(server_addr).expect("client should initialize");
     client.connect().await.expect("client should connect");
-    assert!(client.is_connected(), "client should be connected after connect");
+    assert!(
+        client.is_connected(),
+        "client should be connected after connect"
+    );
     client
 }
 
@@ -79,9 +79,7 @@ where
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn two_clients_exchange_positions() {
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .try_init();
+    let _ = tracing_subscriber::fmt().with_env_filter("info").try_init();
 
     // Start server
     let (shutdown, server_addr) = start_server().await;
@@ -163,9 +161,7 @@ async fn two_clients_exchange_positions() {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn client_disconnect_removes_from_world() {
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .try_init();
+    let _ = tracing_subscriber::fmt().with_env_filter("info").try_init();
 
     // Start server
     let (shutdown, server_addr) = start_server().await;
@@ -221,9 +217,7 @@ async fn client_disconnect_removes_from_world() {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn single_client_sees_own_position() {
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .try_init();
+    let _ = tracing_subscriber::fmt().with_env_filter("info").try_init();
 
     let (shutdown, server_addr) = start_server().await;
     tokio::time::sleep(Duration::from_millis(100)).await;

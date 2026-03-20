@@ -35,7 +35,8 @@ pub struct WorldManifest {
 
 impl WorldManifest {
     pub fn classify(&self) -> PodRuntimeClass {
-        if matches!(self.durability_class, WorldPersistenceClass::Stateful) || self.economy_enabled {
+        if matches!(self.durability_class, WorldPersistenceClass::Stateful) || self.economy_enabled
+        {
             PodRuntimeClass::StatefulSet
         } else {
             PodRuntimeClass::Deployment
@@ -58,4 +59,3 @@ impl WorldManifest {
         }
     }
 }
-

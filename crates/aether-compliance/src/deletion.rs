@@ -181,9 +181,7 @@ impl DeletionPipeline {
         executor: &dyn StepExecutor,
     ) -> Result<DeletionStatus, DeletionError> {
         match &self.status {
-            DeletionStatus::OnHold { .. } => {
-                return Err(DeletionError::OnHoldCannotAdvance)
-            }
+            DeletionStatus::OnHold { .. } => return Err(DeletionError::OnHoldCannotAdvance),
             DeletionStatus::Completed => return Err(DeletionError::AlreadyCompleted),
             DeletionStatus::Failed { .. } => return Err(DeletionError::AlreadyFailed),
             DeletionStatus::Requested | DeletionStatus::InProgress { .. } => {}
@@ -213,9 +211,7 @@ impl DeletionPipeline {
                 Ok(self.status.clone())
             }
             StepResult::Error(err) => {
-                self.status = DeletionStatus::Failed {
-                    error: err.clone(),
-                };
+                self.status = DeletionStatus::Failed { error: err.clone() };
                 Ok(self.status.clone())
             }
         }

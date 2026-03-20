@@ -34,4 +34,3 @@ pub struct ValidationReport {
     pub error: Option<ValidationError>,
     pub checksum: Option<String>,
 }
-

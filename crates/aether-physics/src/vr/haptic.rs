@@ -175,7 +175,7 @@ impl HapticFeedbackMapper {
             }
             HapticCurve::SquareRoot => {
                 let t = (force_magnitude - self.config.min_force) / range;
-                let t_clamped = t.max(0.0).min(1.0);
+                let t_clamped = t.clamp(0.0, 1.0);
                 clamp_intensity(t_clamped.sqrt())
             }
             HapticCurve::Step {
@@ -227,13 +227,7 @@ impl Default for HapticFeedbackMapper {
 }
 
 fn clamp_intensity(value: f32) -> f32 {
-    if value < MIN_INTENSITY {
-        MIN_INTENSITY
-    } else if value > MAX_INTENSITY {
-        MAX_INTENSITY
-    } else {
-        value
-    }
+    value.clamp(MIN_INTENSITY, MAX_INTENSITY)
 }
 
 #[cfg(test)]

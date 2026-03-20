@@ -88,10 +88,7 @@ impl AetherUrl {
 
         // Parse path segments: /<world_id>[/<zone_id>]
         let path_str = path_segments.unwrap_or("");
-        let segments: Vec<&str> = path_str
-            .split('/')
-            .filter(|s| !s.is_empty())
-            .collect();
+        let segments: Vec<&str> = path_str.split('/').filter(|s| !s.is_empty()).collect();
 
         if segments.is_empty() {
             return Err(AetherUrlError::MissingWorldId);
@@ -284,15 +281,17 @@ mod tests {
     #[test]
     fn rejects_invalid_port() {
         let result = AetherUrl::parse("aether://example.com:notaport/world1");
-        assert!(matches!(result.unwrap_err(), AetherUrlError::InvalidPort(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            AetherUrlError::InvalidPort(_)
+        ));
     }
 
     // --- Spawn coordinates ---
 
     #[test]
     fn parses_spawn_coordinates() {
-        let url =
-            AetherUrl::parse("aether://example.com/world1?spawn=10.5,20.0,30.5").unwrap();
+        let url = AetherUrl::parse("aether://example.com/world1?spawn=10.5,20.0,30.5").unwrap();
         assert_eq!(url.spawn, Some([10.5, 20.0, 30.5]));
     }
 
@@ -340,8 +339,7 @@ mod tests {
 
     #[test]
     fn ignores_unknown_query_params() {
-        let url =
-            AetherUrl::parse("aether://example.com/world1?foo=bar&instance=x").unwrap();
+        let url = AetherUrl::parse("aether://example.com/world1?foo=bar&instance=x").unwrap();
         assert_eq!(url.instance, Some("x".to_string()));
         assert_eq!(url.spawn, None);
     }
@@ -368,10 +366,8 @@ mod tests {
 
     #[test]
     fn roundtrip_full() {
-        let url = AetherUrl::parse(
-            "aether://host:8080/world/zone?spawn=1,2,3&instance=i1",
-        )
-        .unwrap();
+        let url =
+            AetherUrl::parse("aether://host:8080/world/zone?spawn=1,2,3&instance=i1").unwrap();
         let s = url.to_url_string();
         let url2 = AetherUrl::parse(&s).unwrap();
         assert_eq!(url.host, url2.host);
@@ -406,8 +402,7 @@ mod tests {
 
     #[test]
     fn parses_negative_spawn() {
-        let url =
-            AetherUrl::parse("aether://example.com/w?spawn=-10.5,0,-30.5").unwrap();
+        let url = AetherUrl::parse("aether://example.com/w?spawn=-10.5,0,-30.5").unwrap();
         assert_eq!(url.spawn, Some([-10.5, 0.0, -30.5]));
     }
 }

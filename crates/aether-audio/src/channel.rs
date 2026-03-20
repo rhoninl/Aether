@@ -27,8 +27,14 @@ pub struct ChannelConfig {
 
 #[derive(Debug, Clone)]
 pub enum ZoneEvent {
-    Entered { player_id: u64, channel_id: ChannelId },
-    Left { player_id: u64, channel_id: ChannelId },
+    Entered {
+        player_id: u64,
+        channel_id: ChannelId,
+    },
+    Left {
+        player_id: u64,
+        channel_id: ChannelId,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -67,14 +73,8 @@ impl VoiceChannelManager {
     pub fn open_channel(&mut self, kind: ChannelKind, world_id: u64) -> ChannelId {
         let id = ChannelId(self.next_channel);
         self.next_channel += 1;
-        self.channels.insert(
-            id,
-            ChannelConfig {
-                id,
-                kind,
-                world_id,
-            },
-        );
+        self.channels
+            .insert(id, ChannelConfig { id, kind, world_id });
         id
     }
 

@@ -36,9 +36,19 @@ pub struct Group {
 /// Group invite action envelopes.
 #[derive(Debug, Clone)]
 pub enum GroupInvite {
-    Sent { group_id: String, inviter: u64, invitee: u64 },
-    Accepted { group_id: String, invitee: u64 },
-    Declined { group_id: String, invitee: u64 },
+    Sent {
+        group_id: String,
+        inviter: u64,
+        invitee: u64,
+    },
+    Accepted {
+        group_id: String,
+        invitee: u64,
+    },
+    Declined {
+        group_id: String,
+        invitee: u64,
+    },
 }
 
 /// Manages group lifecycle and membership.
@@ -84,7 +94,10 @@ impl GroupManager {
         invitee: u64,
         block_list: &BlockList,
     ) -> SocialResult<()> {
-        let group = self.groups.get(group_id).ok_or(SocialError::GroupNotFound)?;
+        let group = self
+            .groups
+            .get(group_id)
+            .ok_or(SocialError::GroupNotFound)?;
         if group.status == GroupStatus::Disbanded {
             return Err(SocialError::GroupDisbanded);
         }
@@ -112,7 +125,7 @@ impl GroupManager {
         let has_invite = self
             .invites
             .get(group_id)
-            .map_or(false, |set| set.contains(&user_id));
+            .is_some_and(|set| set.contains(&user_id));
         if !has_invite {
             return Err(SocialError::InviteNotFound);
         }
@@ -128,7 +141,7 @@ impl GroupManager {
         let has_invite = self
             .invites
             .get(group_id)
-            .map_or(false, |set| set.contains(&user_id));
+            .is_some_and(|set| set.contains(&user_id));
         if !has_invite {
             return Err(SocialError::InviteNotFound);
         }
@@ -140,7 +153,10 @@ impl GroupManager {
 
     /// Join a public (non-invite-only) group directly.
     pub fn join_group(&mut self, group_id: &str, user_id: u64) -> SocialResult<()> {
-        let group = self.groups.get(group_id).ok_or(SocialError::GroupNotFound)?;
+        let group = self
+            .groups
+            .get(group_id)
+            .ok_or(SocialError::GroupNotFound)?;
         if group.status == GroupStatus::Disbanded {
             return Err(SocialError::GroupDisbanded);
         }
@@ -155,7 +171,10 @@ impl GroupManager {
 
     /// Leave a group. If the owner leaves, the group is disbanded.
     pub fn leave_group(&mut self, group_id: &str, user_id: u64) -> SocialResult<()> {
-        let group = self.groups.get(group_id).ok_or(SocialError::GroupNotFound)?;
+        let group = self
+            .groups
+            .get(group_id)
+            .ok_or(SocialError::GroupNotFound)?;
         if group.status == GroupStatus::Disbanded {
             return Err(SocialError::GroupDisbanded);
         }
@@ -175,7 +194,10 @@ impl GroupManager {
 
     /// Disband a group. Only the owner can do this.
     pub fn disband_group(&mut self, group_id: &str, requester: u64) -> SocialResult<()> {
-        let group = self.groups.get(group_id).ok_or(SocialError::GroupNotFound)?;
+        let group = self
+            .groups
+            .get(group_id)
+            .ok_or(SocialError::GroupNotFound)?;
         if group.status == GroupStatus::Disbanded {
             return Err(SocialError::GroupDisbanded);
         }
@@ -208,7 +230,10 @@ impl GroupManager {
     }
 
     fn add_member_internal(&mut self, group_id: &str, user_id: u64) -> SocialResult<()> {
-        let group = self.groups.get(group_id).ok_or(SocialError::GroupNotFound)?;
+        let group = self
+            .groups
+            .get(group_id)
+            .ok_or(SocialError::GroupNotFound)?;
         if group.status == GroupStatus::Disbanded {
             return Err(SocialError::GroupDisbanded);
         }
@@ -356,10 +381,7 @@ mod tests {
         let gid = gm.create_group(1, small_config("Small", 2));
         gm.join_group(&gid, 2).unwrap();
         assert_eq!(gm.join_group(&gid, 3), Err(SocialError::GroupFull));
-        assert_eq!(
-            gm.invite_user(&gid, 1, 4, &bl),
-            Err(SocialError::GroupFull)
-        );
+        assert_eq!(gm.invite_user(&gid, 1, 4, &bl), Err(SocialError::GroupFull));
     }
 
     #[test]
@@ -413,10 +435,7 @@ mod tests {
     fn decline_nonexistent_invite_errors() {
         let mut gm = GroupManager::new();
         let gid = gm.create_group(1, test_config("Test"));
-        assert_eq!(
-            gm.decline_invite(&gid, 2),
-            Err(SocialError::InviteNotFound)
-        );
+        assert_eq!(gm.decline_invite(&gid, 2), Err(SocialError::InviteNotFound));
     }
 
     #[test]

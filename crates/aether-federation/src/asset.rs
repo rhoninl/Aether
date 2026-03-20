@@ -18,4 +18,3 @@ pub struct AssetIntegrityPolicy {
     pub require_signature: bool,
     pub on_mismatch: HashMismatchAction,
 }
-

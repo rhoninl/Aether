@@ -228,7 +228,11 @@ pub const PBR_SHADER_LABEL: &str = "aether-pbr-shader";
 pub const SHADOW_SHADER_LABEL: &str = "aether-shadow-shader";
 
 /// Create a wgpu ShaderModule from WGSL source.
-pub fn create_shader_module(device: &wgpu::Device, label: &str, source: &str) -> wgpu::ShaderModule {
+pub fn create_shader_module(
+    device: &wgpu::Device,
+    label: &str,
+    source: &str,
+) -> wgpu::ShaderModule {
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some(label),
         source: wgpu::ShaderSource::Wgsl(source.into()),

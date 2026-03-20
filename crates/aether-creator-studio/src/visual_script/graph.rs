@@ -37,10 +37,7 @@ pub enum GraphError {
     MaxConnectionsReached,
     SelfConnection,
     InvalidDirection,
-    TypeMismatch {
-        from_type: String,
-        to_type: String,
-    },
+    TypeMismatch { from_type: String, to_type: String },
     InputAlreadyConnected(PortId),
     DuplicateConnection,
 }
@@ -55,7 +52,10 @@ impl fmt::Display for GraphError {
                 write!(f, "maximum nodes reached ({MAX_NODES_PER_GRAPH})")
             }
             GraphError::MaxConnectionsReached => {
-                write!(f, "maximum connections reached ({MAX_CONNECTIONS_PER_GRAPH})")
+                write!(
+                    f,
+                    "maximum connections reached ({MAX_CONNECTIONS_PER_GRAPH})"
+                )
             }
             GraphError::SelfConnection => write!(f, "cannot connect a node to itself"),
             GraphError::InvalidDirection => {
@@ -121,12 +121,7 @@ impl NodeGraph {
     }
 
     /// Add a node at a specific position. Returns the assigned NodeId.
-    pub fn add_node_at(
-        &mut self,
-        kind: NodeKind,
-        x: f32,
-        y: f32,
-    ) -> Result<NodeId, GraphError> {
+    pub fn add_node_at(&mut self, kind: NodeKind, x: f32, y: f32) -> Result<NodeId, GraphError> {
         let id = self.add_node(kind)?;
         if let Some(node) = self.nodes.get_mut(&id) {
             node.position = (x, y);
@@ -409,7 +404,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let event_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let event_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, event_out, log_id, log_in).unwrap();
@@ -455,7 +455,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let event_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let event_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         let conn_id = g.connect(event_id, event_out, log_id, log_in).unwrap();
@@ -469,8 +474,18 @@ mod tests {
         let add_id = g.add_node(NodeKind::Add).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let add_out = g.get_node(add_id).unwrap().find_output("result").unwrap().id;
-        let log_msg = g.get_node(log_id).unwrap().find_input("message").unwrap().id;
+        let add_out = g
+            .get_node(add_id)
+            .unwrap()
+            .find_output("result")
+            .unwrap()
+            .id;
+        let log_msg = g
+            .get_node(log_id)
+            .unwrap()
+            .find_input("message")
+            .unwrap()
+            .id;
 
         // Float -> Any should work
         g.connect(add_id, add_out, log_id, log_msg).unwrap();
@@ -513,8 +528,18 @@ mod tests {
         let branch = g.add_node(NodeKind::Branch).unwrap();
 
         // Flow -> Bool should fail
-        let exec_out = g.get_node(on_start).unwrap().find_output("exec").unwrap().id;
-        let cond_in = g.get_node(branch).unwrap().find_input("condition").unwrap().id;
+        let exec_out = g
+            .get_node(on_start)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
+        let cond_in = g
+            .get_node(branch)
+            .unwrap()
+            .find_input("condition")
+            .unwrap()
+            .id;
 
         let result = g.connect(on_start, exec_out, branch, cond_in);
         assert!(matches!(result, Err(GraphError::TypeMismatch { .. })));
@@ -544,7 +569,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -559,7 +589,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         let conn_id = g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -583,7 +618,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -598,7 +638,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -613,7 +658,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -628,7 +678,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();
@@ -672,7 +727,12 @@ mod tests {
         let add_id = g.add_node(NodeKind::Add).unwrap();
 
         // ForLoop.index (Int) -> Add.a (Float)
-        let index_out = g.get_node(for_loop).unwrap().find_output("index").unwrap().id;
+        let index_out = g
+            .get_node(for_loop)
+            .unwrap()
+            .find_output("index")
+            .unwrap()
+            .id;
         let add_a = g.get_node(add_id).unwrap().find_input("a").unwrap().id;
 
         g.connect(for_loop, index_out, add_id, add_a).unwrap();
@@ -687,7 +747,12 @@ mod tests {
         let event_id = g.add_node(NodeKind::OnStart).unwrap();
         let log_id = g.add_node(NodeKind::Log).unwrap();
 
-        let exec_out = g.get_node(event_id).unwrap().find_output("exec").unwrap().id;
+        let exec_out = g
+            .get_node(event_id)
+            .unwrap()
+            .find_output("exec")
+            .unwrap()
+            .id;
         let log_in = g.get_node(log_id).unwrap().find_input("exec").unwrap().id;
 
         g.connect(event_id, exec_out, log_id, log_in).unwrap();

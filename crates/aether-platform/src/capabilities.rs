@@ -31,4 +31,3 @@ pub enum InputBackend {
     WebXR,
     Native,
 }
-

@@ -71,10 +71,7 @@ pub struct ShadowPass {
 
 impl ShadowPass {
     /// Create the shadow pass resources.
-    pub fn new(
-        device: &wgpu::Device,
-        light_vp_layout: &wgpu::BindGroupLayout,
-    ) -> Self {
+    pub fn new(device: &wgpu::Device, light_vp_layout: &wgpu::BindGroupLayout) -> Self {
         let cascade_size = shadow_map_size_from_env();
 
         let depth_texture = device.create_texture(&wgpu::TextureDescriptor {
@@ -232,7 +229,10 @@ mod tests {
 
     #[test]
     fn shadow_depth_format_is_depth32float() {
-        assert_eq!(ShadowPass::depth_format(), wgpu::TextureFormat::Depth32Float);
+        assert_eq!(
+            ShadowPass::depth_format(),
+            wgpu::TextureFormat::Depth32Float
+        );
     }
 
     #[test]

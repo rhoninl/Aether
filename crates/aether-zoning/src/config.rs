@@ -36,7 +36,11 @@ pub enum AxisChoice {
 
 #[derive(Debug, Clone)]
 pub enum SplitResult {
-    SplitOk { left: ZoneSpec, right: ZoneSpec, axis: AxisChoice },
+    SplitOk {
+        left: ZoneSpec,
+        right: ZoneSpec,
+        axis: AxisChoice,
+    },
     TooFewPlayers,
     Unchanged,
 }
@@ -55,4 +59,3 @@ impl Default for SplitPolicy {
         }
     }
 }
-

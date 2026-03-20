@@ -142,11 +142,7 @@ impl HapticDispatcher {
     ///
     /// Returns `None` if haptics are disabled or the request is suppressed
     /// by cooldown.
-    pub fn dispatch(
-        &mut self,
-        request: &HapticRequest,
-        now_ms: u64,
-    ) -> Option<HapticAction> {
+    pub fn dispatch(&mut self, request: &HapticRequest, now_ms: u64) -> Option<HapticAction> {
         if !self.enabled {
             self.total_suppressed = self.total_suppressed.saturating_add(1);
             return None;
@@ -170,11 +166,7 @@ impl HapticDispatcher {
     }
 
     /// Dispatch multiple haptic requests, returning all successfully dispatched actions.
-    pub fn dispatch_batch(
-        &mut self,
-        requests: &[HapticRequest],
-        now_ms: u64,
-    ) -> Vec<HapticAction> {
+    pub fn dispatch_batch(&mut self, requests: &[HapticRequest], now_ms: u64) -> Vec<HapticAction> {
         requests
             .iter()
             .filter_map(|req| self.dispatch(req, now_ms))
@@ -193,8 +185,7 @@ impl HapticDispatcher {
             HapticTarget::Left => self.left_cooldown.can_dispatch(now_ms),
             HapticTarget::Right => self.right_cooldown.can_dispatch(now_ms),
             HapticTarget::Both => {
-                self.left_cooldown.can_dispatch(now_ms)
-                    && self.right_cooldown.can_dispatch(now_ms)
+                self.left_cooldown.can_dispatch(now_ms) && self.right_cooldown.can_dispatch(now_ms)
             }
         }
     }
@@ -365,11 +356,7 @@ mod tests {
             freq_hz: 200.0,
             amplitude: 0.7,
         };
-        let action = effect_to_action(
-            &HapticEffect::Custom(wave),
-            HapticTarget::Left,
-            false,
-        );
+        let action = effect_to_action(&HapticEffect::Custom(wave), HapticTarget::Left, false);
         assert_eq!(action.frequency_hz, 200.0);
         assert_eq!(action.amplitude, 0.7);
         assert_eq!(action.duration_ms, DEFAULT_HAPTIC_DURATION_MS);
@@ -381,11 +368,7 @@ mod tests {
             amplitude: 0.9,
             duration_ms: 150,
         };
-        let action = effect_to_action(
-            &HapticEffect::Custom(wave),
-            HapticTarget::Right,
-            false,
-        );
+        let action = effect_to_action(&HapticEffect::Custom(wave), HapticTarget::Right, false);
         assert_eq!(action.amplitude, 0.9);
         assert_eq!(action.duration_ms, 150);
     }
@@ -397,11 +380,7 @@ mod tests {
             to_amplitude: 0.8,
             duration_ms: 200,
         };
-        let action = effect_to_action(
-            &HapticEffect::Custom(wave),
-            HapticTarget::Both,
-            true,
-        );
+        let action = effect_to_action(&HapticEffect::Custom(wave), HapticTarget::Both, true);
         assert_eq!(action.amplitude, 0.2);
         assert_eq!(action.duration_ms, 200);
         assert!(action.looped);
@@ -436,11 +415,7 @@ mod tests {
             freq_hz: 100.0,
             amplitude: 2.0,
         };
-        let action = effect_to_action(
-            &HapticEffect::Custom(wave),
-            HapticTarget::Left,
-            false,
-        );
+        let action = effect_to_action(&HapticEffect::Custom(wave), HapticTarget::Left, false);
         assert_eq!(action.amplitude, MAX_HAPTIC_AMPLITUDE);
     }
 
@@ -450,11 +425,7 @@ mod tests {
             freq_hz: 100.0,
             amplitude: -1.0,
         };
-        let action = effect_to_action(
-            &HapticEffect::Custom(wave),
-            HapticTarget::Left,
-            false,
-        );
+        let action = effect_to_action(&HapticEffect::Custom(wave), HapticTarget::Left, false);
         assert_eq!(action.amplitude, MIN_HAPTIC_AMPLITUDE);
     }
 

@@ -29,10 +29,7 @@ impl fmt::Display for RuntimeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             RuntimeError::RegisterOutOfBounds { index, count } => {
-                write!(
-                    f,
-                    "register out of bounds: index {index}, count {count}"
-                )
+                write!(f, "register out of bounds: index {index}, count {count}")
             }
             RuntimeError::LabelNotFound(id) => {
                 write!(f, "label not found: L{id}")
@@ -71,10 +68,7 @@ mod tests {
 
     #[test]
     fn test_register_out_of_bounds_display() {
-        let e = RuntimeError::RegisterOutOfBounds {
-            index: 5,
-            count: 3,
-        };
+        let e = RuntimeError::RegisterOutOfBounds { index: 5, count: 3 };
         let s = format!("{e}");
         assert!(s.contains("5"));
         assert!(s.contains("3"));

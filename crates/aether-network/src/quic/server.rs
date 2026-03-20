@@ -71,12 +71,10 @@ impl QuicServer {
                 .try_into()
                 .expect("idle timeout should fit in quinn::IdleTimeout"),
         ));
-        transport_config.max_concurrent_bidi_streams(
-            super::config::MAX_CONCURRENT_BI_STREAMS.into(),
-        );
-        transport_config.max_concurrent_uni_streams(
-            super::config::MAX_CONCURRENT_UNI_STREAMS.into(),
-        );
+        transport_config
+            .max_concurrent_bidi_streams(super::config::MAX_CONCURRENT_BI_STREAMS.into());
+        transport_config
+            .max_concurrent_uni_streams(super::config::MAX_CONCURRENT_UNI_STREAMS.into());
         transport_config.datagram_receive_buffer_size(Some(65536));
         server_config.transport_config(Arc::new(transport_config));
 
@@ -130,13 +128,11 @@ impl QuicServer {
     /// Send a reliable message to a specific client.
     pub async fn send_reliable(&self, client_id: u64, data: &[u8]) -> Result<(), ServerError> {
         let conns = self.connections.lock().await;
-        let conn = conns
-            .get(&client_id)
-            .ok_or_else(|| {
-                ServerError::Connection(ConnectionError::ConnectionLost(format!(
-                    "no connection for client {client_id}"
-                )))
-            })?;
+        let conn = conns.get(&client_id).ok_or_else(|| {
+            ServerError::Connection(ConnectionError::ConnectionLost(format!(
+                "no connection for client {client_id}"
+            )))
+        })?;
 
         conn.send_reliable(data).await.map_err(ServerError::from)
     }
@@ -144,13 +140,11 @@ impl QuicServer {
     /// Send an unreliable datagram to a specific client.
     pub fn send_datagram_blocking(&self, client_id: u64, data: &[u8]) -> Result<(), ServerError> {
         let conns = self.connections.blocking_lock();
-        let conn = conns
-            .get(&client_id)
-            .ok_or_else(|| {
-                ServerError::Connection(ConnectionError::ConnectionLost(format!(
-                    "no connection for client {client_id}"
-                )))
-            })?;
+        let conn = conns.get(&client_id).ok_or_else(|| {
+            ServerError::Connection(ConnectionError::ConnectionLost(format!(
+                "no connection for client {client_id}"
+            )))
+        })?;
 
         conn.send_datagram(data).map_err(ServerError::from)
     }
@@ -158,13 +152,11 @@ impl QuicServer {
     /// Send an unreliable datagram to a specific client (async).
     pub async fn send_datagram(&self, client_id: u64, data: &[u8]) -> Result<(), ServerError> {
         let conns = self.connections.lock().await;
-        let conn = conns
-            .get(&client_id)
-            .ok_or_else(|| {
-                ServerError::Connection(ConnectionError::ConnectionLost(format!(
-                    "no connection for client {client_id}"
-                )))
-            })?;
+        let conn = conns.get(&client_id).ok_or_else(|| {
+            ServerError::Connection(ConnectionError::ConnectionLost(format!(
+                "no connection for client {client_id}"
+            )))
+        })?;
 
         conn.send_datagram(data).map_err(ServerError::from)
     }
@@ -186,13 +178,11 @@ impl QuicServer {
     /// Accept a bi-directional stream from a specific client and read one message.
     pub async fn recv_reliable(&self, client_id: u64) -> Result<Vec<u8>, ServerError> {
         let conns = self.connections.lock().await;
-        let conn = conns
-            .get(&client_id)
-            .ok_or_else(|| {
-                ServerError::Connection(ConnectionError::ConnectionLost(format!(
-                    "no connection for client {client_id}"
-                )))
-            })?;
+        let conn = conns.get(&client_id).ok_or_else(|| {
+            ServerError::Connection(ConnectionError::ConnectionLost(format!(
+                "no connection for client {client_id}"
+            )))
+        })?;
 
         let (data, _send) = conn.accept_bi_stream().await?;
         Ok(data)

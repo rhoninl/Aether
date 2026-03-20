@@ -63,7 +63,9 @@ impl ServerRegistry {
 
     /// Remove a server by ID. Returns error if not found.
     pub fn deregister(&mut self, server_id: &str) -> Result<FederatedServer, RegistryError> {
-        self.servers.remove(server_id).ok_or(RegistryError::NotFound)
+        self.servers
+            .remove(server_id)
+            .ok_or(RegistryError::NotFound)
     }
 
     /// Get a server by ID.
@@ -75,7 +77,7 @@ impl ServerRegistry {
     pub fn list(&self, status_filter: Option<&ServerStatus>) -> Vec<&FederatedServer> {
         self.servers
             .values()
-            .filter(|s| status_filter.map_or(true, |f| &s.status == f))
+            .filter(|s| status_filter.is_none_or(|f| &s.status == f))
             .collect()
     }
 
@@ -85,7 +87,10 @@ impl ServerRegistry {
         server_id: &str,
         status: ServerStatus,
     ) -> Result<(), RegistryError> {
-        let server = self.servers.get_mut(server_id).ok_or(RegistryError::NotFound)?;
+        let server = self
+            .servers
+            .get_mut(server_id)
+            .ok_or(RegistryError::NotFound)?;
         server.status = status;
         Ok(())
     }
@@ -96,7 +101,10 @@ impl ServerRegistry {
         server_id: &str,
         timestamp_ms: u64,
     ) -> Result<(), RegistryError> {
-        let server = self.servers.get_mut(server_id).ok_or(RegistryError::NotFound)?;
+        let server = self
+            .servers
+            .get_mut(server_id)
+            .ok_or(RegistryError::NotFound)?;
         server.last_heartbeat_ms = timestamp_ms;
         Ok(())
     }

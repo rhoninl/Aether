@@ -20,4 +20,3 @@ pub enum BundleError {
     CorruptSource,
     CompressionFailure,
 }
-

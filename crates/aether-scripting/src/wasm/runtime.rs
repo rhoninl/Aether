@@ -179,10 +179,7 @@ impl WasmRuntime {
     ///
     /// This is intended for development/testing only. In production,
     /// use `load_module` which enforces integrity checks.
-    pub fn load_module_unchecked(
-        &self,
-        wasm_bytes: &[u8],
-    ) -> Result<WasmModule, WasmRuntimeError> {
+    pub fn load_module_unchecked(&self, wasm_bytes: &[u8]) -> Result<WasmModule, WasmRuntimeError> {
         let hash = verify::sha256_hash(wasm_bytes);
 
         if let Some(module) = self.cache.load(&self.engine, &hash)? {
@@ -278,9 +275,7 @@ mod tests {
         "#
     }
 
-    fn create_runtime(
-        tmp: &tempfile::TempDir,
-    ) -> WasmRuntime {
+    fn create_runtime(tmp: &tempfile::TempDir) -> WasmRuntime {
         WasmRuntime::new(
             tmp.path().join("cache"),
             SandboxConfig::default(),
@@ -293,12 +288,8 @@ mod tests {
         tmp: &tempfile::TempDir,
         verifier: IntegrityVerifier,
     ) -> WasmRuntime {
-        WasmRuntime::new(
-            tmp.path().join("cache"),
-            SandboxConfig::default(),
-            verifier,
-        )
-        .expect("runtime creation")
+        WasmRuntime::new(tmp.path().join("cache"), SandboxConfig::default(), verifier)
+            .expect("runtime creation")
     }
 
     #[test]
@@ -335,18 +326,17 @@ mod tests {
     fn fuel_exhaustion_traps_infinite_loop() {
         let tmp = tempfile::tempdir().unwrap();
         let sandbox = SandboxConfig::new(16 * 1024 * 1024, 100, 16);
-        let runtime = WasmRuntime::new(
-            tmp.path().join("cache"),
-            sandbox,
-            IntegrityVerifier::new(),
-        )
-        .unwrap();
+        let runtime =
+            WasmRuntime::new(tmp.path().join("cache"), sandbox, IntegrityVerifier::new()).unwrap();
 
         let wasm = wat::parse_str(infinite_loop_wat()).unwrap();
         let module = runtime.load_module_unchecked(&wasm).unwrap();
 
         let result = runtime.call_void_export(&module, "run");
-        assert!(result.is_err(), "infinite loop should trap on fuel exhaustion");
+        assert!(
+            result.is_err(),
+            "infinite loop should trap on fuel exhaustion"
+        );
         let err_msg = format!("{}", result.unwrap_err());
         // Wasmtime traps with various messages depending on version;
         // the key is that execution was terminated.
@@ -364,12 +354,8 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         // 1 MB memory limit
         let sandbox = SandboxConfig::new(1024 * 1024, 1_000_000, 16);
-        let runtime = WasmRuntime::new(
-            tmp.path().join("cache"),
-            sandbox,
-            IntegrityVerifier::new(),
-        )
-        .unwrap();
+        let runtime =
+            WasmRuntime::new(tmp.path().join("cache"), sandbox, IntegrityVerifier::new()).unwrap();
 
         let wasm = wat::parse_str(memory_hog_wat()).unwrap();
         let module = runtime.load_module_unchecked(&wasm).unwrap();

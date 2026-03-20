@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use crate::batching::{batch_instances_by_key, BatchHint, BatchRequest};
+#[cfg(test)]
+use crate::config::StreamPriority;
 use crate::config::{
-    FrameBudget, FoveationConfig, FoveationTier, FrameContext, FramePolicy, LODLevel, ShadowCascadeConfig,
-    StereoConfig, StreamPriority, StreamRequest,
+    FoveationConfig, FoveationTier, FrameContext, FramePolicy, ShadowCascadeConfig, StreamRequest,
 };
 use crate::scheduler::{FrameMode, FrameModeInput, FramePolicyReason, FrameScheduler};
 use crate::stream::{ProgressiveMeshStreaming, StreamingProgress};
@@ -159,7 +160,9 @@ impl FrameRuntime {
         let streaming = self.plan_streaming(
             input.now_ms,
             &input.stream_requests,
-            input.material_bandwidth_bytes.unwrap_or(self.cfg.stream_budget_bytes),
+            input
+                .material_bandwidth_bytes
+                .unwrap_or(self.cfg.stream_budget_bytes),
         );
         let (cascade, cluster_lights) = self.plan_render_targets(
             &self.cfg.policy.shadow_cascades,
@@ -197,8 +200,14 @@ impl FrameRuntime {
         &self.state
     }
 
-    fn make_base_frame_policy(&mut self, input: &FrameRuntimeInput, policy: &FramePolicy) -> FramePolicyRuntime {
-        let views_per_frame = if !self.cfg.backend.supports_multiview() || !self.cfg.backend.supports_eye_tracking() {
+    fn make_base_frame_policy(
+        &mut self,
+        input: &FrameRuntimeInput,
+        policy: &FramePolicy,
+    ) -> FramePolicyRuntime {
+        let views_per_frame = if !self.cfg.backend.supports_multiview()
+            || !self.cfg.backend.supports_eye_tracking()
+        {
             1
         } else if policy.stereo.views_per_frame == 0 {
             self.default_views_for_mode()
@@ -239,8 +248,8 @@ impl FrameRuntime {
             use_multiview,
             foveation_tier: foveation.tier,
             foveation,
-            budgeted_cluster: policy.clustered_lighting.max_lights_per_cluster,
-            budget_reason: FramePolicyReason::BudgetPressure,
+            _budgeted_cluster: policy.clustered_lighting.max_lights_per_cluster,
+            _budget_reason: FramePolicyReason::BudgetPressure,
         }
     }
 
@@ -256,7 +265,11 @@ impl FrameRuntime {
         }
     }
 
-    fn select_foveation(&mut self, eye_tracking_distance_m: f32, mut foveation: FoveationConfig) -> FoveationConfig {
+    fn select_foveation(
+        &mut self,
+        eye_tracking_distance_m: f32,
+        mut foveation: FoveationConfig,
+    ) -> FoveationConfig {
         let adaptive = if eye_tracking_distance_m <= foveation.max_radius_m {
             FoveationTier::Adaptive
         } else if eye_tracking_distance_m <= foveation.max_radius_m * 1.8 {
@@ -274,7 +287,6 @@ impl FrameRuntime {
                 (FoveationTier::Tier2, FoveationTier::Adaptive) => adaptive,
                 (FoveationTier::Adaptive, FoveationTier::Adaptive) => adaptive,
                 (_, FoveationTier::Off) => self.state.selected_tier,
-                (FoveationTier::Tier1, FoveationTier::Adaptive) => adaptive,
                 (FoveationTier::Adaptive, FoveationTier::Tier1 | FoveationTier::Tier2) => adaptive,
                 _ => adaptive,
             }
@@ -293,7 +305,7 @@ impl FrameRuntime {
     ) -> ([u32; 4], u16) {
         let mut cascades = FrameScheduler::cascade_resolution_budget(
             shadow,
-            (self.cfg.stream_budget_bytes + u32::try_from(gpu_ms as u32).unwrap_or(0)).max(1) as u64,
+            (self.cfg.stream_budget_bytes + (gpu_ms as u32)).max(1) as u64,
         );
         if mode == FrameMode::Safe || estimated_ms > shadow.far_distance_m {
             cascades[3] = cascades[3].max(256);
@@ -308,8 +320,11 @@ impl FrameRuntime {
     }
 
     fn plan_batches(&self, requests: &[BatchRequest]) -> FrameBatchConfig {
-        let mut hints = batch_instances_by_key(requests);
-        let draw_calls = hints.iter().map(|hint| hint.instances.len() as u64).sum::<u64>();
+        let hints = batch_instances_by_key(requests);
+        let draw_calls = hints
+            .iter()
+            .map(|hint| hint.instances.len() as u64)
+            .sum::<u64>();
         let visible = hints.len() as u64;
         FrameBatchConfig {
             active_hints: hints,
@@ -359,8 +374,8 @@ struct FramePolicyRuntime {
     use_multiview: bool,
     foveation_tier: FoveationTier,
     foveation: FoveationConfig,
-    budgeted_cluster: u16,
-    budget_reason: FramePolicyReason,
+    _budgeted_cluster: u16,
+    _budget_reason: FramePolicyReason,
 }
 
 fn budget_reason(current: FramePolicyReason, gpu_ms: f64) -> FramePolicyReason {
@@ -418,7 +433,10 @@ mod tests {
             material_bandwidth_bytes: Some(4_000),
         });
         assert_eq!(out.decision.foveation_tier, FoveationTier::Adaptive);
-        assert!(matches!(out.decision.foveation_tier, FoveationTier::Adaptive));
+        assert!(matches!(
+            out.decision.foveation_tier,
+            FoveationTier::Adaptive
+        ));
         assert_eq!(out.decision.foveation_config.tier, FoveationTier::Adaptive);
         assert_eq!(policy.shadow_cascades.num_cascades > 0, true);
         let _ = policy; // no-op to avoid lint warnings

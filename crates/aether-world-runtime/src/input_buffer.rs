@@ -179,7 +179,10 @@ mod tests {
         let result = buf.submit(make_input(pid, 5));
         assert_eq!(
             result,
-            Err(InputBufferError::DuplicateOrStale { player_id: pid, tick: 5 })
+            Err(InputBufferError::DuplicateOrStale {
+                player_id: pid,
+                tick: 5
+            })
         );
     }
 
@@ -192,7 +195,10 @@ mod tests {
         let result = buf.submit(make_input(pid, 5));
         assert_eq!(
             result,
-            Err(InputBufferError::DuplicateOrStale { player_id: pid, tick: 5 })
+            Err(InputBufferError::DuplicateOrStale {
+                player_id: pid,
+                tick: 5
+            })
         );
     }
 
@@ -233,7 +239,10 @@ mod tests {
 
         // This should evict tick 1 and return overflow error
         let result = buf.submit(make_input(pid, 4));
-        assert_eq!(result, Err(InputBufferError::BufferOverflow { player_id: pid }));
+        assert_eq!(
+            result,
+            Err(InputBufferError::BufferOverflow { player_id: pid })
+        );
 
         // Buffer should have ticks 2, 3, 4
         assert_eq!(buf.buffered_count(&pid), 3);

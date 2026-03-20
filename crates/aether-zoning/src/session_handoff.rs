@@ -69,7 +69,10 @@ pub enum SessionHandoffError {
     /// Session token is too short.
     TokenTooShort,
     /// Player ID mismatch between token and snapshot.
-    PlayerIdMismatch { token_player: u64, snapshot_player: u64 },
+    PlayerIdMismatch {
+        token_player: u64,
+        snapshot_player: u64,
+    },
     /// Snapshot exceeds maximum allowed size.
     SnapshotTooLarge { size: usize, max: usize },
     /// Handoff has timed out.
@@ -203,7 +206,12 @@ mod tests {
     use super::*;
 
     fn make_token(player_id: u64, issued_ms: u64, ttl_ms: u64) -> SessionToken {
-        SessionToken::new(vec![0u8; DEFAULT_SESSION_TOKEN_LENGTH], player_id, issued_ms, ttl_ms)
+        SessionToken::new(
+            vec![0u8; DEFAULT_SESSION_TOKEN_LENGTH],
+            player_id,
+            issued_ms,
+            ttl_ms,
+        )
     }
 
     fn make_snapshot(player_id: u64) -> PlayerStateSnapshot {
@@ -288,7 +296,10 @@ mod tests {
             1,
             0,
         );
-        assert_eq!(envelope.validate(2_000).unwrap_err(), SessionHandoffError::TokenExpired);
+        assert_eq!(
+            envelope.validate(2_000).unwrap_err(),
+            SessionHandoffError::TokenExpired
+        );
     }
 
     // --- Envelope validation: token too short ---

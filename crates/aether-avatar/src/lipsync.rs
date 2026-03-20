@@ -24,4 +24,3 @@ pub struct LipSyncConfig {
     pub mouth_open_threshold: f32,
     pub jitter_filter_ms: u64,
 }
-
