@@ -1,0 +1,13 @@
+[package]
+name = "aether-build"
+version = "0.1.0"
+edition = "2021"
+description = "Build system for Aether VR engine - cross-compilation and APK packaging"
+
+[dependencies]
+aether-platform = { path = "../aether-platform" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

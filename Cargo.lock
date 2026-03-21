@@ -75,9 +75,20 @@ name = "aether-avatar"
 version = "0.1.0"
 
 [[package]]
+name = "aether-build"
+version = "0.1.0"
+dependencies = [
+ "aether-platform",
+ "serde",
+ "tempfile",
+ "toml",
+]
+
+[[package]]
 name = "aether-cli"
 version = "0.1.0"
 dependencies = [
+ "aether-build",
  "chrono",
  "clap",
  "serde",
@@ -192,6 +203,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "aether-openxr"
+version = "0.1.0"
+dependencies = [
+ "aether-input",
+ "log",
+]
+
+[[package]]
 name = "aether-persistence"
 version = "0.1.0"
 dependencies = [
@@ -292,6 +311,7 @@ dependencies = [
  "aether-ecs",
  "aether-input",
  "aether-renderer",
+ "aether-vr-overlay",
  "minifb",
  "serde",
 ]
@@ -303,6 +323,13 @@ dependencies = [
  "aether-input",
  "aether-vr-emulator",
  "minifb",
+]
+
+[[package]]
+name = "aether-vr-overlay"
+version = "0.1.0"
+dependencies = [
+ "aether-input",
 ]
 
 [[package]]
@@ -3808,6 +3835,16 @@ name = "pxfm"
 version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5a041e753da8b807c9255f28de81879c78c876392ff2469cde94799b2896b9d"
+
+[[package]]
+name = "quest-debug"
+version = "0.1.0"
+dependencies = [
+ "aether-input",
+ "aether-openxr",
+ "aether-vr-overlay",
+ "log",
+]
 
 [[package]]
 name = "quick-xml"

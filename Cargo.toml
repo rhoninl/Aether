@@ -27,6 +27,9 @@ members = [
     "crates/aether-trust-safety",
     "crates/aether-gateway",
     "crates/aether-vr-emulator",
+    "crates/aether-vr-overlay",
+    "crates/aether-openxr",
+    "crates/aether-build",
     "crates/aether-cli",
     "crates/aether-multiplayer",
     "crates/aether-world-editor",
@@ -35,4 +38,5 @@ members = [
     "examples/gpu-demo",
     "examples/multiplayer-demo",
     "examples/single-world-demo",
+    "examples/quest-debug",
 ]

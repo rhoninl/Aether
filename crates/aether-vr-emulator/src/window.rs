@@ -91,7 +91,6 @@ pub fn draw_debug_overlay(fb: &mut EmulatorFrameBuffer, info: &DebugOverlayInfo)
     for y in 0..strip_height.min(fb.height) {
         for x in 0..fb.width {
             let idx = y * fb.width + x;
-            // Darken existing pixels
             let c = fb.pixels[idx];
             let r = ((c >> 16) & 0xff) / 3;
             let g = ((c >> 8) & 0xff) / 3;
@@ -125,170 +124,15 @@ pub fn draw_debug_overlay(fb: &mut EmulatorFrameBuffer, info: &DebugOverlayInfo)
     ];
 
     for (i, line) in lines.iter().enumerate() {
-        draw_text_simple(fb, line, 8, 4 + i as i32 * 16, OVERLAY_TEXT_COLOR);
-    }
-}
-
-/// Simple monospace text rendering using a built-in tiny font.
-/// Each character is 5 pixels wide and 7 pixels tall.
-fn draw_text_simple(fb: &mut EmulatorFrameBuffer, text: &str, x: i32, y: i32, color: u32) {
-    let mut cx = x;
-    for ch in text.chars() {
-        draw_char(fb, ch, cx, y, color);
-        cx += 6;
-    }
-}
-
-/// Draw a single character using a minimal bitmap font.
-fn draw_char(fb: &mut EmulatorFrameBuffer, ch: char, x: i32, y: i32, color: u32) {
-    let bitmap = char_bitmap(ch);
-    for (row, &bits) in bitmap.iter().enumerate() {
-        for col in 0..5 {
-            if bits & (1 << (4 - col)) != 0 {
-                fb.set_pixel(x + col, y + row as i32, color);
-            }
-        }
-    }
-}
-
-/// Get a 7-row bitmap for a character (5 bits per row).
-fn char_bitmap(ch: char) -> [u8; 7] {
-    match ch {
-        '0' => [
-            0b01110, 0b10001, 0b10011, 0b10101, 0b11001, 0b10001, 0b01110,
-        ],
-        '1' => [
-            0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110,
-        ],
-        '2' => [
-            0b01110, 0b10001, 0b00001, 0b00110, 0b01000, 0b10000, 0b11111,
-        ],
-        '3' => [
-            0b01110, 0b10001, 0b00001, 0b00110, 0b00001, 0b10001, 0b01110,
-        ],
-        '4' => [
-            0b00010, 0b00110, 0b01010, 0b10010, 0b11111, 0b00010, 0b00010,
-        ],
-        '5' => [
-            0b11111, 0b10000, 0b11110, 0b00001, 0b00001, 0b10001, 0b01110,
-        ],
-        '6' => [
-            0b00110, 0b01000, 0b10000, 0b11110, 0b10001, 0b10001, 0b01110,
-        ],
-        '7' => [
-            0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b01000, 0b01000,
-        ],
-        '8' => [
-            0b01110, 0b10001, 0b10001, 0b01110, 0b10001, 0b10001, 0b01110,
-        ],
-        '9' => [
-            0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100,
-        ],
-        'A' | 'a' => [
-            0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001,
-        ],
-        'B' | 'b' => [
-            0b11110, 0b10001, 0b10001, 0b11110, 0b10001, 0b10001, 0b11110,
-        ],
-        'C' | 'c' => [
-            0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110,
-        ],
-        'D' | 'd' => [
-            0b11110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b11110,
-        ],
-        'E' | 'e' => [
-            0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b11111,
-        ],
-        'F' | 'f' => [
-            0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b10000,
-        ],
-        'G' | 'g' => [
-            0b01110, 0b10001, 0b10000, 0b10111, 0b10001, 0b10001, 0b01110,
-        ],
-        'H' | 'h' => [
-            0b10001, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001,
-        ],
-        'I' | 'i' => [
-            0b01110, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110,
-        ],
-        'J' | 'j' => [
-            0b00111, 0b00010, 0b00010, 0b00010, 0b00010, 0b10010, 0b01100,
-        ],
-        'K' | 'k' => [
-            0b10001, 0b10010, 0b10100, 0b11000, 0b10100, 0b10010, 0b10001,
-        ],
-        'L' | 'l' => [
-            0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111,
-        ],
-        'M' | 'm' => [
-            0b10001, 0b11011, 0b10101, 0b10101, 0b10001, 0b10001, 0b10001,
-        ],
-        'N' | 'n' => [
-            0b10001, 0b11001, 0b10101, 0b10011, 0b10001, 0b10001, 0b10001,
-        ],
-        'O' | 'o' => [
-            0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110,
-        ],
-        'P' | 'p' => [
-            0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000, 0b10000,
-        ],
-        'Q' | 'q' => [
-            0b01110, 0b10001, 0b10001, 0b10001, 0b10101, 0b10010, 0b01101,
-        ],
-        'R' | 'r' => [
-            0b11110, 0b10001, 0b10001, 0b11110, 0b10100, 0b10010, 0b10001,
-        ],
-        'S' | 's' => [
-            0b01110, 0b10001, 0b10000, 0b01110, 0b00001, 0b10001, 0b01110,
-        ],
-        'T' | 't' => [
-            0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100,
-        ],
-        'U' | 'u' => [
-            0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110,
-        ],
-        'V' | 'v' => [
-            0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100,
-        ],
-        'W' | 'w' => [
-            0b10001, 0b10001, 0b10001, 0b10101, 0b10101, 0b11011, 0b10001,
-        ],
-        'X' | 'x' => [
-            0b10001, 0b10001, 0b01010, 0b00100, 0b01010, 0b10001, 0b10001,
-        ],
-        'Y' | 'y' => [
-            0b10001, 0b10001, 0b01010, 0b00100, 0b00100, 0b00100, 0b00100,
-        ],
-        'Z' | 'z' => [
-            0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b10000, 0b11111,
-        ],
-        ' ' => [
-            0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000,
-        ],
-        '.' => [
-            0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00100,
-        ],
-        ':' => [
-            0b00000, 0b00100, 0b00000, 0b00000, 0b00100, 0b00000, 0b00000,
-        ],
-        '-' => [
-            0b00000, 0b00000, 0b00000, 0b11111, 0b00000, 0b00000, 0b00000,
-        ],
-        '(' => [
-            0b00010, 0b00100, 0b01000, 0b01000, 0b01000, 0b00100, 0b00010,
-        ],
-        ')' => [
-            0b01000, 0b00100, 0b00010, 0b00010, 0b00010, 0b00100, 0b01000,
-        ],
-        ',' => [
-            0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00100, 0b01000,
-        ],
-        '#' => [
-            0b01010, 0b01010, 0b11111, 0b01010, 0b11111, 0b01010, 0b01010,
-        ],
-        _ => [
-            0b11111, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b11111,
-        ],
+        aether_vr_overlay::font::draw_text_u32(
+            &mut fb.pixels,
+            fb.width,
+            fb.height,
+            line,
+            8,
+            4 + i as i32 * 16,
+            OVERLAY_TEXT_COLOR,
+        );
     }
 }
 
@@ -472,32 +316,31 @@ mod tests {
         }
     }
 
-    // ---- Character bitmap tests ----
+    // ---- Character bitmap tests (delegated to aether-vr-overlay) ----
 
     #[test]
     fn char_bitmap_space_is_empty() {
-        let bm = char_bitmap(' ');
+        let bm = aether_vr_overlay::font::char_bitmap(' ');
         assert!(bm.iter().all(|&row| row == 0));
     }
 
     #[test]
     fn char_bitmap_a_is_nonempty() {
-        let bm = char_bitmap('A');
+        let bm = aether_vr_overlay::font::char_bitmap('A');
         assert!(bm.iter().any(|&row| row != 0));
     }
 
     #[test]
     fn char_bitmap_digits_nonempty() {
         for digit in '0'..='9' {
-            let bm = char_bitmap(digit);
+            let bm = aether_vr_overlay::font::char_bitmap(digit);
             assert!(bm.iter().any(|&row| row != 0), "digit {digit} is empty");
         }
     }
 
     #[test]
     fn char_bitmap_unknown_char_fallback() {
-        // Unknown chars should get a box/filled fallback
-        let bm = char_bitmap('\u{FFFF}');
+        let bm = aether_vr_overlay::font::char_bitmap('\u{FFFF}');
         assert!(bm.iter().any(|&row| row != 0));
     }
 
@@ -545,11 +388,18 @@ mod tests {
     // ---- Text rendering ----
 
     #[test]
-    fn draw_text_simple_renders_pixels() {
+    fn draw_text_renders_pixels() {
         let mut fb = EmulatorFrameBuffer::new(200, 50);
         fb.clear_color(0x000000);
-        draw_text_simple(&mut fb, "Hello", 10, 10, 0xffffff);
-        // Check that at least some pixels were written
+        aether_vr_overlay::font::draw_text_u32(
+            &mut fb.pixels,
+            fb.width,
+            fb.height,
+            "Hello",
+            10,
+            10,
+            0xffffff,
+        );
         assert!(fb.pixels.iter().any(|&p| p == 0xffffff));
     }
 
@@ -558,7 +408,15 @@ mod tests {
         let mut fb = EmulatorFrameBuffer::new(100, 50);
         fb.clear_color(0x000000);
         let before: Vec<u32> = fb.pixels.clone();
-        draw_text_simple(&mut fb, "", 10, 10, 0xffffff);
+        aether_vr_overlay::font::draw_text_u32(
+            &mut fb.pixels,
+            fb.width,
+            fb.height,
+            "",
+            10,
+            10,
+            0xffffff,
+        );
         assert_eq!(fb.pixels, before);
     }
 

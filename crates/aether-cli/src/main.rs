@@ -47,6 +47,21 @@ enum Commands {
         #[arg(default_value = ".")]
         path: String,
     },
+    /// Build the project for a target platform
+    Build {
+        /// Target platform: desktop (default), quest
+        #[arg(short, long, default_value = "desktop")]
+        target: String,
+        /// Build in release mode
+        #[arg(long)]
+        release: bool,
+        /// Path to the project directory
+        #[arg(default_value = ".")]
+        path: String,
+        /// Install to connected device after build (Quest only)
+        #[arg(long)]
+        install: bool,
+    },
     /// Print version information
     Version,
     /// World management commands
@@ -131,6 +146,12 @@ fn main() {
     let cli = Cli::parse();
 
     let result = match cli.command {
+        Commands::Build {
+            target,
+            release,
+            path,
+            install,
+        } => commands::build::build_project(&path, &target, release, install),
         Commands::Version => {
             commands::version::print_version();
             Ok(())

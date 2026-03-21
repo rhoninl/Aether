@@ -1,0 +1,9 @@
+[package]
+name = "aether-openxr"
+version = "0.1.0"
+edition = "2021"
+description = "OpenXR runtime integration for Aether VR engine"
+
+[dependencies]
+aether-input = { path = "../aether-input" }
+log = "0.4"

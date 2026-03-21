@@ -9,6 +9,7 @@ name = "aether"
 path = "src/main.rs"
 
 [dependencies]
+aether-build = { path = "../aether-build" }
 clap = { version = "4", features = ["derive"] }
 toml = "0.8"
 serde = { version = "1", features = ["derive"] }
