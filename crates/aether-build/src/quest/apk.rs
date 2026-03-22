@@ -106,21 +106,10 @@ fn add_native_lib_to_apk(
         })?;
     }
 
-    // Use zip to add the library to the APK
-    let output = Command::new("zip")
-        .arg("-j0") // store without compression (required for native libs)
-        .arg(apk_path)
-        .arg(&so_dest)
-        .current_dir(build_dir)
-        .output();
-
-    match output {
-        Ok(result) if result.status.success() => return Ok(()),
-        _ => {}
-    }
-
-    // Fallback: use aapt (part of build-tools) to add the file
-    // Re-package by adding the lib directory
+    // Add lib/arm64-v8a/libmain.so to the APK preserving directory structure.
+    // -0 = store without compression (required for native libs on Android).
+    // -g = grow (append to existing zip).
+    // Run from build_dir so the relative path lib/arm64-v8a/libmain.so is preserved.
     let output = Command::new("zip")
         .args(["-r0", "-g"])
         .arg(apk_path)
