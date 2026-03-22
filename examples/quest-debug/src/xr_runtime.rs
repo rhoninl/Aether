@@ -344,7 +344,13 @@ const RTLD_LAZY: i32 = 0x0001;
 type XrInitializeLoaderKHR =
     unsafe extern "system" fn(*const XrLoaderInitInfoAndroidKHR) -> openxr_sys::Result;
 
-/// Matches XrLoaderInitInfoAndroidKHR from the OpenXR spec.
+/// Signature for xrNegotiateLoaderRuntimeInterface.
+type XrNegotiateLoaderRuntimeInterfaceFn = unsafe extern "system" fn(
+    *const XrNegotiateLoaderInfo,
+    *mut XrNegotiateRuntimeRequest,
+) -> openxr_sys::Result;
+
+/// Matches XrLoaderInitInfoAndroidKHR.
 #[repr(C)]
 struct XrLoaderInitInfoAndroidKHR {
     ty: openxr_sys::StructureType,
@@ -353,88 +359,114 @@ struct XrLoaderInitInfoAndroidKHR {
     application_context: *mut std::ffi::c_void,
 }
 
+/// Matches XrNegotiateLoaderInfo.
+#[repr(C)]
+struct XrNegotiateLoaderInfo {
+    ty: u32,
+    struct_version: u32,
+    struct_size: usize,
+    min_interface_version: u32,
+    max_interface_version: u32,
+    min_api_version: u64,
+    max_api_version: u64,
+}
+
+/// Matches XrNegotiateRuntimeRequest.
+#[repr(C)]
+struct XrNegotiateRuntimeRequest {
+    ty: u32,
+    struct_version: u32,
+    struct_size: usize,
+    runtime_interface_version: u32,
+    runtime_api_version: u64,
+    get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr,
+}
+
+const XR_NEGOTIATE_LOADER_INFO_STRUCT_TYPE: u32 = 1;
+const XR_NEGOTIATE_RUNTIME_REQUEST_STRUCT_TYPE: u32 = 2;
+const XR_CURRENT_LOADER_RUNTIME_VERSION: u32 = 1;
+
 /// Load OpenXR on Quest 3.
 ///
-/// Quest uses a two-stage process:
-/// 1. Load libopenxr_forwardloader.so → call xrInitializeLoaderKHR with
-///    the JavaVM and NativeActivity pointers
-/// 2. After init, the real loader (libopenxr_loader.so) becomes accessible
-///    and exports xrGetInstanceProcAddr
+/// 1. dlopen libopenxr_forwardloader.so
+/// 2. Call xrInitializeLoaderKHR with JavaVM + Activity
+/// 3. Call xrNegotiateLoaderRuntimeInterface to get xrGetInstanceProcAddr
 unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
-    // Stage 1: Initialize the loader broker
     log::info!("Loading OpenXR forward loader...");
     let fwd_lib = dlopen(
         b"libopenxr_forwardloader.so\0".as_ptr() as _,
         RTLD_LAZY,
     );
-    if !fwd_lib.is_null() {
-        let init_fn = dlsym(fwd_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);
-        if !init_fn.is_null() {
-            log::info!("Calling xrInitializeLoaderKHR...");
-
-            let vm = ndk_glue::native_activity().vm();
-            let activity = ndk_glue::native_activity().activity();
-
-            let init_info = XrLoaderInitInfoAndroidKHR {
-                ty: openxr_sys::StructureType::from_raw(1000089000),
-                next: std::ptr::null(),
-                application_vm: vm as *mut std::ffi::c_void,
-                application_context: activity as *mut std::ffi::c_void,
-            };
-
-            let xr_init: XrInitializeLoaderKHR = std::mem::transmute(init_fn);
-            let result = xr_init(&init_info);
-            if result == openxr_sys::Result::SUCCESS {
-                log::info!("xrInitializeLoaderKHR succeeded");
-            } else {
-                log::warn!("xrInitializeLoaderKHR returned: {:?}", result);
-            }
-        } else {
-            log::warn!("xrInitializeLoaderKHR not found");
-        }
-
-        // The forward loader might also serve as the negotiate interface.
-        // Try xrNegotiateLoaderRuntimeInterface to get xrGetInstanceProcAddr.
-        let negotiate_fn = dlsym(
-            fwd_lib,
-            b"xrNegotiateLoaderRuntimeInterface\0".as_ptr() as _,
-        );
-        if !negotiate_fn.is_null() {
-            log::info!("Found xrNegotiateLoaderRuntimeInterface, trying negotiate...");
-        }
-    } else {
-        log::warn!("Forward loader not available");
+    if fwd_lib.is_null() {
+        return Err("dlopen libopenxr_forwardloader.so failed".to_string());
     }
 
-    // Stage 2: Try loading the full runtime (should work after init)
-    let loader_names = [
-        "libopenxr_loader.so",
-        "/system_ext/lib64/libopenxr_loader.so",
-    ];
-
-    for name in &loader_names {
-        log::info!("Trying OpenXR loader: {name}");
-        let c_name = std::ffi::CString::new(*name).unwrap();
-        let lib = dlopen(c_name.as_ptr(), RTLD_LAZY);
-        if lib.is_null() {
-            log::warn!("dlopen failed for {name}");
-            continue;
-        }
-
-        let sym = dlsym(lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
-        if sym.is_null() {
-            log::warn!("{name}: xrGetInstanceProcAddr not found");
-            continue;
-        }
-
-        log::info!("OpenXR loaded from {name}");
-        let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
-            std::mem::transmute(sym);
-        return xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
-            .map_err(|e| format!("OpenXR entry init: {e}"));
+    // Step 1: Initialize loader with Android context
+    let init_fn = dlsym(fwd_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);
+    if init_fn.is_null() {
+        return Err("xrInitializeLoaderKHR not found".to_string());
     }
 
-    Err("OpenXR: could not load runtime after initialization".to_string())
+    let vm = ndk_glue::native_activity().vm();
+    let activity = ndk_glue::native_activity().activity();
+    log::info!("Calling xrInitializeLoaderKHR (vm={:?}, activity={:?})", vm, activity);
+
+    let init_info = XrLoaderInitInfoAndroidKHR {
+        ty: openxr_sys::StructureType::from_raw(1000089000),
+        next: std::ptr::null(),
+        application_vm: vm as *mut std::ffi::c_void,
+        application_context: activity as *mut std::ffi::c_void,
+    };
+
+    let xr_init: XrInitializeLoaderKHR = std::mem::transmute(init_fn);
+    let result = xr_init(&init_info);
+    if result != openxr_sys::Result::SUCCESS {
+        return Err(format!("xrInitializeLoaderKHR failed: {:?}", result));
+    }
+    log::info!("xrInitializeLoaderKHR succeeded");
+
+    // Step 2: Negotiate to get xrGetInstanceProcAddr
+    let negotiate_fn = dlsym(
+        fwd_lib,
+        b"xrNegotiateLoaderRuntimeInterface\0".as_ptr() as _,
+    );
+    if negotiate_fn.is_null() {
+        return Err("xrNegotiateLoaderRuntimeInterface not found".to_string());
+    }
+
+    let loader_info = XrNegotiateLoaderInfo {
+        ty: XR_NEGOTIATE_LOADER_INFO_STRUCT_TYPE,
+        struct_version: XR_CURRENT_LOADER_RUNTIME_VERSION,
+        struct_size: std::mem::size_of::<XrNegotiateLoaderInfo>(),
+        min_interface_version: 1,
+        max_interface_version: XR_CURRENT_LOADER_RUNTIME_VERSION,
+        min_api_version: xr::Version::new(1, 0, 0).into_raw(),
+        max_api_version: xr::Version::new(1, 1, 0).into_raw(),
+    };
+
+    let mut runtime_request = XrNegotiateRuntimeRequest {
+        ty: XR_NEGOTIATE_RUNTIME_REQUEST_STRUCT_TYPE,
+        struct_version: XR_CURRENT_LOADER_RUNTIME_VERSION,
+        struct_size: std::mem::size_of::<XrNegotiateRuntimeRequest>(),
+        runtime_interface_version: 0,
+        runtime_api_version: 0,
+        get_instance_proc_addr: std::mem::transmute(0usize),
+    };
+
+    let negotiate: XrNegotiateLoaderRuntimeInterfaceFn = std::mem::transmute(negotiate_fn);
+    let result = negotiate(&loader_info, &mut runtime_request);
+    if result != openxr_sys::Result::SUCCESS {
+        return Err(format!("xrNegotiateLoaderRuntimeInterface failed: {:?}", result));
+    }
+
+    log::info!(
+        "Negotiate succeeded: interface_version={}, api_version={}",
+        runtime_request.runtime_interface_version,
+        runtime_request.runtime_api_version
+    );
+
+    xr::Entry::from_get_instance_proc_addr(runtime_request.get_instance_proc_addr)
+        .map_err(|e| format!("OpenXR entry from negotiate: {e}"))
 }
 
 extern "C" {
