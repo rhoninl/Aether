@@ -37,8 +37,10 @@ aether/
 │   └── Safety ───────── aether-security, aether-trust-safety, aether-compliance,
 │                        aether-content-moderation, aether-deploy, aether-persistence
 ├── examples/
-│   └── 3d-demo ──────── Interactive 3D scene with software renderer
-└── docs/design/ ─────── 62 design documents
+│   ├── 3d-demo ──────── Interactive 3D scene with software renderer
+│   ├── vr-emulator-demo  PC-based VR emulator with stereo rendering
+│   └── quest-debug ───── Quest 3 debug overlay (in-VR metrics panel)
+└── docs/design/ ─────── 64 design documents
 ```
 
 ## Features
@@ -90,6 +92,9 @@ aether/
 | **aether-content-moderation** | Automated scanning (text/image/WASM), human review queue, severity classification, and report system |
 | **aether-compliance** | GDPR data deletion/export, pseudonymization, retention scheduling, and legal hold management |
 | **aether-platform** | Multi-platform client support with capability detection, quality profiles, and platform-specific builds |
+| **aether-build** | Cross-platform build system — Quest 3 APK packaging, Android NDK toolchain, `aether build` CLI command |
+| **aether-openxr** | OpenXR runtime integration — instance, session, swapchain, input actions, frame loop |
+| **aether-vr-overlay** | Platform-agnostic VR debug overlay — bitmap font renderer, real-time metrics panel (FPS, tracking, controllers) |
 | **aether-deploy** | Kubernetes deployment, autoscaling, health probes, failover, and region-aware topology |
 | **aether-persistence** | WAL-backed durable state with PostgreSQL/Redis/NATS backends and ephemeral checkpointing |
 
@@ -116,8 +121,41 @@ aether run 3d-demo       # Launch the 3D demo
 
 ```bash
 cargo build
-cargo test    # 3,074 tests across all crates, 0 failures
+cargo test
 ```
+
+### Quest 3 Development (Optional)
+
+To build and deploy to Meta Quest 3, install the Android SDK command-line tools — **Android Studio is not required**.
+
+**Prerequisites:**
+
+| Tool | Install | Purpose |
+|------|---------|---------|
+| Android SDK command-line tools | `brew install --cask android-commandlinetools` | sdkmanager CLI |
+| SDK build-tools | `sdkmanager "build-tools;34.0.0"` | aapt2, zipalign, apksigner |
+| SDK platform-tools | `sdkmanager "platform-tools"` | adb (device install) |
+| SDK platform | `sdkmanager "platforms;android-32"` | android.jar for manifest |
+| Android NDK | `sdkmanager "ndk;27.0.12077973"` | clang cross-compiler |
+| Rust Android target | `rustup target add aarch64-linux-android` | Cross-compilation |
+| JDK (for debug signing) | `brew install openjdk` | keytool (debug keystore) |
+
+**Environment variables** (add to `~/.zshrc`):
+
+```bash
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.0.12077973"
+```
+
+**Build and deploy:**
+
+```bash
+aether build --target quest              # Build debug APK
+aether build --target quest --release    # Build release APK
+aether build --target quest --install    # Build + install to connected Quest
+```
+
+Output: `target/aether-build/quest/<app-name>-debug.apk`
 
 ### Examples
 
@@ -169,6 +207,16 @@ cargo run -p multiplayer-demo --bin mp-server   # Terminal 1: start server
 cargo run -p multiplayer-demo --bin mp-client   # Terminal 2: connect client
 ```
 
+#### Quest 3 Debug Overlay
+
+Live debug panel rendered inside VR on Meta Quest 3 — shows FPS, head tracking, controller positions, and session state:
+
+```bash
+aether build --target quest --install   # Build APK + deploy to Quest
+```
+
+Toggle the debug panel with the menu button on the left controller. The panel floats 1.5m in front of you as a 0.8m x 0.4m billboard.
+
 #### Single-World Integrated Demo
 
 The Phase 1 milestone demo — ties together GPU rendering, physics, multiplayer networking, visual scripting, and asset hot-reloading through the ECS:
@@ -212,6 +260,8 @@ Design documentation lives in [`docs/design/`](docs/design/) with 62 documents c
 - [x] Networked multiplayer prototype
 - [x] Visual script runtime execution
 - [x] Asset hot-reloading
+- [x] Quest 3 build pipeline (`aether build --target quest`)
+- [x] VR debug overlay (in-headset metrics panel)
 - [ ] First public release
 
 ## Contributing
