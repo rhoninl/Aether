@@ -28,8 +28,10 @@ pub fn run_headless(config: OverlayConfig) -> Result<(), String> {
 }
 
 /// NativeActivity entry point for Android/Quest.
+/// The `ndk_glue::main` macro generates `ANativeActivity_onCreate` which
+/// Android's NativeActivity loader calls when starting the app.
 #[cfg(target_os = "android")]
-#[no_mangle]
+#[ndk_glue::main()]
 pub fn android_main() {
     android_logger::init_once(
         android_logger::Config::default()
