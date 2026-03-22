@@ -391,7 +391,37 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
         log::warn!("Forward loader not available, continuing without init");
     }
 
-    // Step 2: Get xrGetInstanceProcAddr via negotiate on the forward loader.
+    // Step 2: Set runtime manifest path so the bundled loader can find the runtime
+    log::info!("Step 2: Setting XR_RUNTIME_JSON and loading OpenXR...");
+    std::env::set_var(
+        "XR_RUNTIME_JSON",
+        "/odm/etc/openxr/1/active_runtime.aarch64.json",
+    );
+
+    // Try using the bundled libopenxr_loader.so (system loader) now that
+    // both the init and the runtime manifest env var are set
+    match xr::Entry::load() {
+        Ok(entry) => {
+            log::info!("Entry::load() succeeded after setting XR_RUNTIME_JSON");
+            match entry.enumerate_extensions() {
+                Ok(exts) => {
+                    log::info!("enumerate_extensions OK: GLES={}", exts.khr_opengl_es_enable);
+                    return Ok(entry);
+                }
+                Err(e) => {
+                    log::warn!("enumerate_extensions still failed: {e}");
+                }
+            }
+            // Try create_instance directly even if enumerate failed
+            log::info!("Trying create_instance directly...");
+            return Ok(entry);
+        }
+        Err(e) => {
+            log::warn!("Entry::load() failed after env var: {e}");
+        }
+    }
+
+    // Step 3: Fallback — negotiate with forward loader for xrGetInstanceProcAddr
     // The forward loader connects to the Quest runtime after init.
     log::info!("Step 2: Negotiating with forward loader for xrGetInstanceProcAddr...");
     let negotiate_fn = dlsym(
