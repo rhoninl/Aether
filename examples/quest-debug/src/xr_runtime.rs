@@ -343,7 +343,11 @@ const RTLD_LAZY: i32 = 0x0001;
 /// Load OpenXR entry using RTLD_LAZY to handle the Quest forward loader's
 /// unresolved symbols (they're resolved at runtime by the XR broker).
 unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
-    let loader_names = ["libopenxr_forwardloader.so", "libopenxr_loader.so"];
+    let loader_names = [
+        "/system_ext/lib64/libopenxr_loader.so",
+        "libopenxr_loader.so",
+        "libopenxr_forwardloader.so",
+    ];
 
     for name in &loader_names {
         log::info!("Trying OpenXR loader: {name} (RTLD_LAZY)");
