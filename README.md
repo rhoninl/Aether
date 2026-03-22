@@ -143,7 +143,10 @@ To build and deploy to Meta Quest 3, install the Android SDK command-line tools 
 **Environment variables** (add to `~/.zshrc`):
 
 ```bash
-export ANDROID_HOME="$HOME/Library/Android/sdk"
+# If installed via Homebrew:
+export ANDROID_HOME="/opt/homebrew/share/android-commandlinetools"
+# If installed via Android Studio:
+# export ANDROID_HOME="$HOME/Library/Android/sdk"
 export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.0.12077973"
 ```
 
