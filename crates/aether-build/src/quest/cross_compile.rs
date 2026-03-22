@@ -13,7 +13,12 @@ pub fn compile(config: &BuildConfig, toolchain: &AndroidToolchain) -> Result<Pat
     let mut cmd = Command::new("cargo");
     cmd.arg("build");
     cmd.args(["--target", QUEST_RUST_TARGET]);
-    cmd.arg("--lib");
+
+    if let Some(pkg) = &config.package {
+        cmd.args(["-p", pkg]);
+    } else {
+        cmd.arg("--lib");
+    }
 
     if config.profile == BuildProfile::Release {
         cmd.arg("--release");

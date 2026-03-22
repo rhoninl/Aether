@@ -64,6 +64,8 @@ impl fmt::Display for BuildProfile {
     }
 }
 
+const DEFAULT_QUEST_PACKAGE: &str = "quest-debug";
+
 /// Configuration for a build invocation.
 #[derive(Debug, Clone)]
 pub struct BuildConfig {
@@ -71,21 +73,31 @@ pub struct BuildConfig {
     pub profile: BuildProfile,
     pub project_dir: PathBuf,
     pub app_name: String,
+    pub package: Option<String>,
     pub install_after_build: bool,
 }
 
 impl BuildConfig {
     pub fn new(project_dir: PathBuf, target: BuildTarget, profile: BuildProfile) -> Self {
-        let app_name = project_dir
-            .file_name()
-            .and_then(|n| n.to_str())
-            .unwrap_or("aether-app")
+        let package = match target {
+            BuildTarget::Quest => Some(DEFAULT_QUEST_PACKAGE.to_string()),
+            BuildTarget::Desktop => None,
+        };
+        let app_name = package
+            .as_deref()
+            .unwrap_or_else(|| {
+                project_dir
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .unwrap_or("aether-app")
+            })
             .to_string();
         Self {
             target,
             profile,
             project_dir,
             app_name,
+            package,
             install_after_build: false,
         }
     }
