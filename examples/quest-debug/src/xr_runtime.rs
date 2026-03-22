@@ -27,13 +27,31 @@ const GL_TEXTURE_2D: u32 = 0x0DE1;
 /// Run the real OpenXR render loop on Quest.
 pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
     // Load OpenXR runtime.
-    // On Quest, the runtime is "libopenxr_forwardloader.so" (not the standard loader name).
-    // Try the Quest-specific name first, then fall back to the standard name.
-    let entry = unsafe {
-        xr::Entry::load_from(std::path::Path::new("libopenxr_forwardloader.so"))
-            .or_else(|_| xr::Entry::load())
-            .map_err(|e| format!("OpenXR load: {e}"))?
-    };
+    // On Quest 3, the runtime is provided by the VrDriver APEX module.
+    // Try multiple known paths where Meta places the OpenXR loader.
+    let loader_paths = [
+        "libopenxr_forwardloader.so",
+        "/apex/com.meta.xr/priv-app/VrDriver/VrDriver.apk!/lib/arm64-v8a/libopenxr_forwardloader.so",
+        "libopenxr_loader.so",
+    ];
+
+    let mut entry_result = Err(String::new());
+    for path in &loader_paths {
+        log::info!("Trying OpenXR loader: {path}");
+        match unsafe { xr::Entry::load_from(std::path::Path::new(path)) } {
+            Ok(entry) => {
+                log::info!("OpenXR loaded from: {path}");
+                entry_result = Ok(entry);
+                break;
+            }
+            Err(e) => {
+                log::warn!("Failed to load {path}: {e}");
+            }
+        }
+    }
+    let entry = entry_result.map_err(|_| {
+        "OpenXR load: could not find OpenXR runtime. Tried: libopenxr_forwardloader.so, libopenxr_loader.so".to_string()
+    })?;
 
     // Create instance with GLES extension
     let app_info = xr::ApplicationInfo {

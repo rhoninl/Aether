@@ -62,6 +62,9 @@ pub fn generate_manifest_xml(
     <application
         android:hasCode="false"
         android:label="{app_name}">
+        <meta-data
+            android:name="com.oculus.supportedDevices"
+            android:value="quest3|questpro|quest2" />
         <activity
             android:name="android.app.NativeActivity"
             android:configChanges="density|keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|uiMode"
