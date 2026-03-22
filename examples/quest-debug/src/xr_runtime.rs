@@ -26,8 +26,14 @@ const GL_TEXTURE_2D: u32 = 0x0DE1;
 
 /// Run the real OpenXR render loop on Quest.
 pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
-    // Load OpenXR runtime
-    let entry = unsafe { xr::Entry::load().map_err(|e| format!("OpenXR load: {e}"))? };
+    // Load OpenXR runtime.
+    // On Quest, the runtime is "libopenxr_forwardloader.so" (not the standard loader name).
+    // Try the Quest-specific name first, then fall back to the standard name.
+    let entry = unsafe {
+        xr::Entry::load_from(std::path::Path::new("libopenxr_forwardloader.so"))
+            .or_else(|_| xr::Entry::load())
+            .map_err(|e| format!("OpenXR load: {e}"))?
+    };
 
     // Create instance with GLES extension
     let app_info = xr::ApplicationInfo {
