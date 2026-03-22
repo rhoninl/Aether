@@ -388,12 +388,25 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
         log::warn!("Forward loader not available, continuing without init");
     }
 
-    // Step 2: Load the bundled OpenXR loader
-    log::info!("Step 2: Loading bundled libopenxr_loader.so...");
+    // Step 2: Now use Entry::load() — after init, the standard loader path works.
+    // The openxr crate will dlopen("libopenxr_loader.so") which finds our bundled copy.
+    log::info!("Step 2: Creating OpenXR Entry via standard loader...");
+    match xr::Entry::load() {
+        Ok(entry) => {
+            log::info!("OpenXR Entry created via Entry::load()");
+            return Ok(entry);
+        }
+        Err(e) => {
+            log::warn!("Entry::load() failed: {e}, trying manual approach...");
+        }
+    }
+
+    // Step 3: Fallback — manually dlopen and get xrGetInstanceProcAddr
+    log::info!("Step 3: Manual dlopen fallback...");
     let mut loader_lib = dlopen(b"libopenxr_loader.so\0".as_ptr() as _, RTLD_LAZY);
 
+    // If bare name fails, find via /proc/self/maps
     if loader_lib.is_null() {
-        // Fallback: find via /proc/self/maps
         if let Ok(maps) = std::fs::read_to_string("/proc/self/maps") {
             for line in maps.lines() {
                 if line.contains("libmain.so") {
@@ -414,17 +427,15 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     }
 
     if loader_lib.is_null() {
-        return Err("dlopen libopenxr_loader.so failed".to_string());
+        return Err("All dlopen attempts for libopenxr_loader.so failed".to_string());
     }
-    log::info!("libopenxr_loader.so loaded");
 
-    // Step 3: Get xrGetInstanceProcAddr
     let gipa = dlsym(loader_lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
     if gipa.is_null() {
         return Err("xrGetInstanceProcAddr not found".to_string());
     }
 
-    log::info!("Creating OpenXR Entry...");
+    log::info!("Creating Entry from manual xrGetInstanceProcAddr...");
     let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
         std::mem::transmute(gipa);
     xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
