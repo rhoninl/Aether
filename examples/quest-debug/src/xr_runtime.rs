@@ -425,7 +425,35 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     }
     log::info!("xrInitializeLoaderKHR succeeded");
 
-    // Step 2: Negotiate to get xrGetInstanceProcAddr
+    // Step 2a: After init, try getting xrGetInstanceProcAddr directly
+    // (the loader init may make it resolvable now)
+    let direct_sym = dlsym(fwd_lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
+    if !direct_sym.is_null() {
+        log::info!("xrGetInstanceProcAddr found directly after init!");
+        let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
+            std::mem::transmute(direct_sym);
+        return xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
+            .map_err(|e| format!("OpenXR entry: {e}"));
+    }
+    log::info!("xrGetInstanceProcAddr not directly available after init");
+
+    // Step 2b: Try dlopen the system loader again (init may have changed namespace)
+    for name in ["libopenxr_loader.so", "/system_ext/lib64/libopenxr_loader.so"] {
+        let c_name = std::ffi::CString::new(name).unwrap();
+        let lib = dlopen(c_name.as_ptr(), RTLD_LAZY);
+        if !lib.is_null() {
+            let sym = dlsym(lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
+            if !sym.is_null() {
+                log::info!("OpenXR loaded from {name} (post-init)");
+                let gipa: openxr_sys::pfn::GetInstanceProcAddr = std::mem::transmute(sym);
+                return xr::Entry::from_get_instance_proc_addr(gipa)
+                    .map_err(|e| format!("OpenXR entry: {e}"));
+            }
+        }
+        log::info!("{name}: still not accessible");
+    }
+
+    // Step 2c: Negotiate to get xrGetInstanceProcAddr
     let negotiate_fn = dlsym(
         fwd_lib,
         b"xrNegotiateLoaderRuntimeInterface\0".as_ptr() as _,
@@ -452,6 +480,12 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
         runtime_api_version: 0,
         get_instance_proc_addr: std::mem::transmute(0usize),
     };
+
+    log::info!(
+        "Negotiate: loader_info size={}, runtime_request size={}",
+        std::mem::size_of::<XrNegotiateLoaderInfo>(),
+        std::mem::size_of::<XrNegotiateRuntimeRequest>(),
+    );
 
     let negotiate: XrNegotiateLoaderRuntimeInterfaceFn = std::mem::transmute(negotiate_fn);
     let result = negotiate(&loader_info, &mut runtime_request);
