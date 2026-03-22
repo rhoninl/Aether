@@ -355,41 +355,55 @@ struct XrLoaderInitInfoAndroidKHR {
 
 /// Load OpenXR on Quest 3.
 ///
-/// Quest apps bundle libopenxr_loader.so in their APK. The flow:
-/// 1. Load the bundled loader (found via app's native lib path)
-/// 2. Call xrInitializeLoaderKHR with JavaVM + Activity
-/// 3. Use the loader's xrGetInstanceProcAddr for the openxr Entry
+/// Quest requires a two-library approach:
+/// 1. libopenxr_forwardloader.so (system) → xrInitializeLoaderKHR
+/// 2. libopenxr_loader.so (bundled in APK) → xrGetInstanceProcAddr
 unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
-    // Step 1: Load the bundled OpenXR loader from our APK's lib directory
-    log::info!("Loading bundled libopenxr_loader.so...");
+    // Step 1: Initialize the Quest XR broker via the forward loader
+    log::info!("Step 1: Loading forward loader for xrInitializeLoaderKHR...");
+    let fwd_lib = dlopen(b"libopenxr_forwardloader.so\0".as_ptr() as _, RTLD_LAZY);
+    if !fwd_lib.is_null() {
+        let init_fn = dlsym(fwd_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);
+        if !init_fn.is_null() {
+            let vm = ndk_glue::native_activity().vm();
+            let activity = ndk_glue::native_activity().activity();
+            log::info!("Calling xrInitializeLoaderKHR...");
 
-    // Try bare name first (Android should find it in app's nativeLibraryDir)
+            let init_info = XrLoaderInitInfoAndroidKHR {
+                ty: openxr_sys::StructureType::from_raw(1000089000),
+                next: std::ptr::null(),
+                application_vm: vm as *mut std::ffi::c_void,
+                application_context: activity as *mut std::ffi::c_void,
+            };
+
+            let xr_init: XrInitializeLoaderKHR = std::mem::transmute(init_fn);
+            let result = xr_init(&init_info);
+            if result == openxr_sys::Result::SUCCESS {
+                log::info!("xrInitializeLoaderKHR succeeded");
+            } else {
+                log::warn!("xrInitializeLoaderKHR returned: {:?}", result);
+            }
+        }
+    } else {
+        log::warn!("Forward loader not available, continuing without init");
+    }
+
+    // Step 2: Load the bundled OpenXR loader
+    log::info!("Step 2: Loading bundled libopenxr_loader.so...");
     let mut loader_lib = dlopen(b"libopenxr_loader.so\0".as_ptr() as _, RTLD_LAZY);
 
     if loader_lib.is_null() {
-        // Log the dlerror for diagnostics
-        let err = dlerror();
-        if !err.is_null() {
-            let msg = std::ffi::CStr::from_ptr(err).to_string_lossy();
-            log::warn!("dlopen bare name failed: {msg}");
-        }
-
-        // Get the app's source dir to find the native lib directory
-        // ANativeActivity doesn't expose nativeLibraryDir, but we know the pattern:
-        // /data/app/~~<hash>/<pkg>-<hash>/lib/arm64/
-        // We can find it by reading /proc/self/maps for our own libmain.so
-        log::info!("Searching /proc/self/maps for libmain.so path...");
+        // Fallback: find via /proc/self/maps
         if let Ok(maps) = std::fs::read_to_string("/proc/self/maps") {
             for line in maps.lines() {
                 if line.contains("libmain.so") {
                     if let Some(path) = line.rsplit_once(' ').map(|(_, p)| p) {
-                        // path is like /data/app/.../lib/arm64/libmain.so
                         if let Some(dir) = path.rsplit_once('/').map(|(d, _)| d) {
-                            let loader_path = format!("{}/libopenxr_loader.so", dir);
-                            log::info!("Trying: {loader_path}");
-                            let c_path = std::ffi::CString::new(loader_path).unwrap();
-                            loader_lib = dlopen(c_path.as_ptr(), RTLD_LAZY);
+                            let p = format!("{dir}/libopenxr_loader.so");
+                            let c = std::ffi::CString::new(p.clone()).unwrap();
+                            loader_lib = dlopen(c.as_ptr(), RTLD_LAZY);
                             if !loader_lib.is_null() {
+                                log::info!("Loaded from: {p}");
                                 break;
                             }
                         }
@@ -400,50 +414,21 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     }
 
     if loader_lib.is_null() {
-        return Err(
-            "dlopen libopenxr_loader.so failed. \
-             Ensure libopenxr_loader.so is in examples/quest-debug/prebuilt/arm64-v8a/"
-                .to_string(),
-        );
+        return Err("dlopen libopenxr_loader.so failed".to_string());
     }
-    log::info!("libopenxr_loader.so loaded successfully");
+    log::info!("libopenxr_loader.so loaded");
 
-    // Step 2: Initialize with Android context
-    let init_fn = dlsym(loader_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);
-    if !init_fn.is_null() {
-        let vm = ndk_glue::native_activity().vm();
-        let activity = ndk_glue::native_activity().activity();
-        log::info!("Calling xrInitializeLoaderKHR...");
-
-        let init_info = XrLoaderInitInfoAndroidKHR {
-            ty: openxr_sys::StructureType::from_raw(1000089000),
-            next: std::ptr::null(),
-            application_vm: vm as *mut std::ffi::c_void,
-            application_context: activity as *mut std::ffi::c_void,
-        };
-
-        let xr_init: XrInitializeLoaderKHR = std::mem::transmute(init_fn);
-        let result = xr_init(&init_info);
-        if result != openxr_sys::Result::SUCCESS {
-            log::warn!("xrInitializeLoaderKHR returned: {:?}", result);
-        } else {
-            log::info!("xrInitializeLoaderKHR succeeded");
-        }
-    } else {
-        log::info!("xrInitializeLoaderKHR not in loader (non-Android loader?)");
+    // Step 3: Get xrGetInstanceProcAddr
+    let gipa = dlsym(loader_lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
+    if gipa.is_null() {
+        return Err("xrGetInstanceProcAddr not found".to_string());
     }
 
-    // Step 3: Get xrGetInstanceProcAddr from the loader
-    let gipa_sym = dlsym(loader_lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
-    if gipa_sym.is_null() {
-        return Err("xrGetInstanceProcAddr not found in libopenxr_loader.so".to_string());
-    }
-
-    log::info!("xrGetInstanceProcAddr found, creating Entry");
+    log::info!("Creating OpenXR Entry...");
     let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
-        std::mem::transmute(gipa_sym);
+        std::mem::transmute(gipa);
     xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
-        .map_err(|e| format!("OpenXR Entry creation failed: {e}"))
+        .map_err(|e| format!("OpenXR Entry failed: {e}"))
 }
 
 extern "C" {
