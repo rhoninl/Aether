@@ -391,58 +391,101 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
         log::warn!("Forward loader not available, continuing without init");
     }
 
-    // Step 2: Now use Entry::load() — after init, the standard loader path works.
-    // The openxr crate will dlopen("libopenxr_loader.so") which finds our bundled copy.
-    log::info!("Step 2: Creating OpenXR Entry via standard loader...");
-    match xr::Entry::load() {
-        Ok(entry) => {
-            log::info!("OpenXR Entry created via Entry::load()");
-            return Ok(entry);
-        }
-        Err(e) => {
-            log::warn!("Entry::load() failed: {e}, trying manual approach...");
-        }
+    // Step 2: Get xrGetInstanceProcAddr via negotiate on the forward loader.
+    // The forward loader connects to the Quest runtime after init.
+    log::info!("Step 2: Negotiating with forward loader for xrGetInstanceProcAddr...");
+    let negotiate_fn = dlsym(
+        fwd_lib,
+        b"xrNegotiateLoaderRuntimeInterface\0".as_ptr() as _,
+    );
+    if negotiate_fn.is_null() {
+        return Err("xrNegotiateLoaderRuntimeInterface not found".to_string());
     }
 
-    // Step 3: Fallback — manually dlopen and get xrGetInstanceProcAddr
-    log::info!("Step 3: Manual dlopen fallback...");
-    let mut loader_lib = dlopen(b"libopenxr_loader.so\0".as_ptr() as _, RTLD_LAZY);
-
-    // If bare name fails, find via /proc/self/maps
-    if loader_lib.is_null() {
-        if let Ok(maps) = std::fs::read_to_string("/proc/self/maps") {
-            for line in maps.lines() {
-                if line.contains("libmain.so") {
-                    if let Some(path) = line.rsplit_once(' ').map(|(_, p)| p) {
-                        if let Some(dir) = path.rsplit_once('/').map(|(d, _)| d) {
-                            let p = format!("{dir}/libopenxr_loader.so");
-                            let c = std::ffi::CString::new(p.clone()).unwrap();
-                            loader_lib = dlopen(c.as_ptr(), RTLD_LAZY);
-                            if !loader_lib.is_null() {
-                                log::info!("Loaded from: {p}");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    #[repr(C)]
+    struct NegotiateLoaderInfo {
+        struct_type: u32,
+        struct_version: u32,
+        struct_size: usize,
+        min_interface_version: u32,
+        max_interface_version: u32,
+        min_api_version: u64,
+        max_api_version: u64,
     }
 
-    if loader_lib.is_null() {
-        return Err("All dlopen attempts for libopenxr_loader.so failed".to_string());
+    #[repr(C)]
+    struct NegotiateRuntimeRequest {
+        struct_type: u32,
+        struct_version: u32,
+        struct_size: usize,
+        runtime_interface_version: u32,
+        _pad: u32,
+        runtime_api_version: u64,
+        get_instance_proc_addr: usize, // raw fn pointer
     }
 
-    let gipa = dlsym(loader_lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
-    if gipa.is_null() {
-        return Err("xrGetInstanceProcAddr not found".to_string());
+    type NegotiateFn = unsafe extern "system" fn(
+        *const NegotiateLoaderInfo,
+        *mut NegotiateRuntimeRequest,
+    ) -> openxr_sys::Result;
+
+    let loader_info = NegotiateLoaderInfo {
+        struct_type: 1,  // XR_LOADER_INTERFACE_STRUCT_LOADER_INFO
+        struct_version: 1,
+        struct_size: std::mem::size_of::<NegotiateLoaderInfo>(),
+        min_interface_version: 1,
+        max_interface_version: 1,
+        min_api_version: xr::Version::new(1, 0, 0).into_raw(),
+        max_api_version: xr::Version::new(1, 1, 0).into_raw(),
+    };
+
+    let mut runtime_req = NegotiateRuntimeRequest {
+        struct_type: 3,  // XR_LOADER_INTERFACE_STRUCT_RUNTIME_REQUEST
+        struct_version: 1,
+        struct_size: std::mem::size_of::<NegotiateRuntimeRequest>(),
+        runtime_interface_version: 0,
+        _pad: 0,
+        runtime_api_version: 0,
+        get_instance_proc_addr: 0,
+    };
+
+    log::info!(
+        "Negotiate structs: loader_info={} bytes, runtime_req={} bytes",
+        std::mem::size_of::<NegotiateLoaderInfo>(),
+        std::mem::size_of::<NegotiateRuntimeRequest>(),
+    );
+
+    let negotiate: NegotiateFn = std::mem::transmute(negotiate_fn);
+    let result = negotiate(&loader_info, &mut runtime_req);
+
+    if result != openxr_sys::Result::SUCCESS {
+        log::error!("Negotiate failed: {:?}", result);
+        log::error!(
+            "runtime_req after fail: type={}, ver={}, size={}, iface_ver={}, api_ver={}, gipa=0x{:x}",
+            runtime_req.struct_type,
+            runtime_req.struct_version,
+            runtime_req.struct_size,
+            runtime_req.runtime_interface_version,
+            runtime_req.runtime_api_version,
+            runtime_req.get_instance_proc_addr,
+        );
+        return Err(format!("xrNegotiateLoaderRuntimeInterface: {:?}", result));
     }
 
-    log::info!("Creating Entry from manual xrGetInstanceProcAddr...");
-    let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
-        std::mem::transmute(gipa);
-    xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
-        .map_err(|e| format!("OpenXR Entry failed: {e}"))
+    if runtime_req.get_instance_proc_addr == 0 {
+        return Err("Negotiate succeeded but xrGetInstanceProcAddr is null".to_string());
+    }
+
+    log::info!(
+        "Negotiate OK: iface_ver={}, api_ver={:#x}",
+        runtime_req.runtime_interface_version,
+        runtime_req.runtime_api_version,
+    );
+
+    let gipa: openxr_sys::pfn::GetInstanceProcAddr =
+        std::mem::transmute(runtime_req.get_instance_proc_addr);
+    xr::Entry::from_get_instance_proc_addr(gipa)
+        .map_err(|e| format!("Entry from negotiate: {e}"))
 }
 
 extern "C" {
