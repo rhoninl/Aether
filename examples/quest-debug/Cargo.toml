@@ -5,6 +5,7 @@ edition = "2021"
 description = "Quest 3 debug overlay demo - renders real-time metrics in VR"
 
 [lib]
+name = "main"
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -12,3 +13,7 @@ aether-vr-overlay = { path = "../../crates/aether-vr-overlay" }
 aether-openxr = { path = "../../crates/aether-openxr" }
 aether-input = { path = "../../crates/aether-input" }
 log = "0.4"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.14"
+ndk-glue = "0.7"

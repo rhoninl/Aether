@@ -1,12 +1,15 @@
 //! Quest 3 debug overlay demo.
 //!
-//! This is a minimal VR application that renders a debug overlay panel
-//! showing real-time tracking and performance data in VR space.
+//! Minimal VR application that renders a debug overlay panel
+//! showing real-time tracking and performance data inside VR.
 //!
-//! On Quest 3, it runs as a NativeActivity with OpenXR + GLES.
-//! On desktop, it can be tested headlessly.
+//! On Quest 3: runs as NativeActivity, renders overlay via GLES.
+//! On desktop: testable headlessly via `run_debug_overlay()`.
 
 pub mod overlay_quad;
+
+#[cfg(target_os = "android")]
+use android_logger;
 
 use aether_openxr::frame_loop;
 use aether_openxr::input_actions::XrInputActions;
@@ -17,14 +20,14 @@ use aether_vr_overlay::layout::DebugOverlayData;
 use aether_vr_overlay::panel::OverlayPanel;
 use aether_vr_overlay::OverlayConfig;
 
-const TARGET_FRAME_TIME_MS: f32 = 1000.0 / 120.0; // 120 Hz for Quest 3
+const TARGET_FRAME_TIME_MS: f32 = 1000.0 / 120.0;
+const MAX_HEADLESS_FRAMES: u64 = 10;
 
 /// Run the VR debug overlay loop.
 ///
-/// This is the main entry point called from `android_main` on Quest
-/// or from tests on desktop.
-pub fn run_debug_overlay(config: OverlayConfig) -> Result<(), String> {
-    // Initialize OpenXR
+/// On Quest this runs until the session ends.
+/// In tests (headless) it runs for `MAX_HEADLESS_FRAMES` frames.
+pub fn run_debug_overlay(config: OverlayConfig, headless: bool) -> Result<(), String> {
     let xr_instance =
         XrInstance::new(InstanceConfig::default()).map_err(|e| format!("XR init: {e}"))?;
 
@@ -38,24 +41,28 @@ pub fn run_debug_overlay(config: OverlayConfig) -> Result<(), String> {
     let mut input_actions = XrInputActions::new();
     let mut overlay = OverlayPanel::from_config(&config);
 
-    log::info!("Quest debug overlay initialized");
+    log::info!("Quest debug overlay initialized (headless={})", headless);
 
-    // Simulate a few frames (on real Quest, this would be the render loop)
     session.transition_to(XrSessionState::Ready);
     session.transition_to(XrSessionState::Focused);
 
     let mut frame_count: u64 = 0;
 
-    while session.is_active() && frame_count < 10 {
+    loop {
+        if !session.is_active() {
+            break;
+        }
+        if headless && frame_count >= MAX_HEADLESS_FRAMES {
+            break;
+        }
+
         let frame_state = frame_loop::wait_frame(&session).map_err(|e| format!("wait: {e}"))?;
 
         frame_loop::begin_frame(&session).map_err(|e| format!("begin: {e}"))?;
 
         if frame_state.should_render {
-            // Get tracking data
             let snapshot = input_actions.sync_and_snapshot(frame_state.predicted_display_time_ns);
 
-            // Build overlay data
             let overlay_data = DebugOverlayData::from_snapshot(
                 &snapshot,
                 1000.0 / TARGET_FRAME_TIME_MS,
@@ -64,13 +71,11 @@ pub fn run_debug_overlay(config: OverlayConfig) -> Result<(), String> {
                 frame_count,
             );
 
-            // Render overlay to RGBA buffer
             overlay.render(&overlay_data);
 
-            // Per-eye rendering (on real Quest: bind swapchain FBO, render scene + overlay quad)
             for swapchain in [&mut left_swapchain, &mut right_swapchain] {
                 let _image_idx = swapchain.acquire().map_err(|e| format!("acquire: {e}"))?;
-                // In production: glBindFramebuffer, render scene, render overlay quad
+                // TODO: GLES rendering — bind FBO, draw scene + overlay quad, present
                 swapchain.release().map_err(|e| format!("release: {e}"))?;
             }
         }
@@ -85,17 +90,25 @@ pub fn run_debug_overlay(config: OverlayConfig) -> Result<(), String> {
     Ok(())
 }
 
-/// Entry point for Android NativeActivity.
+/// NativeActivity entry point for Android/Quest.
 ///
-/// When the `android_activity` crate is available, this becomes the real entry point.
-/// For now, it's a placeholder that can be called from tests.
+/// `ndk_glue::main` provides the `ANativeActivity_onCreate` export that
+/// Android's NativeActivity looks for when loading the .so.
 #[cfg(target_os = "android")]
 #[no_mangle]
-pub extern "C" fn android_main() {
-    // android_logger::init_once(...);
+pub fn android_main() {
+    android_logger::init_once(
+        android_logger::Config::default()
+            .with_max_level(log::LevelFilter::Info)
+            .with_tag("AetherVR"),
+    );
+
+    log::info!("Aether Quest Debug starting...");
+
     let config = OverlayConfig::from_env();
-    if let Err(e) = run_debug_overlay(config) {
-        log::error!("Fatal: {e}");
+    match run_debug_overlay(config, false) {
+        Ok(()) => log::info!("Aether Quest Debug exited normally"),
+        Err(e) => log::error!("Aether Quest Debug fatal error: {e}"),
     }
 }
 
@@ -105,8 +118,7 @@ mod tests {
 
     #[test]
     fn run_debug_overlay_completes() {
-        let config = OverlayConfig::default();
-        let result = run_debug_overlay(config);
+        let result = run_debug_overlay(OverlayConfig::default(), true);
         assert!(result.is_ok());
     }
 
@@ -118,7 +130,7 @@ mod tests {
             text_scale: 1,
             initially_visible: true,
         };
-        let result = run_debug_overlay(config);
+        let result = run_debug_overlay(config, true);
         assert!(result.is_ok());
     }
 
@@ -128,7 +140,7 @@ mod tests {
             initially_visible: false,
             ..OverlayConfig::default()
         };
-        let result = run_debug_overlay(config);
+        let result = run_debug_overlay(config, true);
         assert!(result.is_ok());
     }
 }
