@@ -41,16 +41,19 @@ pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
         api_version: xr::Version::new(1, 0, 0),
     };
 
-    let extensions = entry
-        .enumerate_extensions()
-        .map_err(|e| format!("enumerate extensions: {e}"))?;
-    log::info!(
-        "OpenXR extensions: GLES={}",
-        extensions.khr_opengl_es_enable
-    );
-
+    // Try enumerate_extensions, but Quest's loader may fail here.
+    // If so, proceed with known Quest extensions.
     let mut enabled_extensions = xr::ExtensionSet::default();
     enabled_extensions.khr_opengl_es_enable = true;
+
+    match entry.enumerate_extensions() {
+        Ok(extensions) => {
+            log::info!("OpenXR extensions: GLES={}", extensions.khr_opengl_es_enable);
+        }
+        Err(e) => {
+            log::warn!("enumerate_extensions failed ({e}), using known Quest extensions");
+        }
+    }
 
     let instance = entry
         .create_instance(&app_info, &enabled_extensions, &[])
