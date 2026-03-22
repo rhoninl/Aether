@@ -340,17 +340,80 @@ unsafe fn load_sym<T>(lib: *mut std::ffi::c_void, name: &[u8]) -> Result<T, Stri
 
 const RTLD_LAZY: i32 = 0x0001;
 
-/// Load OpenXR entry using RTLD_LAZY to handle the Quest forward loader's
-/// unresolved symbols (they're resolved at runtime by the XR broker).
+/// Signature for xrInitializeLoaderKHR.
+type XrInitializeLoaderKHR =
+    unsafe extern "system" fn(*const XrLoaderInitInfoAndroidKHR) -> openxr_sys::Result;
+
+/// Matches XrLoaderInitInfoAndroidKHR from the OpenXR spec.
+#[repr(C)]
+struct XrLoaderInitInfoAndroidKHR {
+    ty: openxr_sys::StructureType,
+    next: *const std::ffi::c_void,
+    application_vm: *mut std::ffi::c_void,
+    application_context: *mut std::ffi::c_void,
+}
+
+/// Load OpenXR on Quest 3.
+///
+/// Quest uses a two-stage process:
+/// 1. Load libopenxr_forwardloader.so → call xrInitializeLoaderKHR with
+///    the JavaVM and NativeActivity pointers
+/// 2. After init, the real loader (libopenxr_loader.so) becomes accessible
+///    and exports xrGetInstanceProcAddr
 unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
+    // Stage 1: Initialize the loader broker
+    log::info!("Loading OpenXR forward loader...");
+    let fwd_lib = dlopen(
+        b"libopenxr_forwardloader.so\0".as_ptr() as _,
+        RTLD_LAZY,
+    );
+    if !fwd_lib.is_null() {
+        let init_fn = dlsym(fwd_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);
+        if !init_fn.is_null() {
+            log::info!("Calling xrInitializeLoaderKHR...");
+
+            let vm = ndk_glue::native_activity().vm();
+            let activity = ndk_glue::native_activity().activity();
+
+            let init_info = XrLoaderInitInfoAndroidKHR {
+                ty: openxr_sys::StructureType::from_raw(1000089000),
+                next: std::ptr::null(),
+                application_vm: vm as *mut std::ffi::c_void,
+                application_context: activity as *mut std::ffi::c_void,
+            };
+
+            let xr_init: XrInitializeLoaderKHR = std::mem::transmute(init_fn);
+            let result = xr_init(&init_info);
+            if result == openxr_sys::Result::SUCCESS {
+                log::info!("xrInitializeLoaderKHR succeeded");
+            } else {
+                log::warn!("xrInitializeLoaderKHR returned: {:?}", result);
+            }
+        } else {
+            log::warn!("xrInitializeLoaderKHR not found");
+        }
+
+        // The forward loader might also serve as the negotiate interface.
+        // Try xrNegotiateLoaderRuntimeInterface to get xrGetInstanceProcAddr.
+        let negotiate_fn = dlsym(
+            fwd_lib,
+            b"xrNegotiateLoaderRuntimeInterface\0".as_ptr() as _,
+        );
+        if !negotiate_fn.is_null() {
+            log::info!("Found xrNegotiateLoaderRuntimeInterface, trying negotiate...");
+        }
+    } else {
+        log::warn!("Forward loader not available");
+    }
+
+    // Stage 2: Try loading the full runtime (should work after init)
     let loader_names = [
-        "/system_ext/lib64/libopenxr_loader.so",
         "libopenxr_loader.so",
-        "libopenxr_forwardloader.so",
+        "/system_ext/lib64/libopenxr_loader.so",
     ];
 
     for name in &loader_names {
-        log::info!("Trying OpenXR loader: {name} (RTLD_LAZY)");
+        log::info!("Trying OpenXR loader: {name}");
         let c_name = std::ffi::CString::new(*name).unwrap();
         let lib = dlopen(c_name.as_ptr(), RTLD_LAZY);
         if lib.is_null() {
@@ -365,15 +428,13 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
         }
 
         log::info!("OpenXR loaded from {name}");
-        let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr = std::mem::transmute(sym);
+        let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr =
+            std::mem::transmute(sym);
         return xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
             .map_err(|e| format!("OpenXR entry init: {e}"));
     }
 
-    Err(
-        "OpenXR: no loader found (tried libopenxr_forwardloader.so, libopenxr_loader.so)"
-            .to_string(),
-    )
+    Err("OpenXR: could not load runtime after initialization".to_string())
 }
 
 extern "C" {
