@@ -10,9 +10,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 aether-vr-overlay = { path = "../../crates/aether-vr-overlay" }
-aether-openxr = { path = "../../crates/aether-openxr" }
 aether-input = { path = "../../crates/aether-input" }
 log = "0.4"
+openxr = { version = "0.19", features = ["loaded"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "0.14"
