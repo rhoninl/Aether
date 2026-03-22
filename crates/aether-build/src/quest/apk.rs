@@ -29,8 +29,12 @@ pub fn package(
     let unsigned_apk = build_dir.join(UNSIGNED_APK_NAME);
     run_aapt2_link(toolchain, manifest_path, &unsigned_apk)?;
 
-    // Step 2: Add the native library to the APK
+    // Step 2: Add native libraries to the APK
     add_native_lib_to_apk(&unsigned_apk, so_path, &build_dir)?;
+
+    // Step 2b: Bundle prebuilt libraries (e.g., libopenxr_loader.so)
+    copy_prebuilt_libs(&config.project_dir, &build_dir)?;
+    add_prebuilt_libs_to_apk(&unsigned_apk, &build_dir)?;
 
     // Step 3: zipalign
     let aligned_apk = build_dir.join(ALIGNED_APK_NAME);
@@ -126,6 +130,99 @@ fn add_native_lib_to_apk(
             step: "add native library".to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),
         });
+    }
+
+    Ok(())
+}
+
+/// Copy prebuilt .so files (like libopenxr_loader.so) into the build directory.
+fn copy_prebuilt_libs(project_dir: &Path, build_dir: &Path) -> Result<(), BuildError> {
+    // Look for prebuilt libs in examples/quest-debug/prebuilt/arm64-v8a/
+    // and also in the project's prebuilt/ directory
+    let search_dirs = [
+        project_dir.join("prebuilt").join(crate::config::QUEST_ABI),
+        project_dir
+            .join("examples/quest-debug/prebuilt")
+            .join(crate::config::QUEST_ABI),
+    ];
+
+    let dest_dir = build_dir.join("lib").join(crate::config::QUEST_ABI);
+
+    for dir in &search_dirs {
+        if !dir.is_dir() {
+            continue;
+        }
+        let entries = fs::read_dir(dir).map_err(|e| BuildError::IoError {
+            context: format!("reading prebuilt dir {}", dir.display()),
+            source: e,
+        })?;
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) == Some("so") {
+                let filename = entry.file_name();
+                let dest = dest_dir.join(&filename);
+                if !dest.exists() {
+                    println!(
+                        "  Bundling prebuilt: {}",
+                        filename.to_string_lossy()
+                    );
+                    fs::copy(&path, &dest).map_err(|e| BuildError::IoError {
+                        context: format!("copying prebuilt {}", filename.to_string_lossy()),
+                        source: e,
+                    })?;
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Add any additional prebuilt .so files to the APK.
+fn add_prebuilt_libs_to_apk(apk_path: &Path, build_dir: &Path) -> Result<(), BuildError> {
+    let lib_dir = build_dir.join("lib").join(crate::config::QUEST_ABI);
+    if !lib_dir.is_dir() {
+        return Ok(());
+    }
+
+    let entries: Vec<_> = fs::read_dir(&lib_dir)
+        .map_err(|e| BuildError::IoError {
+            context: "reading lib dir".to_string(),
+            source: e,
+        })?
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            e.path().extension().and_then(|x| x.to_str()) == Some("so")
+                && e.file_name() != "libmain.so" // already added
+        })
+        .collect();
+
+    if entries.is_empty() {
+        return Ok(());
+    }
+
+    // Add each .so to the APK
+    for entry in &entries {
+        let relative = PathBuf::from("lib")
+            .join(crate::config::QUEST_ABI)
+            .join(entry.file_name());
+        let output = Command::new("zip")
+            .args(["-r0", "-g"])
+            .arg(apk_path)
+            .arg(relative.to_string_lossy().as_ref())
+            .current_dir(build_dir)
+            .output()
+            .map_err(|e| BuildError::ApkPackagingFailed {
+                step: "add prebuilt library".to_string(),
+                stderr: format!("failed to run zip: {e}"),
+            })?;
+
+        if !output.status.success() {
+            return Err(BuildError::ApkPackagingFailed {
+                step: "add prebuilt library".to_string(),
+                stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+            });
+        }
     }
 
     Ok(())

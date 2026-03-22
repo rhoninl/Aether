@@ -45,3 +45,4 @@ Thumbs.db
 # Build outputs for macOS/Linux/Windows tooling
 *.dSYM/
 *.pyc
+examples/quest-debug/prebuilt/
