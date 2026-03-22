@@ -362,16 +362,51 @@ struct XrLoaderInitInfoAndroidKHR {
 unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     // Step 1: Load the bundled OpenXR loader from our APK's lib directory
     log::info!("Loading bundled libopenxr_loader.so...");
-    let loader_lib = dlopen(b"libopenxr_loader.so\0".as_ptr() as _, RTLD_LAZY);
+
+    // Try bare name first (works if extractNativeLibs=true and lib path is set)
+    let mut loader_lib = dlopen(b"libopenxr_loader.so\0".as_ptr() as _, RTLD_LAZY);
+
+    // If that fails, try the app's native library directory
     if loader_lib.is_null() {
+        log::info!("Bare dlopen failed, trying nativeLibraryDir...");
+        let activity = ndk_glue::native_activity();
+        let native_lib_dir = std::ffi::CStr::from_ptr(
+            (*activity.ptr().as_ptr()).internalDataPath
+        )
+        .to_string_lossy();
+
+        // nativeLibraryDir is typically /data/app/.../lib/arm64/
+        // internalDataPath is /data/data/pkg/files, so derive lib path from package dir
+        let pkg_base = native_lib_dir
+            .rsplit_once("/files")
+            .map(|(base, _)| base.to_string())
+            .unwrap_or_else(|| native_lib_dir.to_string());
+
+        // Try common paths
+        for subdir in ["lib/arm64", "lib/arm64-v8a", "lib"] {
+            let full = format!("{}/{}/libopenxr_loader.so", pkg_base, subdir);
+            log::info!("Trying: {full}");
+            let c_path = std::ffi::CString::new(full).unwrap();
+            loader_lib = dlopen(c_path.as_ptr(), RTLD_LAZY);
+            if !loader_lib.is_null() {
+                break;
+            }
+        }
+    }
+
+    if loader_lib.is_null() {
+        // Last resort: try the extracted APK path directly
+        let apk_lib = format!(
+            "/data/app/~~*/com.aether.quest_debug-*/lib/arm64/libopenxr_loader.so"
+        );
+        log::warn!("All dlopen attempts failed. Check: {apk_lib}");
         return Err(
             "dlopen libopenxr_loader.so failed. \
-             Ensure libopenxr_loader.so is bundled in the APK \
-             (place it in examples/quest-debug/prebuilt/arm64-v8a/)"
+             Ensure libopenxr_loader.so is bundled in the APK"
                 .to_string(),
         );
     }
-    log::info!("libopenxr_loader.so loaded");
+    log::info!("libopenxr_loader.so loaded successfully");
 
     // Step 2: Initialize with Android context
     let init_fn = dlsym(loader_lib, b"xrInitializeLoaderKHR\0".as_ptr() as _);

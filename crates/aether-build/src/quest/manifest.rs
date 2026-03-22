@@ -61,6 +61,7 @@ pub fn generate_manifest_xml(
 
     <application
         android:hasCode="false"
+        android:extractNativeLibs="true"
         android:label="{app_name}">
         <meta-data
             android:name="com.oculus.supportedDevices"
