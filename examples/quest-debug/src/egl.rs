@@ -28,8 +28,7 @@ const EGL_TRUE: i32 = 1;
 type EglGetDisplay = unsafe extern "C" fn(usize) -> usize;
 type EglInitialize = unsafe extern "C" fn(usize, *mut i32, *mut i32) -> i32;
 type EglChooseConfig = unsafe extern "C" fn(usize, *const i32, *mut usize, i32, *mut i32) -> i32;
-type EglCreateContext =
-    unsafe extern "C" fn(usize, usize, usize, *const i32) -> usize;
+type EglCreateContext = unsafe extern "C" fn(usize, usize, usize, *const i32) -> usize;
 
 /// Initialize EGL for OpenXR on Android.
 ///
@@ -91,12 +90,7 @@ pub fn init_egl() -> Result<EglContext, String> {
 
         // Create context
         let context_attribs = [EGL_CONTEXT_MAJOR_VERSION, 3, EGL_NONE];
-        let context = create_context(
-            display,
-            config,
-            EGL_NO_CONTEXT,
-            context_attribs.as_ptr(),
-        );
+        let context = create_context(display, config, EGL_NO_CONTEXT, context_attribs.as_ptr());
         if context == 0 {
             return Err("eglCreateContext failed".to_string());
         }
@@ -124,8 +118,10 @@ unsafe fn load_fn<T>(lib: *mut std::ffi::c_void, name: &[u8]) -> Result<T, Strin
 
 extern "C" {
     fn dlopen(filename: *const std::ffi::c_char, flags: i32) -> *mut std::ffi::c_void;
-    fn dlsym(handle: *mut std::ffi::c_void, symbol: *const std::ffi::c_char)
-        -> *mut std::ffi::c_void;
+    fn dlsym(
+        handle: *mut std::ffi::c_void,
+        symbol: *const std::ffi::c_char,
+    ) -> *mut std::ffi::c_void;
 }
 
 #[cfg(test)]

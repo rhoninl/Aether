@@ -27,31 +27,10 @@ const GL_TEXTURE_2D: u32 = 0x0DE1;
 /// Run the real OpenXR render loop on Quest.
 pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
     // Load OpenXR runtime.
-    // On Quest 3, the runtime is provided by the VrDriver APEX module.
-    // Try multiple known paths where Meta places the OpenXR loader.
-    let loader_paths = [
-        "libopenxr_forwardloader.so",
-        "/apex/com.meta.xr/priv-app/VrDriver/VrDriver.apk!/lib/arm64-v8a/libopenxr_forwardloader.so",
-        "libopenxr_loader.so",
-    ];
-
-    let mut entry_result = Err(String::new());
-    for path in &loader_paths {
-        log::info!("Trying OpenXR loader: {path}");
-        match unsafe { xr::Entry::load_from(std::path::Path::new(path)) } {
-            Ok(entry) => {
-                log::info!("OpenXR loaded from: {path}");
-                entry_result = Ok(entry);
-                break;
-            }
-            Err(e) => {
-                log::warn!("Failed to load {path}: {e}");
-            }
-        }
-    }
-    let entry = entry_result.map_err(|_| {
-        "OpenXR load: could not find OpenXR runtime. Tried: libopenxr_forwardloader.so, libopenxr_loader.so".to_string()
-    })?;
+    // On Quest 3, libopenxr_forwardloader.so has lazy symbol resolution —
+    // the openxr crate's Entry::load_from uses RTLD_NOW which fails.
+    // We manually dlopen with RTLD_LAZY and extract xrGetInstanceProcAddr.
+    let entry = unsafe { load_openxr_entry()? };
 
     // Create instance with GLES extension
     let app_info = xr::ApplicationInfo {
@@ -65,7 +44,10 @@ pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
     let extensions = entry
         .enumerate_extensions()
         .map_err(|e| format!("enumerate extensions: {e}"))?;
-    log::info!("OpenXR extensions: GLES={}", extensions.khr_opengl_es_enable);
+    log::info!(
+        "OpenXR extensions: GLES={}",
+        extensions.khr_opengl_es_enable
+    );
 
     let mut enabled_extensions = xr::ExtensionSet::default();
     enabled_extensions.khr_opengl_es_enable = true;
@@ -183,15 +165,16 @@ pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
     while running {
         // Poll events
         let mut buf = xr::EventDataBuffer::new();
-        while let Some(event) = instance.poll_event(&mut buf).map_err(|e| format!("poll: {e}"))? {
+        while let Some(event) = instance
+            .poll_event(&mut buf)
+            .map_err(|e| format!("poll: {e}"))?
+        {
             match event {
                 xr::Event::SessionStateChanged(ev) => {
                     log::info!("Session state: {:?}", ev.state());
                     match ev.state() {
                         xr::SessionState::STOPPING => {
-                            session
-                                .end()
-                                .map_err(|e| format!("end session: {e}"))?;
+                            session.end().map_err(|e| format!("end session: {e}"))?;
                             running = false;
                         }
                         xr::SessionState::EXITING | xr::SessionState::LOSS_PENDING => {
@@ -353,6 +336,40 @@ unsafe fn load_sym<T>(lib: *mut std::ffi::c_void, name: &[u8]) -> Result<T, Stri
         ));
     }
     Ok(std::mem::transmute_copy(&sym))
+}
+
+const RTLD_LAZY: i32 = 0x0001;
+
+/// Load OpenXR entry using RTLD_LAZY to handle the Quest forward loader's
+/// unresolved symbols (they're resolved at runtime by the XR broker).
+unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
+    let loader_names = ["libopenxr_forwardloader.so", "libopenxr_loader.so"];
+
+    for name in &loader_names {
+        log::info!("Trying OpenXR loader: {name} (RTLD_LAZY)");
+        let c_name = std::ffi::CString::new(*name).unwrap();
+        let lib = dlopen(c_name.as_ptr(), RTLD_LAZY);
+        if lib.is_null() {
+            log::warn!("dlopen failed for {name}");
+            continue;
+        }
+
+        let sym = dlsym(lib, b"xrGetInstanceProcAddr\0".as_ptr() as _);
+        if sym.is_null() {
+            log::warn!("{name}: xrGetInstanceProcAddr not found");
+            continue;
+        }
+
+        log::info!("OpenXR loaded from {name}");
+        let get_instance_proc_addr: openxr_sys::pfn::GetInstanceProcAddr = std::mem::transmute(sym);
+        return xr::Entry::from_get_instance_proc_addr(get_instance_proc_addr)
+            .map_err(|e| format!("OpenXR entry init: {e}"));
+    }
+
+    Err(
+        "OpenXR: no loader found (tried libopenxr_forwardloader.so, libopenxr_loader.so)"
+            .to_string(),
+    )
 }
 
 extern "C" {
