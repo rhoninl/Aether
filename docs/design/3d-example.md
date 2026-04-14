@@ -2,7 +2,7 @@
 
 ## Background
 
-The VREngine (Aether) is a modular VR engine with ECS, physics, renderer, input, and world runtime subsystems. There is currently no runnable example that demonstrates how these systems integrate together.
+Aether is a modular VR engine with ECS, physics, renderer, input, and world runtime subsystems. This document describes the `examples/3d-demo` binary, which demonstrates how these systems integrate end-to-end.
 
 ## Why
 

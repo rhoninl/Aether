@@ -162,10 +162,7 @@ fn copy_prebuilt_libs(project_dir: &Path, build_dir: &Path) -> Result<(), BuildE
                 let filename = entry.file_name();
                 let dest = dest_dir.join(&filename);
                 if !dest.exists() {
-                    println!(
-                        "  Bundling prebuilt: {}",
-                        filename.to_string_lossy()
-                    );
+                    println!("  Bundling prebuilt: {}", filename.to_string_lossy());
                     fs::copy(&path, &dest).map_err(|e| BuildError::IoError {
                         context: format!("copying prebuilt {}", filename.to_string_lossy()),
                         source: e,

@@ -18,29 +18,37 @@ A modular, open-source VR engine built in Rust for creating immersive virtual wo
 Building virtual worlds today means stitching together dozens of disparate libraries, dealing with C++ interop, and fighting runtime crashes. Aether takes a different approach:
 
 - **Rust-native from day one** — Memory safety, fearless concurrency, and zero-cost abstractions without sacrificing performance.
-- **Modular by design** — 26 crates, each a self-contained subsystem. Use only what you need, swap out what you don't.
+- **Modular by design** — 32 crates, each a self-contained subsystem. Use only what you need, swap out what you don't.
 - **Built for multiplayer** — Networking, state synchronization, and server-side validation are first-class citizens.
 - **Social VR focus** — Avatars, social graphs, economies, and user-generated content are part of the core engine, not plugins.
 
 ## Architecture
 
-Aether is organized as a Rust workspace with 26 crates spanning six domains:
+Aether is organized as a Rust workspace with 32 crates spanning seven domains:
 
 ```
 aether/
 ├── crates/
-│   ├── Core Engine ──── aether-ecs, aether-physics, aether-renderer, aether-audio, aether-input
-│   ├── Scripting ────── aether-scripting
-│   ├── World ────────── aether-world-runtime, aether-network, aether-zoning, aether-federation
-│   ├── Social ───────── aether-avatar, aether-social, aether-economy, aether-ugc
-│   ├── Platform ─────── aether-gateway, aether-registry, aether-asset-pipeline, aether-platform
-│   └── Safety ───────── aether-security, aether-trust-safety, aether-compliance,
-│                        aether-content-moderation, aether-deploy, aether-persistence
+│   ├── Core Engine ──── aether-ecs, aether-physics, aether-renderer, aether-audio,
+│   │                    aether-input
+│   ├── Scripting ────── aether-scripting, aether-creator-studio, aether-world-editor
+│   ├── World ────────── aether-world-runtime, aether-network, aether-zoning,
+│   │                    aether-federation, aether-multiplayer
+│   ├── Social ───────── aether-avatar, aether-social, aether-economy, aether-ugc,
+│   │                    aether-asset-pipeline
+│   ├── Platform ─────── aether-gateway, aether-registry, aether-platform, aether-build,
+│   │                    aether-openxr, aether-vr-overlay, aether-vr-emulator, aether-cli
+│   ├── Safety ───────── aether-security, aether-trust-safety, aether-compliance,
+│   │                    aether-content-moderation
+│   └── Infrastructure ─ aether-deploy, aether-persistence
 ├── examples/
-│   ├── 3d-demo ──────── Interactive 3D scene with software renderer
-│   ├── vr-emulator-demo  PC-based VR emulator with stereo rendering
-│   └── quest-debug ───── Quest 3 debug overlay (in-VR metrics panel)
-└── docs/design/ ─────── 64 design documents
+│   ├── 3d-demo ──────────── Interactive 3D scene with software renderer
+│   ├── gpu-demo ─────────── PBR scene rendered with wgpu (shadows, MSAA)
+│   ├── multiplayer-demo ─── Server-authoritative multiplayer over QUIC
+│   ├── single-world-demo ── Phase 1 integrated demo (render + physics + ECS)
+│   ├── vr-emulator-demo ─── PC-based VR emulator with stereo rendering
+│   └── quest-debug ──────── Quest 3 debug overlay (in-VR metrics panel)
+└── docs/design/ ─────────── 77 design documents
 ```
 
 ## Features
@@ -61,6 +69,7 @@ aether/
 |-------|-------------|
 | **aether-scripting** | WASM script runtime with per-script resource caps, rate limiting, priority scheduling, and world-level orchestration |
 | **aether-creator-studio** | Creator tools: terrain/prop/lighting editors, undo/redo, and a visual scripting editor with node graph, type system, validation, and IR compiler |
+| **aether-world-editor** | In-world editor state, edit modes, project/version tracking — edit 2D and 3D worlds from within VR |
 
 ### World & Networking
 
@@ -70,6 +79,7 @@ aether/
 | **aether-network** | QUIC transport, delta compression, interest management, voice channels, client-side prediction, and server reconciliation |
 | **aether-zoning** | Spatial load balancing with zone split/merge, cross-zone ghost entities, portal system with aether:// URLs, and session handoff |
 | **aether-federation** | Cross-instance interoperability with handshake protocol, server registry, asset transfer, and federated auth |
+| **aether-multiplayer** | Multiplayer prototype integrating QUIC transport with world runtime — server, client, avatar sync, and protocol definitions |
 
 ### Social & Economy
 
@@ -95,6 +105,8 @@ aether/
 | **aether-build** | Cross-platform build system — Quest 3 APK packaging, Android NDK toolchain, `aether build` CLI command |
 | **aether-openxr** | OpenXR runtime integration — instance, session, swapchain, input actions, frame loop |
 | **aether-vr-overlay** | Platform-agnostic VR debug overlay — bitmap font renderer, real-time metrics panel (FPS, tracking, controllers) |
+| **aether-vr-emulator** | PC-based VR emulator — window, display, head tracking, and controller emulation for development without a headset |
+| **aether-cli** | `aether` CLI binary — run demos, build targets, and manage projects without a Rust toolchain |
 | **aether-deploy** | Kubernetes deployment, autoscaling, health probes, failover, and region-aware topology |
 | **aether-persistence** | WAL-backed durable state with PostgreSQL/Redis/NATS backends and ephemeral checkpointing |
 
@@ -182,17 +194,6 @@ cargo run -p aether-3d-demo   # from source
 | `Q` / `E` | Zoom in / out |
 | `ESC` | Quit |
 
-#### Visual Scripting Editor
-
-A web-based node editor for building game logic visually:
-
-```bash
-aether run visual-editor                    # using pre-built binary
-cargo run -p aether-visual-scripting-demo   # from source
-```
-
-The visual editor supports 33 node types across 6 categories (events, flow control, actions, math, logic, variables), type-safe connections, graph validation, cycle detection, and compilation to an IR instruction set. Drag nodes from the sidebar, connect ports, and click Compile to see the generated output.
-
 #### GPU Rendering Demo
 
 PBR scene rendered with wgpu (shadows, MSAA, metallic-roughness materials):
@@ -237,7 +238,7 @@ cargo run -p single-world-demo
 
 ## Documentation
 
-Design documentation lives in [`docs/design/`](docs/design/) with 62 documents covering architecture decisions, data models, and implementation plans for every subsystem. Key documents:
+Design documentation lives in [`docs/design/`](docs/design/) with 77 documents covering architecture decisions, data models, and implementation plans for every subsystem. Key documents:
 
 - [ECS Core Architecture](docs/design/ecs-core-architecture.md)
 - [Visual Scripting Editor](docs/design/visual-scripting-editor.md)

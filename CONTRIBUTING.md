@@ -7,8 +7,8 @@ Thank you for your interest in contributing to Aether! This document provides gu
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/VREngine.git
-   cd VREngine
+   git clone https://github.com/<your-username>/Aether.git
+   cd Aether
    ```
 3. Create a feature branch:
    ```bash

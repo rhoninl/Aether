@@ -48,7 +48,10 @@ pub fn run_xr_loop(egl: &EglContext) -> Result<(), String> {
 
     match entry.enumerate_extensions() {
         Ok(extensions) => {
-            log::info!("OpenXR extensions: GLES={}", extensions.khr_opengl_es_enable);
+            log::info!(
+                "OpenXR extensions: GLES={}",
+                extensions.khr_opengl_es_enable
+            );
         }
         Err(e) => {
             log::warn!("enumerate_extensions failed ({e}), using known Quest extensions");
@@ -405,7 +408,10 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
             log::info!("Entry::load() succeeded after setting XR_RUNTIME_JSON");
             match entry.enumerate_extensions() {
                 Ok(exts) => {
-                    log::info!("enumerate_extensions OK: GLES={}", exts.khr_opengl_es_enable);
+                    log::info!(
+                        "enumerate_extensions OK: GLES={}",
+                        exts.khr_opengl_es_enable
+                    );
                     return Ok(entry);
                 }
                 Err(e) => {
@@ -460,7 +466,7 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     ) -> openxr_sys::Result;
 
     let loader_info = NegotiateLoaderInfo {
-        struct_type: 1,  // XR_LOADER_INTERFACE_STRUCT_LOADER_INFO
+        struct_type: 1, // XR_LOADER_INTERFACE_STRUCT_LOADER_INFO
         struct_version: 1,
         struct_size: std::mem::size_of::<NegotiateLoaderInfo>(),
         min_interface_version: 1,
@@ -470,7 +476,7 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
     };
 
     let mut runtime_req = NegotiateRuntimeRequest {
-        struct_type: 3,  // XR_LOADER_INTERFACE_STRUCT_RUNTIME_REQUEST
+        struct_type: 3, // XR_LOADER_INTERFACE_STRUCT_RUNTIME_REQUEST
         struct_version: 1,
         struct_size: std::mem::size_of::<NegotiateRuntimeRequest>(),
         runtime_interface_version: 0,
@@ -514,8 +520,7 @@ unsafe fn load_openxr_entry() -> Result<xr::Entry, String> {
 
     let gipa: openxr_sys::pfn::GetInstanceProcAddr =
         std::mem::transmute(runtime_req.get_instance_proc_addr);
-    xr::Entry::from_get_instance_proc_addr(gipa)
-        .map_err(|e| format!("Entry from negotiate: {e}"))
+    xr::Entry::from_get_instance_proc_addr(gipa).map_err(|e| format!("Entry from negotiate: {e}"))
 }
 
 extern "C" {
