@@ -1,6 +1,7 @@
 pub mod archetype;
 pub mod component;
 pub mod entity;
+pub mod game_loop;
 pub mod network;
 pub mod query;
 pub mod schedule;
@@ -11,6 +12,7 @@ pub mod world;
 pub use archetype::{ArchetypeId, ArchetypeStorage};
 pub use component::{Component, ComponentId, ComponentRegistry, ReplicationMode};
 pub use entity::Entity;
+pub use game_loop::{FixedTimestepRunner, DEFAULT_MAX_SUBSTEPS, DEFAULT_TICK_HZ};
 pub use network::{Authority, NetworkIdentity};
 pub use query::AccessDescriptor;
 pub use schedule::{
