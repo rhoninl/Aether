@@ -134,9 +134,9 @@ pub fn generate_cube_vertices(size: f32) -> (Vec<Vertex>, Vec<u32>) {
     // Face definitions: (normal, tangent_u, tangent_v)
     let faces: [([f32; 3], [f32; 3], [f32; 3]); 6] = [
         // +Y (top)
-        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]),
+        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]),
         // -Y (bottom)
-        ([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]),
+        ([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]),
         // +X (right)
         ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]),
         // -X (left)
@@ -456,6 +456,41 @@ mod tests {
             for p in &v.position {
                 assert!(p.abs() <= 2.0 + 1e-5);
             }
+        }
+    }
+
+    #[test]
+    fn cube_face_winding_matches_outward_normal() {
+        let (verts, indices) = generate_cube_vertices(1.0);
+        // Each face has 4 vertices and 2 triangles (6 indices).
+        // Check first triangle of each face: cross product of edges
+        // must point in the same direction as the face normal.
+        for face in 0..6 {
+            let base = face * 6; // 6 indices per face
+            let i0 = indices[base] as usize;
+            let i1 = indices[base + 1] as usize;
+            let i2 = indices[base + 2] as usize;
+
+            let v0 = verts[i0].position;
+            let v1 = verts[i1].position;
+            let v2 = verts[i2].position;
+            let normal = verts[i0].normal;
+
+            let e1 = [v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]];
+            let e2 = [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]];
+            let cross = [
+                e1[1] * e2[2] - e1[2] * e2[1],
+                e1[2] * e2[0] - e1[0] * e2[2],
+                e1[0] * e2[1] - e1[1] * e2[0],
+            ];
+
+            let dot = cross[0] * normal[0] + cross[1] * normal[1] + cross[2] * normal[2];
+            assert!(
+                dot > 0.0,
+                "face {face}: winding cross product ({:?}) does not match normal ({:?})",
+                cross,
+                normal
+            );
         }
     }
 
