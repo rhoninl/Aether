@@ -143,6 +143,8 @@ version = "0.1.0"
 dependencies = [
  "minifb",
  "rayon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -257,6 +259,10 @@ dependencies = [
  "log",
  "wgpu",
 ]
+
+[[package]]
+name = "aether-renderer-soft"
+version = "0.1.0"
 
 [[package]]
 name = "aether-scripting"

@@ -19,6 +19,7 @@ pub mod skeleton_eval;
 pub mod skinning;
 pub mod state_machine;
 pub mod tracking;
+pub mod tween;
 pub mod viseme;
 
 pub use animation::{
@@ -64,4 +65,5 @@ pub use skinning::{
 };
 pub use state_machine::{AnimationOutput, AnimationStateMachine};
 pub use tracking::{IkConfiguration, IkPoint, TrackingFrame, TrackingSource};
+pub use tween::{Easing, Lerp, Tween, TweenTrack};
 pub use viseme::{VisemeEvaluator, VisemeWeights};

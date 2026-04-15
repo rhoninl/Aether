@@ -4,8 +4,15 @@ version = "0.1.0"
 edition = "2021"
 description = "Archetype-based Entity Component System for the Aether VR engine"
 
+[features]
+default = []
+test-harness = []
+serde = ["dep:serde", "dep:serde_json"]
+
 [dependencies]
 rayon = "1.10"
+serde = { version = "1", features = ["derive"], optional = true }
+serde_json = { version = "1", optional = true }
 
 [dev-dependencies]
 minifb = "0.28"

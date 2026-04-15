@@ -4,6 +4,7 @@ pub mod capture;
 pub mod channel;
 pub mod codec;
 pub mod device;
+pub mod ecs_bridge;
 pub mod hrtf;
 pub mod loader;
 pub mod opus;
@@ -21,6 +22,10 @@ pub use channel::{
 };
 pub use codec::{AudioCodec, CodecEncodeError, StubCodec};
 pub use device::{AudioDeviceManager, DeviceConfig, DeviceError, DeviceInfo};
+pub use ecs_bridge::{
+    play_sound, play_sound_at_transform, play_sound_looped, play_sound_with_volume, SoundHandle,
+    SoundRequest, Transform3, DEFAULT_VOLUME, MAX_VOLUME, MIN_VOLUME,
+};
 pub use hrtf::{HrtfProfile, HrtfSample};
 pub use loader::{AudioAsset, LoadError};
 pub use opus::{BitRateKbps, CodecError, OpusConfig, OpusPacket};
