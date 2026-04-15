@@ -34,5 +34,6 @@ members = [
     "crates/aether-cli",
     "crates/aether-multiplayer",
     "crates/aether-world-editor",
+    "examples/gpu-demo",
     "examples/single-world-demo",
 ]

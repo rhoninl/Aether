@@ -150,6 +150,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "aether-gpu-demo"
+version = "0.1.0"
+dependencies = [
+ "aether-renderer",
+ "bytemuck",
+ "env_logger",
+ "log",
+ "pollster",
+ "wgpu",
+ "winit",
+]
+
+[[package]]
 name = "aether-input"
 version = "0.1.0"
 
