@@ -92,6 +92,10 @@ name = "aether-renderer"
 version = "0.1.0"
 
 [[package]]
+name = "aether-renderer-soft"
+version = "0.1.0"
+
+[[package]]
 name = "aether-scripting"
 version = "0.1.0"
 
