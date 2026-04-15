@@ -16,7 +16,7 @@ pub enum ControllerType {
     Mixed,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InputActionPath {
     LeftHand,
     RightHand,

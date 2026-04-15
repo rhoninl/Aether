@@ -17,8 +17,7 @@ pub struct InputFrame {
     pub events: Vec<InteractionEvent>,
 }
 
-#[derive(Debug)]
-pub trait RuntimeAdapter {
+pub trait RuntimeAdapter: std::fmt::Debug {
     fn backend(&self) -> InputBackend;
     fn advertised_capabilities(&self) -> InputFrameHint;
     fn poll_frame(&mut self) -> Result<InputFrame, InputFrameError>;
