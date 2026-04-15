@@ -5,6 +5,7 @@ members = [
     "crates/aether-physics",
     "crates/aether-scripting",
     "crates/aether-renderer",
+    "crates/aether-renderer-soft",
     "crates/aether-audio",
     "crates/aether-network",
     "crates/aether-persistence",
