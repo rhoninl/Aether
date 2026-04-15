@@ -496,6 +496,7 @@ mod tests {
     use crate::component::ReplicationMode;
     use crate::network::Authority;
     use crate::network::NetworkIdentity;
+    use crate::stage::Stage;
 
     #[derive(Debug, Clone, Copy, PartialEq)]
     struct Transform {
