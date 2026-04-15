@@ -40,6 +40,8 @@ version = "0.1.0"
 dependencies = [
  "minifb",
  "rayon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

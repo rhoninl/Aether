@@ -8,6 +8,9 @@ pub mod stage;
 pub mod system;
 pub mod world;
 
+#[cfg(feature = "serde")]
+pub mod save;
+
 pub use archetype::{ArchetypeId, ArchetypeStorage};
 pub use component::{Component, ComponentId, ComponentRegistry, ReplicationMode};
 pub use entity::Entity;
@@ -20,3 +23,9 @@ pub use schedule::{
 pub use stage::Stage;
 pub use system::{System, SystemBuilder};
 pub use world::World;
+
+#[cfg(feature = "serde")]
+pub use save::{
+    restore_world_manual, snapshot_world_manual, SaveError, SaveLoad, WorldSnapshot,
+    SNAPSHOT_VERSION,
+};
