@@ -34,10 +34,5 @@ members = [
     "crates/aether-cli",
     "crates/aether-multiplayer",
     "crates/aether-world-editor",
-    "examples/3d-demo",
-    "examples/vr-emulator-demo",
-    "examples/gpu-demo",
-    "examples/multiplayer-demo",
     "examples/single-world-demo",
-    "examples/quest-debug",
 ]
