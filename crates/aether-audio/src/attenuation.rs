@@ -4,7 +4,7 @@ pub struct DistanceBand {
     pub gain: f32,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AttenuationCurve {
     Linear,
     Inverse,

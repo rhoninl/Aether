@@ -31,7 +31,7 @@ pub enum OcclusionState {
     Thick,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AcousticsProfile {
     pub room: RoomAcoustics,
     pub max_reflections: u32,
