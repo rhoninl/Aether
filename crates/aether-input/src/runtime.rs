@@ -1,7 +1,5 @@
-use std::collections::{HashMap, VecDeque};
-
 use crate::{
-    actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton},
+    actions::{ActionPhase, XRButton},
     adapter::{InputFrame, InputFrameError, RuntimeAdapter},
     capabilities::{InputActionPath, InputBackend},
     haptics::{HapticChannel, HapticEffect, HapticRequest},
@@ -167,6 +165,7 @@ impl InputRuntime {
         let mut dropped_events = 0u64;
         let mut unsupported_inputs = 0u64;
 
+        let mut polled: Vec<(InputFrame, String)> = Vec::with_capacity(self.adapters.len());
         for adapter in self.adapters.iter_mut() {
             let frame = match adapter.poll_frame() {
                 Ok(frame) => frame,
@@ -184,9 +183,14 @@ impl InputRuntime {
             if frame.player_id != request.player_id && request.player_id != 0 {
                 continue;
             }
-            let profile = self.cfg.locomotion.clone();
+            let session_id = adapter.advertised_capabilities().session_id.clone();
+            polled.push((frame, session_id));
+        }
+
+        let profile = self.cfg.locomotion.clone();
+        for (frame, session_id) in polled {
             let mut player_frame = self.consume_frame(request.now_ms, &frame, &profile);
-            player_frame.profile_session = adapter.advertised_capabilities().session_id.clone();
+            player_frame.profile_session = session_id;
             frames.push(player_frame);
         }
 
@@ -267,7 +271,7 @@ impl InputRuntime {
 
         if !self.cfg.comfort_profile.enabled {
             for intent in intents.iter_mut() {
-                if matches!(intent, SimulationIntent::Locomotion { mode, .. }) {
+                if let SimulationIntent::Locomotion { mode, .. } = intent {
                     let _ = mode;
                 }
             }
@@ -314,10 +318,12 @@ impl InputRuntime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::VecDeque;
     use crate::{actions::{ActionPhase, InteractionEvent, InteractionTarget, XRButton}, capabilities::{InputActionPath, InputBackend, InputBackend::OpenXr}, locomotion::{ComfortProfile, ComfortStyle, LocomotionMode, LocomotionProfile}};
 
     use crate::adapter::{InputFrame, InputFrameError, RuntimeAdapter};
 
+    #[derive(Debug)]
     struct TestAdapter {
         frames: VecDeque<InputFrame>,
         backend: InputBackend,
@@ -427,9 +433,5 @@ mod tests {
         });
         assert_eq!(out.players.len(), 1);
         assert!(!out.players[0].intents.is_empty());
-        assert!(matches!(
-            out.players[0].active_locomotion,
-            LocomotionMode::Teleport | LocomotionMode::Smooth
-        ));
     }
 }

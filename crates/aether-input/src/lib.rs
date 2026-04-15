@@ -3,10 +3,15 @@
 pub mod actions;
 pub mod adapter;
 pub mod capabilities;
+#[cfg(feature = "desktop")]
+pub mod desktop;
 pub mod haptics;
 pub mod locomotion;
 pub mod openxr;
 pub mod runtime;
+
+#[cfg(feature = "desktop")]
+pub use desktop::*;
 
 pub use actions::{ActionPhase, GrabState, InteractionEvent, InteractionTarget, Pose3, XRButton};
 pub use adapter::{InputFrame, InputFrameError, RuntimeAdapter};
