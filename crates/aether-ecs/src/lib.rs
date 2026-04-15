@@ -12,6 +12,9 @@ pub mod world;
 #[cfg(any(test, feature = "test-harness"))]
 pub mod test_harness;
 
+#[cfg(feature = "serde")]
+pub mod save;
+
 pub use archetype::{ArchetypeId, ArchetypeStorage};
 pub use component::{Component, ComponentId, ComponentRegistry, ReplicationMode};
 pub use entity::Entity;
@@ -28,3 +31,9 @@ pub use world::World;
 
 #[cfg(any(test, feature = "test-harness"))]
 pub use test_harness::{TestWorld, TestWorldBuilder};
+
+#[cfg(feature = "serde")]
+pub use save::{
+    restore_world_manual, snapshot_world_manual, SaveError, SaveLoad, WorldSnapshot,
+    SNAPSHOT_VERSION,
+};
