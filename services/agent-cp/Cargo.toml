@@ -1,0 +1,17 @@
+[package]
+name = "agent-cp"
+version = "0.1.0"
+edition = "2021"
+description = "Aether Agent Control Plane service binary (MCP + gRPC)"
+
+[[bin]]
+name = "agent-cp"
+path = "src/main.rs"
+
+[dependencies]
+aether-agent-cp = { path = "../../crates/aether-agent-cp" }
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "time", "signal", "io-util", "net", "io-std"] }
+clap = { version = "4", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde_json = "1"
