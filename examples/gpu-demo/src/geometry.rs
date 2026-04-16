@@ -63,11 +63,13 @@ pub fn generate_cube() -> (Vec<Vertex>, Vec<u32>) {
     let mut indices = Vec::with_capacity(36);
 
     // Face definitions: (normal, tangent_u, tangent_v)
+    // Invariant: u_dir × v_dir == normal, so the CCW triangle winding below
+    // produces outward-facing triangles that survive backface culling.
     let faces: [([f32; 3], [f32; 3], [f32; 3]); 6] = [
         // +Y (top)
-        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]),
+        ([0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]),
         // -Y (bottom)
-        ([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]),
+        ([0.0, -1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0, 0.0]),
         // +X (right)
         ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]),
         // -X (left)
@@ -305,6 +307,34 @@ mod tests {
         for v in &verts {
             assert!(v.uv[0] >= 0.0 && v.uv[0] <= 1.0);
             assert!(v.uv[1] >= 0.0 && v.uv[1] <= 1.0);
+        }
+    }
+
+    #[test]
+    fn cube_triangles_wind_outward() {
+        // Regression test for the +Y/-Y face-culling bug: each triangle's
+        // cross product (v1-v0) × (v2-v0) must point in the same hemisphere
+        // as the vertex's declared normal. Otherwise wgpu's backface culler
+        // drops the face and the viewer sees through it.
+        let (verts, indices) = generate_cube();
+        assert_eq!(indices.len() % 3, 0);
+        for tri in indices.chunks_exact(3) {
+            let v0 = verts[tri[0] as usize].position;
+            let v1 = verts[tri[1] as usize].position;
+            let v2 = verts[tri[2] as usize].position;
+            let edge1 = [v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]];
+            let edge2 = [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]];
+            let cross = [
+                edge1[1] * edge2[2] - edge1[2] * edge2[1],
+                edge1[2] * edge2[0] - edge1[0] * edge2[2],
+                edge1[0] * edge2[1] - edge1[1] * edge2[0],
+            ];
+            let n = verts[tri[0] as usize].normal;
+            let dot = cross[0] * n[0] + cross[1] * n[1] + cross[2] * n[2];
+            assert!(
+                dot > 0.0,
+                "triangle {tri:?} winds inward: cross={cross:?} normal={n:?}",
+            );
         }
     }
 
