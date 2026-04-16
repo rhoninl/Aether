@@ -3,6 +3,7 @@ use aether_renderer::gpu::mesh::MeshId;
 use aether_renderer::gpu::pass::{DrawCommand, ModelUniforms};
 use aether_renderer::gpu::shadow::LightUniforms;
 use aether_renderer::gpu::GpuRenderer;
+use aether_renderer::primitives;
 
 use crate::camera::{mat4_mul, normal_matrix, scale_matrix, translation_matrix};
 
@@ -13,6 +14,14 @@ const SCENE_OBJECT_COUNT: usize = 5;
 const FLOOR_SIZE: f32 = 20.0;
 /// Floor subdivisions.
 const FLOOR_SUBDIVISIONS: u32 = 8;
+/// Unit cube half-extent.
+const CUBE_SIZE: f32 = 1.0;
+/// Unit sphere radius.
+const SPHERE_RADIUS: f32 = 1.0;
+/// Default UV sphere stacks.
+const SPHERE_STACKS: u32 = 16;
+/// Default UV sphere sectors.
+const SPHERE_SECTORS: u32 = 32;
 
 /// Description of a scene object for setting up transforms and draw commands.
 pub struct SceneObject {
@@ -80,9 +89,10 @@ impl SceneMaterials {
 ///   4: Green sphere (back)
 pub fn setup_scene(renderer: &mut GpuRenderer) -> Scene {
     // Generate meshes
-    let (plane_v, plane_i) = crate::geometry::generate_plane(FLOOR_SIZE, FLOOR_SUBDIVISIONS);
-    let (cube_v, cube_i) = crate::geometry::generate_cube();
-    let (sphere_v, sphere_i) = crate::geometry::generate_default_sphere();
+    let (plane_v, plane_i) = primitives::generate_plane(FLOOR_SIZE, FLOOR_SUBDIVISIONS);
+    let (cube_v, cube_i) = primitives::generate_cube(CUBE_SIZE);
+    let (sphere_v, sphere_i) =
+        primitives::generate_sphere(SPHERE_RADIUS, SPHERE_STACKS, SPHERE_SECTORS);
 
     // Upload meshes
     let plane_mesh = renderer.upload_mesh(&plane_v, &plane_i);
