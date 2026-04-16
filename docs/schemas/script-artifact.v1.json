@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScriptArtifact",
+  "description": "Top-level script artifact.\n\nScripts are referenced from [`crate::world_manifest::WorldManifest::scripts`] by stable `id`. Runtime resolves the id to this artifact, verifies the signature, confirms the capability bundle matches the host policy, then instantiates the WASM module.",
+  "type": "object",
+  "required": [
+    "capabilities",
+    "id",
+    "signature"
+  ],
+  "properties": {
+    "capabilities": {
+      "description": "Capability declaration — must fit within the host's policy.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/CapabilityDeclaration"
+        }
+      ]
+    },
+    "display_name": {
+      "description": "Human-friendly label.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "signature": {
+      "description": "Signature over `wasm` bytes (see [`ScriptSignature`]).",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ScriptSignature"
+        }
+      ]
+    },
+    "source_cid": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_inline_base64": {
+      "description": "Optional DSL source (inline base64) or a reference to a content-addressed blob holding the source.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tags": {
+      "description": "Free-form tags.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "wasm_cid": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "wasm_inline_base64": {
+      "description": "Compiled WASM — same inline-vs-cid split as the source.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "CapabilityDeclaration": {
+      "description": "Explicit capability declaration. The runtime enforces that the script only calls host functions in this bundle.\n\nThis list is deliberately conservative and small; new capabilities should be added via the versioning/migration policy.",
+      "type": "object",
+      "properties": {
+        "custom": {
+          "description": "Free-form custom capabilities — the runtime must recognize each string.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "network_broadcast": {
+          "description": "Issue network messages to clients.",
+          "default": false,
+          "type": "boolean"
+        },
+        "persistence_read": {
+          "description": "Access persistent storage (key/value on behalf of the world).",
+          "default": false,
+          "type": "boolean"
+        },
+        "persistence_write": {
+          "default": false,
+          "type": "boolean"
+        },
+        "read_world": {
+          "description": "Read state from the world (queries, component reads).",
+          "default": false,
+          "type": "boolean"
+        },
+        "spawn_entities": {
+          "description": "Spawn/despawn entities by prop id.",
+          "default": false,
+          "type": "boolean"
+        },
+        "write_world": {
+          "description": "Mutate world state (spawn entities, set components).",
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ScriptSignature": {
+      "description": "Ed25519-style signature record. The cryptographic verification is performed by `aether-security`; this schema layer merely ensures the record is structurally well-formed.",
+      "type": "object",
+      "required": [
+        "key_id",
+        "public_key_base64",
+        "signature_base64"
+      ],
+      "properties": {
+        "algorithm": {
+          "description": "Algorithm identifier, e.g., \"ed25519\".",
+          "default": "ed25519",
+          "type": "string"
+        },
+        "key_id": {
+          "description": "Identifier of the signing key (human-friendly).",
+          "type": "string"
+        },
+        "public_key_base64": {
+          "description": "Base64-encoded public key.",
+          "type": "string"
+        },
+        "signature_base64": {
+          "description": "Base64-encoded signature over the canonical bytes of the WASM module.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ChunkManifest",
+  "description": "Declarative chunk manifest. A world's chunk set is the list of these manifests. Each manifest points to a content-addressed asset blob via `asset_cid`.",
+  "type": "object",
+  "required": [
+    "asset_cid",
+    "coord",
+    "kind",
+    "size_bytes"
+  ],
+  "properties": {
+    "asset_cid": {
+      "description": "Content address of the backing asset blob (mesh, lightmap, etc.).",
+      "type": "string"
+    },
+    "coord": {
+      "$ref": "#/definitions/ChunkCoord"
+    },
+    "kind": {
+      "description": "Semantic classification; controls which runtime pipeline consumes the chunk.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ChunkKind"
+        }
+      ]
+    },
+    "lod": {
+      "description": "LOD level represented by this manifest. Multiple manifests may share a `coord` if they differ in `lod`.",
+      "default": 0,
+      "type": "integer",
+      "format": "uint8",
+      "minimum": 0.0
+    },
+    "prefetch_distance_meters": {
+      "description": "Minimum world-space distance at which the chunk can be prefetched.",
+      "default": 0.0,
+      "type": "number",
+      "format": "float"
+    },
+    "size_bytes": {
+      "description": "Byte size of the backing asset (hint for streaming scheduler).",
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    },
+    "tags": {
+      "description": "Free-form tags for authoring and agent filtering.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ChunkCoord": {
+      "description": "Integer grid coordinate identifying a chunk.\n\nA world is laid out on a 3-dimensional integer grid with configurable cell size (see [`ChunkManifest::cell_size_meters`]). Two chunks with the same `ChunkCoord` collide; the manifest must enforce uniqueness.",
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "z": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ChunkKind": {
+      "description": "Streaming classification. Mirrors `aether_world_runtime::ChunkKind`.",
+      "type": "string",
+      "enum": [
+        "terrain",
+        "prop_mesh",
+        "lighting",
+        "audio",
+        "navigation"
+      ]
+    }
+  }
+}

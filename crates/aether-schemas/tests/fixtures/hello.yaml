@@ -1,0 +1,22 @@
+schema_version: 1
+world_id: hello.aether
+display_name: Hello, Aether
+meta:
+  author: agent:opus
+  created_at_unix: 1700000000
+  description: Minimal agent-authored world used as a canonical fixture.
+runtime_settings:
+  gravity: -9.81
+  tick_rate_hz: 60
+  max_players: 32
+lighting:
+  sun_intensity: 1.0
+  ambient_intensity: 0.1
+spawn_points:
+- id: origin
+  position:
+  - 0.0
+  - 0.0
+  - 0.0
+  yaw_deg: 0.0
+  is_default: true
