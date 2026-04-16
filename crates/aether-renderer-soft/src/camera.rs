@@ -67,7 +67,12 @@ impl Camera {
         [
             [f / aspect, 0.0, 0.0, 0.0],
             [0.0, f, 0.0, 0.0],
-            [0.0, 0.0, (self.far + self.near) * nf, 2.0 * self.far * self.near * nf],
+            [
+                0.0,
+                0.0,
+                (self.far + self.near) * nf,
+                2.0 * self.far * self.near * nf,
+            ],
             [0.0, 0.0, -1.0, 0.0],
         ]
     }
@@ -75,7 +80,12 @@ impl Camera {
     /// Transforms a world-space point to framebuffer pixel coords + depth.
     /// Returns None if behind camera or outside the frustum. Depth is the
     /// camera-space distance along -Z (positive for points in front).
-    pub fn world_to_screen(&self, point: [f32; 3], fb_w: u32, fb_h: u32) -> Option<(i32, i32, f32)> {
+    pub fn world_to_screen(
+        &self,
+        point: [f32; 3],
+        fb_w: u32,
+        fb_h: u32,
+    ) -> Option<(i32, i32, f32)> {
         if fb_w == 0 || fb_h == 0 {
             return None;
         }
@@ -216,7 +226,9 @@ mod tests {
     #[test]
     fn point_beyond_far_plane_returns_none() {
         let cam = Camera::new([0.0, 0.0, 0.0], 0.0, 0.0);
-        assert!(cam.world_to_screen([0.0, 0.0, -10_000.0], 100, 100).is_none());
+        assert!(cam
+            .world_to_screen([0.0, 0.0, -10_000.0], 100, 100)
+            .is_none());
     }
 
     #[test]

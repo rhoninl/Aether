@@ -170,7 +170,10 @@ pub fn snapshot_world_manual(
 ///
 /// The snapshot version is validated against [`SNAPSHOT_VERSION`] before any
 /// entries are visited.
-pub fn restore_world_manual<F>(snapshot: &WorldSnapshot, mut restore_one: F) -> Result<(), SaveError>
+pub fn restore_world_manual<F>(
+    snapshot: &WorldSnapshot,
+    mut restore_one: F,
+) -> Result<(), SaveError>
 where
     F: FnMut(&str, &serde_json::Value) -> Result<(), SaveError>,
 {
@@ -278,7 +281,10 @@ mod tests {
             Ok(())
         })
         .expect("restore should succeed");
-        assert_eq!(seen, vec![TYPE_POSITION.to_string(), TYPE_VELOCITY.to_string()]);
+        assert_eq!(
+            seen,
+            vec![TYPE_POSITION.to_string(), TYPE_VELOCITY.to_string()]
+        );
     }
 
     #[test]
