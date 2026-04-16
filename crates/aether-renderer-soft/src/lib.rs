@@ -59,10 +59,22 @@ mod integration_tests {
             scale: 1.0,
         };
 
-        draw_voxel_model(&mut fb, FB_W, FB_H, &mut zb, &cam, &model, &xform, [0.0, 0.0, 1.0]);
+        draw_voxel_model(
+            &mut fb,
+            FB_W,
+            FB_H,
+            &mut zb,
+            &cam,
+            &model,
+            &xform,
+            [0.0, 0.0, 1.0],
+        );
         draw_text(&mut fb, FB_W, FB_H, 2, 2, "HI", 0xffffffff);
 
         let lit = fb.iter().filter(|px| **px != BG).count();
-        assert!(lit > 0, "expected the integration scene to render real pixels");
+        assert!(
+            lit > 0,
+            "expected the integration scene to render real pixels"
+        );
     }
 }

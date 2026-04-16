@@ -23,7 +23,11 @@ impl Transform3 {
     /// Transforms a local-space offset into world space.
     pub fn apply(&self, offset: [f32; 3]) -> [f32; 3] {
         let (s, c) = (self.rotation_y.sin(), self.rotation_y.cos());
-        let scaled = [offset[0] * self.scale, offset[1] * self.scale, offset[2] * self.scale];
+        let scaled = [
+            offset[0] * self.scale,
+            offset[1] * self.scale,
+            offset[2] * self.scale,
+        ];
         let rx = c * scaled[0] + s * scaled[2];
         let rz = -s * scaled[0] + c * scaled[2];
         [
@@ -152,9 +156,24 @@ mod tests {
             rotation_y: 0.0,
             scale: 1.0,
         };
-        draw_voxel_model(&mut fb, 64, 48, &mut zb, &cam, &model, &xform, [0.0, 0.0, 1.0]);
-        let red = fb.iter().filter(|px| (**px >> 16) & 0xff > 0 && (**px >> 8) & 0xff == 0).count();
-        let green = fb.iter().filter(|px| (**px >> 8) & 0xff > 0 && (**px >> 16) & 0xff == 0).count();
+        draw_voxel_model(
+            &mut fb,
+            64,
+            48,
+            &mut zb,
+            &cam,
+            &model,
+            &xform,
+            [0.0, 0.0, 1.0],
+        );
+        let red = fb
+            .iter()
+            .filter(|px| (**px >> 16) & 0xff > 0 && (**px >> 8) & 0xff == 0)
+            .count();
+        let green = fb
+            .iter()
+            .filter(|px| (**px >> 8) & 0xff > 0 && (**px >> 16) & 0xff == 0)
+            .count();
         assert!(red > 0, "expected some red pixels for left box");
         assert!(green > 0, "expected some green pixels for right box");
     }
@@ -176,7 +195,16 @@ mod tests {
             rotation_y: 0.0,
             scale: 1.0,
         };
-        draw_voxel_model(&mut fb_a, 64, 48, &mut zb_a, &cam, &model, &xform_a, [0.0, 0.0, 1.0]);
+        draw_voxel_model(
+            &mut fb_a,
+            64,
+            48,
+            &mut zb_a,
+            &cam,
+            &model,
+            &xform_a,
+            [0.0, 0.0, 1.0],
+        );
 
         let mut fb_b = empty_fb(64, 48);
         let mut zb_b = ZBuffer::new(64, 48);
@@ -185,8 +213,20 @@ mod tests {
             rotation_y: 0.0,
             scale: 1.0,
         };
-        draw_voxel_model(&mut fb_b, 64, 48, &mut zb_b, &cam, &model, &xform_b, [0.0, 0.0, 1.0]);
+        draw_voxel_model(
+            &mut fb_b,
+            64,
+            48,
+            &mut zb_b,
+            &cam,
+            &model,
+            &xform_b,
+            [0.0, 0.0, 1.0],
+        );
 
-        assert_ne!(fb_a, fb_b, "translation should produce different framebuffers");
+        assert_ne!(
+            fb_a, fb_b,
+            "translation should produce different framebuffers"
+        );
     }
 }

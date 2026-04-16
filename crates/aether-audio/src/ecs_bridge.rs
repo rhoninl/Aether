@@ -83,11 +83,7 @@ pub fn play_sound_at_transform(handle: SoundHandle, transform: &Transform3) -> S
 /// `volume` is clamped into `[MIN_VOLUME, MAX_VOLUME]`; NaN is replaced by
 /// [`DEFAULT_VOLUME`]. Clamping (rather than rejecting out-of-range values) keeps
 /// the API infallible so gameplay callers never have to branch on validation.
-pub fn play_sound_with_volume(
-    handle: SoundHandle,
-    pos: [f32; 3],
-    volume: f32,
-) -> SoundRequest {
+pub fn play_sound_with_volume(handle: SoundHandle, pos: [f32; 3], volume: f32) -> SoundRequest {
     SoundRequest {
         handle,
         pos,

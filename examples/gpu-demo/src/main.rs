@@ -1,5 +1,4 @@
 mod camera;
-mod geometry;
 mod scene;
 
 use std::env;

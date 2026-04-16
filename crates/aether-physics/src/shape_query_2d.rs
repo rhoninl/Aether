@@ -331,7 +331,13 @@ mod tests {
         let forward = v(1.0, 0.0);
         // A zero half-angle means only points exactly on the forward ray
         // qualify. A point on the ray within radius is accepted.
-        assert!(cone_contains_point_2d(origin, forward, 0.0, 5.0, v(3.0, 0.0)));
+        assert!(cone_contains_point_2d(
+            origin,
+            forward,
+            0.0,
+            5.0,
+            v(3.0, 0.0)
+        ));
         // Any off-axis point should be rejected.
         assert!(!cone_contains_point_2d(
             origin,
@@ -346,7 +352,13 @@ mod tests {
     fn cone_origin_point_is_contained() {
         let origin = v(4.0, -2.0);
         let forward = v(0.0, 1.0);
-        assert!(cone_contains_point_2d(origin, forward, PI / 4.0, 1.0, origin));
+        assert!(cone_contains_point_2d(
+            origin,
+            forward,
+            PI / 4.0,
+            1.0,
+            origin
+        ));
     }
 
     #[test]
@@ -372,10 +384,22 @@ mod tests {
         // behind the origin. A point at (-2, 3) is roughly 124° off forward,
         // which is inside the cone.
         let wide = PI * 5.0 / 6.0;
-        assert!(cone_contains_point_2d(origin, forward, wide, 5.0, v(-2.0, 3.0)));
+        assert!(cone_contains_point_2d(
+            origin,
+            forward,
+            wide,
+            5.0,
+            v(-2.0, 3.0)
+        ));
         // A point straight behind is exactly 180° off forward, inside the
         // 60° blind wedge, so it must be rejected.
-        assert!(!cone_contains_point_2d(origin, forward, wide, 5.0, v(-2.0, 0.0)));
+        assert!(!cone_contains_point_2d(
+            origin,
+            forward,
+            wide,
+            5.0,
+            v(-2.0, 0.0)
+        ));
     }
 
     #[test]
