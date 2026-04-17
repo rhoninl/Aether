@@ -35,6 +35,7 @@ members = [
     "crates/aether-multiplayer",
     "crates/aether-world-editor",
     "crates/aether-schemas",
+    "crates/aether-canonical-shim",
     "examples/agent-native-demo",
     "examples/gpu-demo",
     "examples/single-world-demo",

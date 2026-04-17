@@ -10,7 +10,9 @@ serde = { version = "1", features = ["derive"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 async-trait = "0.1"
+aether-canonical-shim = { path = "../aether-canonical-shim" }
+thiserror = "1"
+tracing = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt", "macros"] }
-

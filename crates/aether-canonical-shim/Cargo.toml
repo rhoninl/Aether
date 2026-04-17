@@ -1,0 +1,15 @@
+[package]
+name = "aether-canonical-shim"
+version = "0.1.0"
+edition = "2021"
+description = "Temporary shim for aether-schemas canonical-format types. Replaced by aether-schemas once Bet 1 U03 merges."
+
+[features]
+default = []
+# Flip this off (or remove the crate) after wiring directly to aether-schemas.
+shim = []
+
+[dependencies]
+thiserror = "1"
+tracing = "0.1"
+sha2 = "0.10"

@@ -7,6 +7,7 @@ pub mod manifest;
 pub mod moderation;
 pub mod orchestrator;
 pub mod pipeline;
+pub mod pipeline_canonical;
 pub mod runtime;
 pub mod storage;
 pub mod upload;
@@ -21,6 +22,9 @@ pub use manifest::{ManifestBuilder, ManifestEntry, SignedManifest};
 pub use moderation::{ModerationSignal, ModerationStatus, ModerationStatusUpdate};
 pub use orchestrator::{PipelineError, PipelineResult, PipelineStage, ValidationPipeline};
 pub use pipeline::{AotProfile, ContentAddress, ProcessingStage, UploaderProfile};
+pub use pipeline_canonical::{
+    CanonicalArtifact, CanonicalPipelineError, CanonicalPipelineState, CanonicalUgcPipeline,
+};
 pub use runtime::{
     ModerationSignalRequest, UgcRuntime, UgcRuntimeConfig, UgcRuntimeInput, UgcRuntimeOutput,
 };

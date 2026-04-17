@@ -4,6 +4,7 @@
 //! entity prediction/interpolation, state synchronization, RPC, sessions,
 //! and event distribution.
 
+pub mod canonical;
 pub mod chunk;
 pub mod chunking;
 pub mod events;
@@ -19,6 +20,11 @@ pub mod spawn;
 pub mod state_sync;
 pub mod tick;
 
+pub use canonical::{
+    decode_chunk_manifest, decode_world_runtime_manifest, encode_chunk_manifest,
+    encode_world_runtime_manifest, portal_def, world_runtime_manifest_cid, BoundaryCodec,
+    CanonicalPortalDef, CanonicalPortalScheme,
+};
 pub use chunk::{
     BoundaryStitch, ChunkCoord, ChunkEntry, ChunkId, ChunkManifest, ChunkManifestError,
     ChunkReference, ChunkState, EvictionCandidate, EvictionPolicy, InvalidTransition, PlayerView,

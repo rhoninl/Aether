@@ -21,7 +21,10 @@ pub mod visual_script;
 
 // Re-export existing contract types.
 pub use editor::{EditorEvent, EditorMode, ErrorReport, StudioManifestDraft};
-pub use manifest::{ManifestEdit, SpawnPointEdit, TerrainEdit, WorldManifestPatch};
+pub use manifest::{
+    ManifestEdit, PhysicsSettingsPatch, SpawnPointEdit, TerrainEdit, WorldManifest,
+    WorldManifestPatch,
+};
 pub use preview::{HotReloadAction, LivePreviewError, PreviewFrame};
 pub use terrain::{PaintStroke, SculptBrush, TerrainBrush, TerrainTool};
 pub use tools::{GizmoMode, PropPlacement, ScriptMode};

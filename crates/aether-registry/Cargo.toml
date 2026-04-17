@@ -7,6 +7,9 @@ description = "World registry, discovery, and matchmaking primitives"
 [dependencies]
 uuid = { version = "1", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
+aether-canonical-shim = { path = "../aether-canonical-shim" }
+thiserror = "1"
+tracing = "0.1"
 
 [dev-dependencies]
 uuid = { version = "1", features = ["v4"] }
