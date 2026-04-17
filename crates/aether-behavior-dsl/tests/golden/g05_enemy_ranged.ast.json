@@ -1,0 +1,137 @@
+{
+  "name": "EnemyRanged",
+  "caps": [
+    "Movement",
+    "Combat"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Selector",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Damage",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "nearest_player"
+                    },
+                    "span": {
+                      "start": 96,
+                      "end": 110
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Int": 8
+                      }
+                    },
+                    "span": {
+                      "start": 112,
+                      "end": 113
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 89,
+              "end": 114
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 129,
+                      "end": 133
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": -5.0
+                              }
+                            },
+                            "span": {
+                              "start": 140,
+                              "end": 144
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 146,
+                              "end": 149
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 151,
+                              "end": 154
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 135,
+                      "end": 155
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 2.0
+                      }
+                    },
+                    "span": {
+                      "start": 157,
+                      "end": 160
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 124,
+              "end": 161
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 70,
+      "end": 168
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 170
+  }
+}

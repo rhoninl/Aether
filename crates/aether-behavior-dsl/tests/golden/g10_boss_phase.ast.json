@@ -1,0 +1,170 @@
+{
+  "name": "BossPhase",
+  "caps": [
+    "Movement",
+    "Combat"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Selector",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Damage",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "nearest_player"
+                    },
+                    "span": {
+                      "start": 94,
+                      "end": 108
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Int": 30
+                      }
+                    },
+                    "span": {
+                      "start": 110,
+                      "end": 112
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 87,
+              "end": 113
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Damage",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "nearest_player"
+                    },
+                    "span": {
+                      "start": 130,
+                      "end": 144
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Int": 20
+                      }
+                    },
+                    "span": {
+                      "start": 146,
+                      "end": 148
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 123,
+              "end": 149
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 164,
+                      "end": 168
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 175,
+                              "end": 178
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 180,
+                              "end": 183
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 185,
+                              "end": 188
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 170,
+                      "end": 189
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 4.0
+                      }
+                    },
+                    "span": {
+                      "start": 191,
+                      "end": 194
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 159,
+              "end": 195
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 68,
+      "end": 202
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 204
+  }
+}

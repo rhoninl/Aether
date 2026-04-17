@@ -1,0 +1,137 @@
+{
+  "name": "EnemyMelee",
+  "caps": [
+    "Movement",
+    "Combat"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 93,
+                      "end": 97
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 104,
+                              "end": 107
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 109,
+                              "end": 112
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 114,
+                              "end": 117
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 99,
+                      "end": 118
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 3.0
+                      }
+                    },
+                    "span": {
+                      "start": 120,
+                      "end": 123
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 88,
+              "end": 124
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Damage",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "nearest_player"
+                    },
+                    "span": {
+                      "start": 141,
+                      "end": 155
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Int": 15
+                      }
+                    },
+                    "span": {
+                      "start": 157,
+                      "end": 159
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 134,
+              "end": 160
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 69,
+      "end": 167
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 169
+  }
+}

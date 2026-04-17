@@ -1,0 +1,181 @@
+{
+  "name": "Patrol",
+  "caps": [
+    "Movement"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 81,
+                      "end": 85
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 92,
+                              "end": 95
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 97,
+                              "end": 100
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 102,
+                              "end": 105
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 87,
+                      "end": 106
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 1.5
+                      }
+                    },
+                    "span": {
+                      "start": 108,
+                      "end": 111
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 76,
+              "end": 112
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 127,
+                      "end": 131
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 10.0
+                              }
+                            },
+                            "span": {
+                              "start": 138,
+                              "end": 142
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 144,
+                              "end": 147
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 149,
+                              "end": 152
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 133,
+                      "end": 153
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 1.5
+                      }
+                    },
+                    "span": {
+                      "start": 155,
+                      "end": 158
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 122,
+              "end": 159
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 57,
+      "end": 166
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 168
+  }
+}

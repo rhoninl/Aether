@@ -1,0 +1,9 @@
+behavior ChestLoot {
+    @caps(Economy)
+    version 1
+
+    sequence {
+        spawn("gold_pile", vec3(0.0, 0.0, 0.0));
+        spawn("health_potion", vec3(1.0, 0.0, 0.0));
+    }
+}

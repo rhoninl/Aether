@@ -1,0 +1,9 @@
+behavior EnemyRanged {
+    @caps(Combat, Movement)
+    version 1
+
+    selector {
+        damage(nearest_player, 8);
+        move(self, vec3(-5.0, 0.0, 0.0), 2.0);
+    }
+}

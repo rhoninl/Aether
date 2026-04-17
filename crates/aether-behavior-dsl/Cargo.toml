@@ -1,0 +1,13 @@
+[package]
+name = "aether-behavior-dsl"
+version = "0.1.0"
+edition = "2021"
+description = "Aether Behavior DSL: typed DSL with effect annotations and capability tokens, compiled to WASM"
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+wasm-encoder = "0.244"
+wasmparser = "0.244"
+tracing = "0.1"

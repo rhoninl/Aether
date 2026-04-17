@@ -1,0 +1,163 @@
+{
+  "name": "ChestLoot",
+  "caps": [
+    "Economy"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Spawn",
+                "args": [
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "gold_pile"
+                      }
+                    },
+                    "span": {
+                      "start": 84,
+                      "end": 95
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 102,
+                              "end": 105
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 107,
+                              "end": 110
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 112,
+                              "end": 115
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 97,
+                      "end": 116
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 78,
+              "end": 117
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Spawn",
+                "args": [
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "health_potion"
+                      }
+                    },
+                    "span": {
+                      "start": 133,
+                      "end": 148
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 1.0
+                              }
+                            },
+                            "span": {
+                              "start": 155,
+                              "end": 158
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 160,
+                              "end": 163
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 165,
+                              "end": 168
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 150,
+                      "end": 169
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 127,
+              "end": 170
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 59,
+      "end": 177
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 179
+  }
+}

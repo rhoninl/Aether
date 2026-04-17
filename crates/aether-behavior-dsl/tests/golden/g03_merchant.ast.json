@@ -1,0 +1,211 @@
+{
+  "name": "Merchant",
+  "caps": [
+    "Economy"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Dialogue",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 86,
+                      "end": 90
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "Welcome, traveler!"
+                      }
+                    },
+                    "span": {
+                      "start": 92,
+                      "end": 112
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "List": [
+                          {
+                            "kind": {
+                              "DialogueOption": {
+                                "label": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "Buy"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 122,
+                                    "end": 127
+                                  }
+                                },
+                                "id": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "buy"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 129,
+                                    "end": 134
+                                  }
+                                },
+                                "span": {
+                                  "start": 115,
+                                  "end": 135
+                                }
+                              }
+                            },
+                            "span": {
+                              "start": 115,
+                              "end": 135
+                            }
+                          },
+                          {
+                            "kind": {
+                              "DialogueOption": {
+                                "label": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "Leave"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 144,
+                                    "end": 151
+                                  }
+                                },
+                                "id": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "leave"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 153,
+                                    "end": 160
+                                  }
+                                },
+                                "span": {
+                                  "start": 137,
+                                  "end": 161
+                                }
+                              }
+                            },
+                            "span": {
+                              "start": 137,
+                              "end": 161
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 114,
+                      "end": 162
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 77,
+              "end": 163
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Spawn",
+                "args": [
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "gold_coin"
+                      }
+                    },
+                    "span": {
+                      "start": 179,
+                      "end": 190
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 197,
+                              "end": 200
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 202,
+                              "end": 205
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 207,
+                              "end": 210
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 192,
+                      "end": 211
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 173,
+              "end": 212
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 58,
+      "end": 219
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 221
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "name": "Guard",
+  "caps": [
+    "Movement"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 80,
+                      "end": 84
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 5.0
+                              }
+                            },
+                            "span": {
+                              "start": 91,
+                              "end": 94
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 96,
+                              "end": 99
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 5.0
+                              }
+                            },
+                            "span": {
+                              "start": 101,
+                              "end": 104
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 86,
+                      "end": 105
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 1.0
+                      }
+                    },
+                    "span": {
+                      "start": 107,
+                      "end": 110
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 75,
+              "end": 111
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 126,
+                      "end": 130
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 5.0
+                              }
+                            },
+                            "span": {
+                              "start": 137,
+                              "end": 140
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 142,
+                              "end": 145
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 5.0
+                              }
+                            },
+                            "span": {
+                              "start": 147,
+                              "end": 150
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 132,
+                      "end": 151
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 0.5
+                      }
+                    },
+                    "span": {
+                      "start": 153,
+                      "end": 156
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 121,
+              "end": 157
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 56,
+      "end": 164
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 166
+  }
+}

@@ -1,0 +1,9 @@
+behavior EnemyMelee {
+    @caps(Combat, Movement)
+    version 1
+
+    sequence {
+        move(self, vec3(0.0, 0.0, 0.0), 3.0);
+        damage(nearest_player, 15);
+    }
+}
