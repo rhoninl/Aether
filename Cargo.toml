@@ -39,6 +39,7 @@ members = [
     "crates/aether-sim-harness",
     "crates/aether-behavior-dsl",
     "crates/aether-agent-cp",
+    "crates/aether-world-vcs",
     "services/agent-cp",
     "examples/agent-native-demo",
     "examples/gpu-demo",
