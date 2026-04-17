@@ -1,0 +1,24 @@
+[package]
+name = "aether-sim-harness"
+version = "0.1.0"
+edition = "2021"
+description = "Ghost-world simulation harness that scores mutations before they commit"
+
+[dependencies]
+aether-ecs = { path = "../aether-ecs" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+rand = "0.8"
+rand_chacha = "0.3"
+thiserror = "1"
+tracing = "0.1"
+sha2 = "0.10"
+hex = "0.4"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "replay_speed"
+harness = false

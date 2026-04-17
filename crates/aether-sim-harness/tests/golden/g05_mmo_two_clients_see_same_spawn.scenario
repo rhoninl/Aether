@@ -1,0 +1,34 @@
+name: g05_mmo_two_clients_see_same_spawn
+description: Both clients replicate the same spawn within the latency budget.
+seed: 11000005
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: net_event
+    client: 1
+    event:
+      type: client_connect
+  - kind: net_event
+    client: 2
+    event:
+      type: client_connect
+  - kind: agent_action
+    agent: server
+    action:
+      type: spawn
+      entity_tag: chest
+      position: [3.0, 0.0, 3.0]
+  - kind: tick
+  - kind: net_event
+    client: 1
+    event:
+      type: replicate_spawn
+      entity_tag: chest
+  - kind: net_event
+    client: 2
+    event:
+      type: replicate_spawn
+      entity_tag: chest
+  - kind: tick
+  - kind: tick

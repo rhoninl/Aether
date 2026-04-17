@@ -1,0 +1,8 @@
+{
+  "verdict": "pass",
+  "min_counters": { "sim.ticks": 60 },
+  "max_counters": { "mmo.double_spawn": 0, "sim.spawn": 0 },
+  "expect_repair_patch": false,
+  "min_comfort": 0.99,
+  "min_coherence": 0.99
+}

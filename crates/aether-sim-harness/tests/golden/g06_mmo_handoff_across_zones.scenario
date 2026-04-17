@@ -1,0 +1,32 @@
+name: g06_mmo_handoff_across_zones
+description: Entity handed off between zones retains identity; coherence holds.
+seed: 11000006
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: net_event
+    client: 1
+    event:
+      type: client_connect
+  - kind: agent_action
+    agent: server
+    action:
+      type: spawn
+      entity_tag: wolf
+      position: [0.0, 0.0, 0.0]
+  - kind: net_event
+    client: 1
+    event:
+      type: replicate_spawn
+      entity_tag: wolf
+  - kind: tick
+  - kind: net_event
+    client: 0
+    event:
+      type: zone_handoff
+      entity_tag: wolf
+      from_zone: forest
+      to_zone: plains
+  - kind: tick
+  - kind: tick

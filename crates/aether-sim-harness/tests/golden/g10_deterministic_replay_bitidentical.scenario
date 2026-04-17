@@ -1,0 +1,31 @@
+name: g10_deterministic_replay_bitidentical
+description: Replaying the same scenario twice must yield byte-identical reports.
+seed: 42424242
+tick_hz: 60
+snapshot:
+  kind: n_entities
+  count: 3
+inputs:
+  - kind: agent_action
+    agent: author
+    action:
+      type: spawn
+      entity_tag: e1
+      position: [1.0, 2.0, 3.0]
+  - kind: agent_action
+    agent: author
+    action:
+      type: spawn
+      entity_tag: e2
+      position: [4.0, 5.0, 6.0]
+  - kind: tick
+  - kind: agent_action
+    agent: author
+    action:
+      type: move
+      entity_tag: e1
+      velocity: [0.25, 0.0, 0.0]
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick

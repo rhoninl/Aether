@@ -1,0 +1,67 @@
+name: g01_empty_world_ticks_cleanly
+description: 60 empty ticks produce a clean pass with no entities.
+seed: 11000001
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick

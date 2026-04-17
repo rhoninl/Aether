@@ -1,0 +1,30 @@
+name: g08_physics_stacked_cubes_settle
+description: Three cubes spawned at distinct positions settle without overlap.
+seed: 11000008
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: agent_action
+    agent: physics_director
+    action:
+      type: spawn
+      entity_tag: cube_a
+      position: [0.0, 0.0, 0.0]
+  - kind: agent_action
+    agent: physics_director
+    action:
+      type: spawn
+      entity_tag: cube_b
+      position: [0.0, 1.5, 0.0]
+  - kind: agent_action
+    agent: physics_director
+    action:
+      type: spawn
+      entity_tag: cube_c
+      position: [0.0, 3.0, 0.0]
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick

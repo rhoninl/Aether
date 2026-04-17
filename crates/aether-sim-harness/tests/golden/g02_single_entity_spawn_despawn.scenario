@@ -1,0 +1,22 @@
+name: g02_single_entity_spawn_despawn
+description: Spawn a single entity, tick, despawn it, verify clean state.
+seed: 11000002
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: agent_action
+    agent: author
+    action:
+      type: spawn
+      entity_tag: goblin
+      position: [0.0, 0.0, 0.0]
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: agent_action
+    agent: author
+    action:
+      type: despawn
+      entity_tag: goblin
+  - kind: tick
