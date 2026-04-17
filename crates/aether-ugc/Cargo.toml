@@ -5,4 +5,6 @@ edition = "2021"
 description = "UGC upload and content processing service primitives"
 
 [dependencies]
-
+aether-canonical-shim = { path = "../aether-canonical-shim" }
+thiserror = "1"
+tracing = "0.1"
