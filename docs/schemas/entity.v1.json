@@ -1,0 +1,215 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Entity",
+  "description": "Declarative entity. Mirrors `aether_ecs::Entity` but is keyed by a stable string ID rather than the runtime generational index.\n\nThe runtime resolves `id` to a generational `aether_ecs::Entity` at load time; the declarative form is insulated from ID recycling.",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "transform"
+  ],
+  "properties": {
+    "components": {
+      "description": "Components attached to this entity at spawn time.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Component"
+      }
+    },
+    "id": {
+      "description": "Stable, human- and agent-readable identifier. Must be unique within a world manifest.",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Semantic role of this entity. Hints the runtime at archetype placement.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/EntityKind"
+        }
+      ]
+    },
+    "parent": {
+      "description": "Optional parent entity `id`. If set, this entity is spawned as a child in the scene graph.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tags": {
+      "description": "Free-form tags for agent filtering (e.g., \"boss\", \"merchant\").",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "transform": {
+      "description": "World transform at spawn time.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Transform"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Component": {
+      "description": "A declarative component attached to an entity.\n\nComponents are addressed by string `ty` (for example `\"physics.rigid_body\"` or `\"render.mesh\"`); the runtime dispatches to the registered component type. This decoupling is what lets the agent emit arbitrary components without the host Rust code needing to enumerate every possible type.",
+      "type": "object",
+      "required": [
+        "ty",
+        "value"
+      ],
+      "properties": {
+        "ty": {
+          "description": "Dotted-path type identifier.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The structured value payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ComponentValue"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ComponentValue": {
+      "description": "Declarative component value. Restricted to a small typed tree so that both humans and agents can author it without consulting the Rust type system.\n\nThe `Ref` variant links to another declared entity by `id`, making cross- entity references first-class (instead of smuggling them through strings).",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "type": "number",
+          "format": "double"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "description": "Entity reference by declarative `id`. Must come before `Map` so that serde's untagged deserializer matches the `$ref` shape first.",
+          "type": "object",
+          "required": [
+            "$ref"
+          ],
+          "properties": {
+            "$ref": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ComponentValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentValue"
+          }
+        }
+      ]
+    },
+    "EntityKind": {
+      "description": "Common entity shapes. Extra kinds are expected to be added later; readers must therefore treat `Custom` as an extension hatch.",
+      "oneOf": [
+        {
+          "description": "A static or kinematic prop (mesh, collider, etc.).",
+          "type": "string",
+          "enum": [
+            "prop"
+          ]
+        },
+        {
+          "description": "A player or agent-controllable character.",
+          "type": "string",
+          "enum": [
+            "character"
+          ]
+        },
+        {
+          "description": "An interactable NPC.",
+          "type": "string",
+          "enum": [
+            "npc"
+          ]
+        },
+        {
+          "description": "A non-visible gameplay trigger (volume).",
+          "type": "string",
+          "enum": [
+            "trigger"
+          ]
+        },
+        {
+          "description": "Anything else; resolvable by user-space systems.",
+          "type": "object",
+          "required": [
+            "custom"
+          ],
+          "properties": {
+            "custom": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Transform": {
+      "description": "Rigid-body transform in world space.",
+      "type": "object",
+      "required": [
+        "position",
+        "rotation_euler_deg"
+      ],
+      "properties": {
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        },
+        "rotation_euler_deg": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        },
+        "scale": {
+          "default": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

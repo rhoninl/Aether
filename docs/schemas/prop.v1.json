@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Prop",
+  "description": "A declarative prop definition — a reusable spawnable template.\n\nAn [`Entity`] carries runtime state (position, transform); a [`Prop`] declares the *template* from which many entities may be spawned.",
+  "type": "object",
+  "required": [
+    "asset_cid",
+    "id"
+  ],
+  "properties": {
+    "asset_cid": {
+      "description": "Asset CID (content-addressed mesh/animation/etc.).",
+      "type": "string"
+    },
+    "default_components": {
+      "description": "Default components applied when spawning.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Component"
+      }
+    },
+    "default_transform": {
+      "description": "Default transform used when a spawn point doesn't override it.",
+      "default": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation_euler_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/Transform"
+        }
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "tags": {
+      "description": "Free-form tags for agent filtering.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Component": {
+      "description": "A declarative component attached to an entity.\n\nComponents are addressed by string `ty` (for example `\"physics.rigid_body\"` or `\"render.mesh\"`); the runtime dispatches to the registered component type. This decoupling is what lets the agent emit arbitrary components without the host Rust code needing to enumerate every possible type.",
+      "type": "object",
+      "required": [
+        "ty",
+        "value"
+      ],
+      "properties": {
+        "ty": {
+          "description": "Dotted-path type identifier.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The structured value payload.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ComponentValue"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "ComponentValue": {
+      "description": "Declarative component value. Restricted to a small typed tree so that both humans and agents can author it without consulting the Rust type system.\n\nThe `Ref` variant links to another declared entity by `id`, making cross- entity references first-class (instead of smuggling them through strings).",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "type": "number",
+          "format": "double"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "description": "Entity reference by declarative `id`. Must come before `Map` so that serde's untagged deserializer matches the `$ref` shape first.",
+          "type": "object",
+          "required": [
+            "$ref"
+          ],
+          "properties": {
+            "$ref": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ComponentValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ComponentValue"
+          }
+        }
+      ]
+    },
+    "Transform": {
+      "description": "Rigid-body transform in world space.",
+      "type": "object",
+      "required": [
+        "position",
+        "rotation_euler_deg"
+      ],
+      "properties": {
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        },
+        "rotation_euler_deg": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        },
+        "scale": {
+          "default": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "float"
+          },
+          "maxItems": 3,
+          "minItems": 3
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
