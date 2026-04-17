@@ -1,0 +1,6 @@
+{
+  "verdict": "pass",
+  "min_counters": { "sim.spawn": 2, "sim.ticks": 5 },
+  "expect_repair_patch": false,
+  "min_coherence": 0.99
+}

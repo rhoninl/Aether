@@ -1,0 +1,7 @@
+{
+  "verdict": "pass",
+  "min_counters": { "sim.ticks": 6 },
+  "expect_repair_patch": false,
+  "min_comfort": 0.9,
+  "min_coherence": 0.99
+}

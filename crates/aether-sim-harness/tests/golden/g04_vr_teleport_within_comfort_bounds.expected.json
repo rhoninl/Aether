@@ -1,0 +1,6 @@
+{
+  "verdict": "pass",
+  "min_counters": { "vr.teleport": 2, "sim.ticks": 3 },
+  "expect_repair_patch": false,
+  "min_comfort": 0.99
+}

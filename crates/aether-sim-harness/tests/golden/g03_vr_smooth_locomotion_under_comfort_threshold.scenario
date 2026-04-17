@@ -1,0 +1,33 @@
+name: g03_vr_smooth_locomotion_under_comfort_threshold
+description: Smooth locomotion with mild acceleration stays under comfort threshold.
+seed: 11000003
+tick_hz: 90
+snapshot:
+  kind: empty
+inputs:
+  - kind: agent_action
+    agent: user
+    action:
+      type: frame_time_ms
+      ms: 11.1
+  - kind: agent_action
+    agent: user
+    action:
+      type: smooth_locomotion
+      accel: [0.5, 0.0, 0.0]
+  - kind: tick
+  - kind: agent_action
+    agent: user
+    action:
+      type: smooth_locomotion
+      accel: [0.5, 0.0, 0.0]
+  - kind: tick
+  - kind: agent_action
+    agent: user
+    action:
+      type: smooth_locomotion
+      accel: [0.5, 0.0, 0.0]
+  - kind: tick
+  - kind: tick
+  - kind: tick
+  - kind: tick

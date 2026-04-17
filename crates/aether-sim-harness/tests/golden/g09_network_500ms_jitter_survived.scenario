@@ -1,0 +1,30 @@
+name: g09_network_500ms_jitter_survived
+description: Scenario survives a 500ms jitter injection; coherence holds with budget.
+seed: 11000009
+tick_hz: 60
+snapshot:
+  kind: empty
+inputs:
+  - kind: net_event
+    client: 1
+    event:
+      type: client_connect
+  - kind: agent_action
+    agent: server
+    action:
+      type: spawn
+      entity_tag: potion
+      position: [1.0, 0.0, 1.0]
+  - kind: net_event
+    client: 0
+    event:
+      type: jitter
+      ms: 500
+  - kind: net_event
+    client: 1
+    event:
+      type: replicate_spawn
+      entity_tag: potion
+  - kind: tick
+  - kind: tick
+  - kind: tick
