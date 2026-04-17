@@ -1,0 +1,37 @@
+[package]
+name = "aether-agent-cp"
+version = "0.1.0"
+edition = "2021"
+description = "Agent Control Plane: MCP + gRPC surface for agent-native world authoring"
+
+[features]
+# Default: in-memory backend + both TCP transports + test-token helper
+# (needed so integration-test crates can mint bearer tokens).
+default = ["transport-ws-tcp", "transport-grpc-tcp", "test-tokens"]
+# Enable the WebSocket transport (raw TCP JSON lines — a minimal MCP-over-WS shim).
+transport-ws-tcp = []
+# Enable the length-delimited JSON transport that serves as the gRPC sibling.
+transport-grpc-tcp = []
+# Expose `auth::test_support::mint_token` for integration tests + downstream harnesses.
+test-tokens = []
+# Wire the tool backend through the real Aether crates. Off by default; turn on
+# once the sibling crates (aether-schemas, aether-world-vcs, aether-sim-harness,
+# aether-behavior-dsl) land in the workspace.
+wire = []
+
+[dependencies]
+thiserror = "1"
+tracing = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "time", "io-util", "net", "io-std"] }
+jsonwebtoken = "9"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+base64 = "0.22"
+sha2 = "0.10"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "time", "io-util", "net", "io-std", "test-util", "process"] }
+tempfile = "3"

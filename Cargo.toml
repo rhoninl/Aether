@@ -38,6 +38,8 @@ members = [
     "crates/aether-canonical-shim",
     "crates/aether-sim-harness",
     "crates/aether-behavior-dsl",
+    "crates/aether-agent-cp",
+    "services/agent-cp",
     "examples/agent-native-demo",
     "examples/gpu-demo",
     "examples/single-world-demo",
