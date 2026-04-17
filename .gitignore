@@ -1,3 +1,4 @@
+.claude/
 # Rust (Cargo / workspace)
 target/
 **/target/
