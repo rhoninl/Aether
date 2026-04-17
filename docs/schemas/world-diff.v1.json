@@ -1,0 +1,401 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SignedDiffSchema",
+  "type": "object",
+  "required": [
+    "diff",
+    "public_key",
+    "signature"
+  ],
+  "properties": {
+    "diff": {
+      "$ref": "#/definitions/DiffSchema"
+    },
+    "public_key": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint8",
+        "minimum": 0.0
+      }
+    },
+    "signature": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "format": "uint8",
+        "minimum": 0.0
+      }
+    }
+  },
+  "definitions": {
+    "AgentRefSchema": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "service_account"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "agent"
+              ]
+            },
+            "service_account": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "user_id"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "human"
+              ]
+            },
+            "user_id": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "DiffSchema": {
+      "type": "object",
+      "required": [
+        "author",
+        "base",
+        "ops",
+        "target",
+        "timestamp_unix_ms"
+      ],
+      "properties": {
+        "author": {
+          "$ref": "#/definitions/AgentRefSchema"
+        },
+        "base": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint8",
+            "minimum": 0.0
+          }
+        },
+        "ops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OpSchema"
+          }
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint8",
+            "minimum": 0.0
+          }
+        },
+        "timestamp_unix_ms": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      }
+    },
+    "OpSchema": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "entity",
+            "op",
+            "payload"
+          ],
+          "properties": {
+            "entity": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "add_entity"
+              ]
+            },
+            "payload": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "entity",
+            "op"
+          ],
+          "properties": {
+            "entity": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "remove_entity"
+              ]
+            },
+            "prior_payload": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "entity",
+            "op",
+            "payload"
+          ],
+          "properties": {
+            "entity": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "replace_entity"
+              ]
+            },
+            "payload": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "prior_payload": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "component_name",
+            "entity",
+            "op",
+            "value"
+          ],
+          "properties": {
+            "component_name": {
+              "type": "string"
+            },
+            "entity": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "modify_component"
+              ]
+            },
+            "prior_value": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "entity",
+            "new_script_cid",
+            "old_script_cid",
+            "op"
+          ],
+          "properties": {
+            "entity": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "new_script_cid": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "old_script_cid": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "retarget_script"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "chunk",
+            "op",
+            "payload"
+          ],
+          "properties": {
+            "chunk": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "add_chunk"
+              ]
+            },
+            "payload": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "chunk",
+            "op"
+          ],
+          "properties": {
+            "chunk": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "remove_chunk"
+              ]
+            },
+            "prior_payload": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "chunk",
+            "op",
+            "payload"
+          ],
+          "properties": {
+            "chunk": {
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            },
+            "op": {
+              "type": "string",
+              "enum": [
+                "replace_chunk"
+              ]
+            },
+            "payload": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            },
+            "prior_payload": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "integer",
+                "format": "uint8",
+                "minimum": 0.0
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
