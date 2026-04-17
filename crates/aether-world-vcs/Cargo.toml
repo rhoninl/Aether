@@ -1,0 +1,26 @@
+[package]
+name = "aether-world-vcs"
+version = "0.1.0"
+edition = "2021"
+description = "World-as-Git: signed, content-addressed world diffs with branches, merges, rollbacks, federation remotes and a review surface."
+
+[features]
+# Until U03 lands `aether-schemas`, we ship an in-crate shim for the
+# schema types this crate depends on. Once the schemas crate exists
+# the coordinator flips this off and adds `aether-schemas = { workspace = true }`.
+default = ["shim"]
+shim = []
+
+[dependencies]
+thiserror = "1"
+tracing = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ciborium = "0.2"
+sha2 = "0.10"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
+schemars = "0.8"
+
+[dev-dependencies]
+serde_json = "1"
