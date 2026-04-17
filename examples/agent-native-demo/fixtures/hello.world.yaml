@@ -1,0 +1,11 @@
+# Minimal canonical world manifest (stub-compatible subset of
+# aether-schemas::WorldManifest). Kept intentionally tiny: a single plane chunk
+# at the origin plus a spawn point above it.
+schema_version: 1
+name: hello-agent-world
+spawn:
+  position: [0.0, 1.0, 0.0]
+  yaw_deg: 0.0
+chunks:
+  - coord: [0, 0, 0]
+    kind: plane

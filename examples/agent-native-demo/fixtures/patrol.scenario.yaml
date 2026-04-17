@@ -1,0 +1,5 @@
+# 10-tick scenario that the sim-harness (U05) runs against the ghost world.
+# The stub only needs `name` + `ticks`; the real harness additionally accepts
+# inputs and per-tick assertions.
+name: patrol-10-tick
+ticks: 10

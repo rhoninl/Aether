@@ -1,0 +1,18 @@
+# Patrol behavior — expressed in the 5-verb Aether Behavior DSL (U07).
+# Verbs: move | wait | sense | branch | signal.
+#
+# Semantics (informal): walk between two waypoints, pausing briefly at each,
+# signaling "patrol-tick" every loop. The real DSL parser (U07) enforces the
+# type system; the stub counts verbs for observability only.
+behavior patrol_v1 {
+  loop {
+    move to (2.0, 1.0, 0.0)
+    wait 0.5
+    sense obstacle_ahead -> branch {
+      if true  => signal "patrol-blocked"
+      if false => signal "patrol-tick"
+    }
+    move to (-2.0, 1.0, 0.0)
+    wait 0.5
+  }
+}
