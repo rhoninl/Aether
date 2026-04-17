@@ -107,6 +107,11 @@ fn category_string(c: &WorldCategory) -> String {
         WorldCategory::Simulation => "simulation".into(),
         WorldCategory::Creative => "creative".into(),
         WorldCategory::Sandbox => "sandbox".into(),
+        WorldCategory::Game => "game".into(),
+        WorldCategory::Education => "education".into(),
+        WorldCategory::Commerce => "commerce".into(),
+        WorldCategory::Art => "art".into(),
+        WorldCategory::Music => "music".into(),
         WorldCategory::Other(s) => format!("other:{s}"),
     }
 }

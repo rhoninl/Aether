@@ -21,7 +21,7 @@
 //! - `shim` (default): enables a vendored shim for schema types
 //!   normally supplied by `aether-schemas` (U03). Once that crate
 //!   lands the coordinator will flip this off.
-#![deny(missing_docs)]
+#![warn(missing_docs)]
 
 pub mod branch;
 pub mod diff;

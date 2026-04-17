@@ -29,7 +29,7 @@ pub struct PhysicsSettingsPatch {
     pub max_players: Option<u32>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SpawnPointEdit {
     pub id: u64,
     pub x: f32,
