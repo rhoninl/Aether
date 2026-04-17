@@ -1,0 +1,8 @@
+behavior DoorOpener {
+    @caps(Network)
+    version 1
+
+    sequence {
+        trigger("door_opened", {"door_id": "main_gate"});
+    }
+}

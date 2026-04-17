@@ -1,0 +1,9 @@
+behavior Guard {
+    @caps(Movement)
+    version 1
+
+    sequence {
+        move(self, vec3(5.0, 0.0, 5.0), 1.0);
+        move(self, vec3(5.0, 0.0, 5.0), 0.5);
+    }
+}

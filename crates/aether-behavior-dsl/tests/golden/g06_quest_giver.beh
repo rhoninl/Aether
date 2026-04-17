@@ -1,0 +1,9 @@
+behavior QuestGiver {
+    @caps(Persistence, Network)
+    version 1
+
+    sequence {
+        dialogue(self, "Will you accept this quest?", [option("Yes", "yes"), option("No", "no")]);
+        trigger("quest_accepted", {"quest_id": "q_01", "player": "p"});
+    }
+}

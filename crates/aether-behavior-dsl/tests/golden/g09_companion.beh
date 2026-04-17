@@ -1,0 +1,8 @@
+behavior Companion {
+    @caps(Movement)
+    version 1
+
+    retry(3) {
+        move(self, vec3(2.0, 0.0, 2.0), 2.5);
+    }
+}

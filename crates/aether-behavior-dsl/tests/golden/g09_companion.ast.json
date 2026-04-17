@@ -1,0 +1,103 @@
+{
+  "name": "Companion",
+  "caps": [
+    "Movement"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Retry",
+        "parameter": 3,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Move",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 84,
+                      "end": 88
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Vec3": [
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 2.0
+                              }
+                            },
+                            "span": {
+                              "start": 95,
+                              "end": 98
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 0.0
+                              }
+                            },
+                            "span": {
+                              "start": 100,
+                              "end": 103
+                            }
+                          },
+                          {
+                            "kind": {
+                              "Literal": {
+                                "Float": 2.0
+                              }
+                            },
+                            "span": {
+                              "start": 105,
+                              "end": 108
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 90,
+                      "end": 109
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Float": 2.5
+                      }
+                    },
+                    "span": {
+                      "start": 111,
+                      "end": 114
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 79,
+              "end": 115
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 60,
+      "end": 122
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 124
+  }
+}

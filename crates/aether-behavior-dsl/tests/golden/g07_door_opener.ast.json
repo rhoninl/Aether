@@ -1,0 +1,75 @@
+{
+  "name": "DoorOpener",
+  "caps": [
+    "Network"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Trigger",
+                "args": [
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "door_opened"
+                      }
+                    },
+                    "span": {
+                      "start": 87,
+                      "end": 100
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Map": [
+                          [
+                            "door_id",
+                            {
+                              "kind": {
+                                "Literal": {
+                                  "String": "main_gate"
+                                }
+                              },
+                              "span": {
+                                "start": 114,
+                                "end": 125
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 102,
+                      "end": 126
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 79,
+              "end": 127
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 60,
+      "end": 134
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 136
+  }
+}

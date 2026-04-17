@@ -1,0 +1,9 @@
+behavior Merchant {
+    @caps(Economy)
+    version 1
+
+    sequence {
+        dialogue(self, "Welcome, traveler!", [option("Buy", "buy"), option("Leave", "leave")]);
+        spawn("gold_coin", vec3(0.0, 0.0, 0.0));
+    }
+}

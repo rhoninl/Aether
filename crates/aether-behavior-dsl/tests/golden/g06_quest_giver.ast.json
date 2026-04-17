@@ -1,0 +1,207 @@
+{
+  "name": "QuestGiver",
+  "caps": [
+    "Network",
+    "Persistence"
+  ],
+  "version": 1,
+  "root": {
+    "kind": {
+      "Combinator": {
+        "combinator": "Sequence",
+        "parameter": null,
+        "children": [
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Dialogue",
+                "args": [
+                  {
+                    "kind": {
+                      "Ident": "self"
+                    },
+                    "span": {
+                      "start": 101,
+                      "end": 105
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "Will you accept this quest?"
+                      }
+                    },
+                    "span": {
+                      "start": 107,
+                      "end": 136
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "List": [
+                          {
+                            "kind": {
+                              "DialogueOption": {
+                                "label": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "Yes"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 146,
+                                    "end": 151
+                                  }
+                                },
+                                "id": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "yes"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 153,
+                                    "end": 158
+                                  }
+                                },
+                                "span": {
+                                  "start": 139,
+                                  "end": 159
+                                }
+                              }
+                            },
+                            "span": {
+                              "start": 139,
+                              "end": 159
+                            }
+                          },
+                          {
+                            "kind": {
+                              "DialogueOption": {
+                                "label": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "No"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 168,
+                                    "end": 172
+                                  }
+                                },
+                                "id": {
+                                  "kind": {
+                                    "Literal": {
+                                      "String": "no"
+                                    }
+                                  },
+                                  "span": {
+                                    "start": 174,
+                                    "end": 178
+                                  }
+                                },
+                                "span": {
+                                  "start": 161,
+                                  "end": 179
+                                }
+                              }
+                            },
+                            "span": {
+                              "start": 161,
+                              "end": 179
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 138,
+                      "end": 180
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 92,
+              "end": 181
+            }
+          },
+          {
+            "kind": {
+              "Verb": {
+                "verb": "Trigger",
+                "args": [
+                  {
+                    "kind": {
+                      "Literal": {
+                        "String": "quest_accepted"
+                      }
+                    },
+                    "span": {
+                      "start": 199,
+                      "end": 215
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Literal": {
+                        "Map": [
+                          [
+                            "quest_id",
+                            {
+                              "kind": {
+                                "Literal": {
+                                  "String": "q_01"
+                                }
+                              },
+                              "span": {
+                                "start": 230,
+                                "end": 236
+                              }
+                            }
+                          ],
+                          [
+                            "player",
+                            {
+                              "kind": {
+                                "Literal": {
+                                  "String": "p"
+                                }
+                              },
+                              "span": {
+                                "start": 248,
+                                "end": 251
+                              }
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "span": {
+                      "start": 217,
+                      "end": 252
+                    }
+                  }
+                ]
+              }
+            },
+            "span": {
+              "start": 191,
+              "end": 253
+            }
+          }
+        ]
+      }
+    },
+    "span": {
+      "start": 73,
+      "end": 260
+    }
+  },
+  "span": {
+    "start": 0,
+    "end": 262
+  }
+}

@@ -1,0 +1,9 @@
+behavior Patrol {
+    @caps(Movement)
+    version 1
+
+    sequence {
+        move(self, vec3(0.0, 0.0, 0.0), 1.5);
+        move(self, vec3(10.0, 0.0, 0.0), 1.5);
+    }
+}
