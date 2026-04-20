@@ -153,10 +153,10 @@ impl Replay {
         let sim_duration_ns = self.tick_interval_ns * self.state.current_tick as u128;
 
         self.telemetry.incr("sim.ticks", self.state.current_tick);
-        self.telemetry.record_timing(
-            "sim.total",
-            std::time::Duration::from_nanos(wall_clock_ns.min(u64::MAX as u128) as u64),
-        );
+        // Intentionally do NOT fold wall-clock into `telemetry.timings` — wall
+        // time varies across runs and would poison deterministic report
+        // hashing. `wall_clock_ns` is returned out-of-band on `ReplayOutput`
+        // for callers that want it.
 
         ReplayOutput {
             state: self.state,
