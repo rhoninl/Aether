@@ -1,0 +1,54 @@
+# Box-on-plane acceptance fixture for frogo #68.
+# Exercises Entity + Transform + Component (Mesh + RigidBody).
+schema_version: 1
+world_id: box-on-plane.aether
+display_name: Box on Plane
+meta:
+  author: agent:opus
+  created_at_unix: 1700000000
+  description: Minimal two-entity world used as the Entity+Prop+Component acceptance fixture.
+runtime_settings:
+  gravity: -9.81
+  tick_rate_hz: 60
+  max_players: 1
+lighting:
+  sun_intensity: 1.0
+  ambient_intensity: 0.1
+spawn_points:
+- id: origin
+  position: [0.0, 1.5, 0.0]
+  yaw_deg: 0.0
+  is_default: true
+entities:
+- id: ground.plane
+  kind: prop
+  transform:
+    position: [0.0, 0.0, 0.0]
+    rotation_euler_deg: [0.0, 0.0, 0.0]
+    scale: [20.0, 1.0, 20.0]
+  components:
+  - ty: render.mesh
+    value:
+      asset_cid: "cid:v1:0000000000000000000000000000000000000000000000000000000000000001"
+      primitive: plane
+  - ty: physics.rigid_body
+    value:
+      body_type: static
+      friction: 0.8
+  tags: [ground]
+- id: falling.box
+  kind: prop
+  transform:
+    position: [0.0, 5.0, 0.0]
+    rotation_euler_deg: [0.0, 0.0, 0.0]
+    scale: [1.0, 1.0, 1.0]
+  components:
+  - ty: render.mesh
+    value:
+      asset_cid: "cid:v1:0000000000000000000000000000000000000000000000000000000000000002"
+      primitive: cube
+  - ty: physics.rigid_body
+    value:
+      body_type: dynamic
+      mass: 1.0
+  tags: [box, dynamic]

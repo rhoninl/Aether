@@ -1,0 +1,12 @@
+# Canonical Prop example (frogo task #75). Reusable template referenced by CID.
+id: cube.1m
+asset_cid: "cid:v1:0000000000000000000000000000000000000000000000000000000000000002"
+default_components:
+- ty: render.mesh
+  value:
+    primitive: cube
+default_transform:
+  position: [0.0, 0.0, 0.0]
+  rotation_euler_deg: [0.0, 0.0, 0.0]
+  scale: [1.0, 1.0, 1.0]
+tags: [prop, basic]

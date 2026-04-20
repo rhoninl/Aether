@@ -1,0 +1,13 @@
+# Canonical ChunkManifest example (frogo task #75). Streaming unit referenced by
+# WorldManifest via asset_cid. Multiple manifests may share a `coord` if they
+# differ in `lod`.
+coord:
+  x: 0
+  y: 0
+  z: 0
+kind: terrain
+lod: 0
+asset_cid: "cid:v1:0000000000000000000000000000000000000000000000000000000000000010"
+size_bytes: 65536
+prefetch_distance_meters: 128.0
+tags: [ground]

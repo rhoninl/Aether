@@ -1,0 +1,13 @@
+# Canonical Entity example (frogo task #75). A boss NPC with a rigid-body component.
+id: giant_spider
+kind: npc
+transform:
+  position: [10.0, 0.0, 3.5]
+  rotation_euler_deg: [0.0, 90.0, 0.0]
+  scale: [1.0, 1.0, 1.0]
+components:
+- ty: physics.rigid_body
+  value:
+    mass: 120.0
+    body_type: dynamic
+tags: [boss]
