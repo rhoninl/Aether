@@ -303,6 +303,7 @@ version = "0.1.0"
 dependencies = [
  "ciborium",
  "ciborium-io",
+ "hex",
  "schemars",
  "serde",
  "serde_json",
@@ -455,10 +456,11 @@ dependencies = [
 name = "agent-native-demo"
 version = "0.1.0"
 dependencies = [
+ "aether-agent-cp",
+ "aether-world-vcs",
  "hex",
  "serde",
  "serde_json",
- "serde_yaml",
  "sha2",
  "thiserror 1.0.69",
  "tracing",

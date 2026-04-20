@@ -1,18 +1,8 @@
-# Patrol behavior — expressed in the 5-verb Aether Behavior DSL (U07).
-# Verbs: move | wait | sense | branch | signal.
-#
-# Semantics (informal): walk between two waypoints, pausing briefly at each,
-# signaling "patrol-tick" every loop. The real DSL parser (U07) enforces the
-# type system; the stub counts verbs for observability only.
-behavior patrol_v1 {
-  loop {
-    move to (2.0, 1.0, 0.0)
-    wait 0.5
-    sense obstacle_ahead -> branch {
-      if true  => signal "patrol-blocked"
-      if false => signal "patrol-tick"
-    }
-    move to (-2.0, 1.0, 0.0)
-    wait 0.5
-  }
-}
+# Patrol behavior — a minimal on-tick handler the ToolRegistry's compile
+# pipeline accepts today. The long-form 5-verb Aether Behavior DSL (task #83,
+# U07) is intentionally richer; we pin the minimal handler here so the
+# InMemoryBackend compile path (script.compile) exercises the real registry
+# dispatch without dragging in the full DSL type-checker. Swap the line below
+# for a full `behavior patrol_v1 { ... }` block once the agent-cp backend's
+# `wire` feature routes through aether-behavior-dsl.
+on tick do move "forward"

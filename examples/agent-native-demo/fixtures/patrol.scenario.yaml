@@ -1,5 +1,7 @@
-# 10-tick scenario that the sim-harness (U05) runs against the ghost world.
-# The stub only needs `name` + `ticks`; the real harness additionally accepts
-# inputs and per-tick assertions.
+# 10-tick scenario driven against the ghost world. The ToolRegistry's sim.run
+# tool (task #93) verdicts `pass` when the target world has at least one
+# entity and the scenario's `expect` is `pass` (the default). Increase `ticks`
+# or add `expect: pass` explicitly to pin behavior.
 name: patrol-10-tick
 ticks: 10
+expect: pass

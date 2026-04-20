@@ -3,41 +3,21 @@ name = "agent-native-demo"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "Thin-slice agent-native end-to-end demo (task 66) — Claude agent creates a world, spawns an entity, writes and compiles a patrol behavior, runs a scenario, and promotes a diff to main."
+description = "Thin-slice agent-native end-to-end demo (task 66) — an AI agent creates a world, spawns an entity, compiles a patrol behavior, runs a scenario, and signs + merges the resulting diff, all via the real aether-agent-cp ToolRegistry and aether-world-vcs."
 
 [[bin]]
 name = "agent-native-demo"
 path = "src/main.rs"
 
-[features]
-# Default ON: run against local stubs that mirror the public APIs of the five
-# dependency units (aether-schemas, aether-sim-harness, aether-behavior-dsl,
-# aether-agent-cp, aether-world-vcs). When the real crates land, flip the
-# default off and wire in the real crates as dependencies.
-default = ["stubs"]
-stubs = []
-real = [
-    # placeholder list — populated post-batch when units U03/U05/U07/U08/U09
-    # have landed on main. See README.md.
-]
-
 [dependencies]
+aether-agent-cp = { path = "../../crates/aether-agent-cp" }
+aether-world-vcs = { path = "../../crates/aether-world-vcs" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-serde_yaml = "0.9"
 thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 sha2 = "0.10"
 hex = "0.4"
-
-# When `real` is enabled and stubs is not, these are the workspace crates we
-# expect to consume. Currently optional because the crates may not yet exist on
-# this branch; the `real` feature above is a placeholder.
-# aether-schemas     = { path = "../../crates/aether-schemas", optional = true }
-# aether-sim-harness = { path = "../../crates/aether-sim-harness", optional = true }
-# aether-behavior-dsl = { path = "../../crates/aether-behavior-dsl", optional = true }
-# aether-agent-cp    = { path = "../../crates/aether-agent-cp", optional = true }
-# aether-world-vcs   = { path = "../../crates/aether-world-vcs", optional = true }
 
 [dev-dependencies]
