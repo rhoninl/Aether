@@ -1,7 +1,6 @@
 imports:
   aether.damage
   aether.dialogue
-  aether.log_int
   aether.move
   aether.spawn
   aether.timer_elapsed_ms
@@ -10,5 +9,5 @@ imports:
 exports:
   memory (memory)
   tick (func)
-function_count: 13
+function_count: 12
 defined_function_count: 5
