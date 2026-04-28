@@ -28,17 +28,8 @@ impl Default for Fov {
 /// One eye-view location: pose + FOV. Backends produce a Vec of these per
 /// frame; the array length matches the active `ViewConfigType` (1 for Mono,
 /// 2 for Stereo).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct View {
     pub pose: Pose3,
     pub fov: Fov,
-}
-
-impl Default for View {
-    fn default() -> Self {
-        Self {
-            pose: Pose3::default(),
-            fov: Fov::default(),
-        }
-    }
 }

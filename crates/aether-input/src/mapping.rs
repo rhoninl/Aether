@@ -107,7 +107,9 @@ impl ActionMap {
             // convention that all bindings for a given action share a value
             // type. Mismatched kinds across bindings would be a config bug,
             // not something the manifest can repair.
-            kind_per_action.entry(binding.action_name.clone()).or_insert(kind);
+            kind_per_action
+                .entry(binding.action_name.clone())
+                .or_insert(kind);
         }
 
         let mut manifest = ActionManifest::new(name, localized_name, priority);
@@ -318,18 +320,34 @@ mod tests {
         use aether_xr_hal::action::ActionKind;
 
         let mut map = ActionMap::new();
-        map.bind("jump", InputSource::Keyboard(KeyCode::Space), InputGesture::Press);
+        map.bind(
+            "jump",
+            InputSource::Keyboard(KeyCode::Space),
+            InputGesture::Press,
+        );
         map.bind("jump", InputSource::GamepadButton(0), InputGesture::Press);
-        map.bind("look_x", InputSource::MouseAxis(MouseAxis::X), InputGesture::Press);
+        map.bind(
+            "look_x",
+            InputSource::MouseAxis(MouseAxis::X),
+            InputGesture::Press,
+        );
 
         let manifest = map.to_manifest("gameplay", "Gameplay", 0);
         assert_eq!(manifest.name(), "gameplay");
         assert_eq!(manifest.actions().len(), 2);
 
-        let jump = manifest.actions().iter().find(|a| a.name == "jump").unwrap();
+        let jump = manifest
+            .actions()
+            .iter()
+            .find(|a| a.name == "jump")
+            .unwrap();
         assert_eq!(jump.kind, ActionKind::Boolean);
 
-        let look_x = manifest.actions().iter().find(|a| a.name == "look_x").unwrap();
+        let look_x = manifest
+            .actions()
+            .iter()
+            .find(|a| a.name == "look_x")
+            .unwrap();
         assert_eq!(look_x.kind, ActionKind::Float);
     }
 

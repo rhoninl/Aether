@@ -252,10 +252,7 @@ impl XrSession for EmulatorHalSession {
         Ok(ReferenceSpace::with_offset(kind, offset))
     }
 
-    fn create_swapchain(
-        &self,
-        config: SwapchainConfig,
-    ) -> Result<Self::Swapchain, Self::Error> {
+    fn create_swapchain(&self, config: SwapchainConfig) -> Result<Self::Swapchain, Self::Error> {
         Ok(EmulatorSwapchain::new(config))
     }
 
@@ -267,7 +264,11 @@ impl XrSession for EmulatorHalSession {
     fn wait_frame(&mut self) -> Result<Self::Frame, Self::Error> {
         let count = self.frame_count;
         self.frame_count = self.frame_count.saturating_add(1);
-        Ok(EmulatorHalFrame::new(count, self.state, self.config.prediction_offset_ns))
+        Ok(EmulatorHalFrame::new(
+            count,
+            self.state,
+            self.config.prediction_offset_ns,
+        ))
     }
 }
 
@@ -683,7 +684,10 @@ mod tests {
         let mut sc = session
             .create_swapchain(SwapchainConfig::default())
             .unwrap();
-        assert_eq!(sc.images().len(), SwapchainConfig::default().image_count as usize);
+        assert_eq!(
+            sc.images().len(),
+            SwapchainConfig::default().image_count as usize
+        );
         let idx = sc.acquire().unwrap();
         assert_eq!(idx, SwapchainImageIndex(0));
         // can't release before wait

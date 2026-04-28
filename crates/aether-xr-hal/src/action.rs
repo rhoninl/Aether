@@ -211,9 +211,10 @@ impl ActionBuilder {
     /// Add suggested bindings for a single interaction profile. May be called
     /// multiple times; each call records one profile entry.
     pub fn binding(mut self, profile: InteractionProfile, paths: &[&str]) -> Self {
-        self.decl
-            .suggested
-            .push((profile, paths.iter().map(|p| BindingPath::from(*p)).collect()));
+        self.decl.suggested.push((
+            profile,
+            paths.iter().map(|p| BindingPath::from(*p)).collect(),
+        ));
         self
     }
 

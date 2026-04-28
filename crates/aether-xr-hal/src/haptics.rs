@@ -28,9 +28,9 @@ pub struct HapticPulse {
     pub amplitude: f32,
 }
 
-/// High-level dispatcher output: target + duration in ms + amplitude + frequency
-/// + loop flag. The dispatcher in `aether-input::openxr_haptics` produces these;
-/// backends translate to one or more [`HapticPulse`] calls.
+/// High-level dispatcher output carrying target, duration (ms), amplitude,
+/// frequency, and loop flag. The dispatcher in `aether-input::openxr_haptics`
+/// produces these; backends translate to one or more [`HapticPulse`] calls.
 #[derive(Debug, Clone)]
 pub struct HapticAction {
     pub target: HapticTarget,

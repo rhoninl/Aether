@@ -24,22 +24,21 @@ pub use action::{
 };
 pub use event::XrEvent;
 pub use frame::{XrFrame, XrTime};
+pub use haptics::{
+    clamp_amplitude, HapticAction, HapticPulse, HapticTarget, XrHaptics, MAX_HAPTIC_AMPLITUDE,
+    MIN_HAPTIC_AMPLITUDE,
+};
 pub use instance::{
     ExtensionId, GraphicsRequirements, InstanceConfig, InstanceProperties, SystemProperties,
     ViewConfigType, XrInstance,
 };
 pub use layer::{LayerBuilder, LayerSubmission, ProjectionLayerView};
 pub use platform::{RuntimeDescriptor, XrPlatform};
+pub use profile::{BindingPath, InteractionProfile};
 pub use session::{
     ReferenceSpace, ReferenceSpaceType, SessionConfig, SessionState, SessionTransitionError,
     XrSession, DEFAULT_PREDICTION_OFFSET_NS,
 };
-pub use view::{Fov, View};
-pub use haptics::{
-    clamp_amplitude, HapticAction, HapticPulse, HapticTarget, XrHaptics, MAX_HAPTIC_AMPLITUDE,
-    MIN_HAPTIC_AMPLITUDE,
-};
-pub use profile::{BindingPath, InteractionProfile};
 pub use swapchain::{
     SwapchainConfig, SwapchainError, SwapchainFormat, SwapchainImageIndex, SwapchainState,
     SwapchainUsage, XrSwapchain, DEFAULT_HEIGHT, DEFAULT_SAMPLE_COUNT, DEFAULT_WIDTH,
@@ -50,3 +49,4 @@ pub use tracking::{
     TrackingConfidence, TrackingPipeline, TrackingSnapshot, DEFAULT_TRACKING_PREDICTION_NS,
     MAX_HAND_JOINTS,
 };
+pub use view::{Fov, View};

@@ -388,7 +388,8 @@ impl XrInstance for OpenXrInstance {
         match graphics {
             GraphicsRequirements::Vulkan => Err(OpenXrError::Other(
                 "Vulkan session creation requires graphics handles; \
-                 use OpenXrHalSession::with_vulkan() builder instead".to_string(),
+                 use OpenXrHalSession::with_vulkan() builder instead"
+                    .to_string(),
             )),
             GraphicsRequirements::Headless => OpenXrHalSession::headless(self, config),
         }
@@ -446,12 +447,10 @@ impl OpenXrHalSession {
     /// Headless session — no graphics binding. Used for tests / CI.
     fn headless(instance: &OpenXrInstance, config: SessionConfig) -> Result<Self, OpenXrError> {
         let (session, _, _) = unsafe {
-            instance
-                .inner
-                .create_session::<openxr::headless::Headless>(
-                    instance.system,
-                    &openxr::headless::SessionCreateInfo {},
-                )
+            instance.inner.create_session::<openxr::headless::Headless>(
+                instance.system,
+                &openxr::headless::SessionCreateInfo {},
+            )
         }
         .map_err(|e| OpenXrError::Other(format!("create_session(headless): {e:?}")))?;
 
@@ -667,8 +666,7 @@ impl XrFrame for OpenXrHalFrame {
         // create_reference_space). When P5-B follows up, the session will
         // expose a SpaceLocator the frame can borrow.
         Err(OpenXrError::Other(
-            "locate_views: needs live openxr::Space wired through the session (P5-B)"
-                .to_string(),
+            "locate_views: needs live openxr::Space wired through the session (P5-B)".to_string(),
         ))
     }
 
@@ -677,8 +675,7 @@ impl XrFrame for OpenXrHalFrame {
         // needs the openxr::Session, not just its public state. P4-A
         // followup wires a session-borrowing frame.
         Err(OpenXrError::Other(
-            "sync_actions: needs live openxr::Session wired through the session (P4-A)"
-                .to_string(),
+            "sync_actions: needs live openxr::Session wired through the session (P4-A)".to_string(),
         ))
     }
 
@@ -790,7 +787,11 @@ impl OpenXrActionSet {
     ) -> Result<Self, OpenXrError> {
         let inner = instance
             .inner
-            .create_action_set(manifest.name(), manifest.localized_name(), manifest.priority())
+            .create_action_set(
+                manifest.name(),
+                manifest.localized_name(),
+                manifest.priority(),
+            )
             .map_err(|e| OpenXrError::Other(format!("create_action_set: {e:?}")))?;
 
         // Suggested-binding registration: per OpenXR spec each
@@ -872,10 +873,7 @@ pub struct OpenXrHaptics {
 }
 
 impl OpenXrHaptics {
-    pub fn new(
-        action: openxr::Action<openxr::Haptic>,
-        subaction_paths: Vec<openxr::Path>,
-    ) -> Self {
+    pub fn new(action: openxr::Action<openxr::Haptic>, subaction_paths: Vec<openxr::Path>) -> Self {
         Self {
             action,
             subaction_paths,

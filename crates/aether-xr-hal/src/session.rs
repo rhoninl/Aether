@@ -97,10 +97,7 @@ pub trait XrSession {
     fn state(&self) -> SessionState;
 
     /// `xrBeginSession`.
-    fn begin(
-        &mut self,
-        view_config: crate::instance::ViewConfigType,
-    ) -> Result<(), Self::Error>;
+    fn begin(&mut self, view_config: crate::instance::ViewConfigType) -> Result<(), Self::Error>;
 
     /// `xrEndSession`.
     fn end(&mut self) -> Result<(), Self::Error>;
