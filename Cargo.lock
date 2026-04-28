@@ -391,6 +391,8 @@ dependencies = [
  "aether-input",
  "aether-renderer",
  "aether-vr-overlay",
+ "aether-xr-hal",
+ "log",
  "minifb",
  "serde",
 ]

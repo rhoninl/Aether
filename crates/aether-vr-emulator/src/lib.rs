@@ -7,6 +7,7 @@
 pub mod config;
 pub mod controller;
 pub mod display;
+pub mod hal;
 pub mod head_tracking;
 pub mod session;
 pub mod window;
@@ -17,11 +18,15 @@ pub use config::{
 };
 pub use controller::{ControllerInput, EmulatedControllers};
 pub use display::{Eye, EyeView, StereoDisplay, Viewport};
+pub use hal::{
+    EmulatorActionSet, EmulatorBoolAction, EmulatorError, EmulatorFloatAction, EmulatorHalFrame,
+    EmulatorHalSession, EmulatorHaptics, EmulatorInstance, EmulatorPlatform, EmulatorSwapchain,
+};
 pub use head_tracking::{EmulatedHeadTracker, HeadPresetPosition};
 pub use session::{EmulatorSession, EmulatorSessionState, FrameTiming, SessionError};
 pub use window::{DebugOverlayInfo, EmulatorFrameBuffer, EmulatorWindow};
 
-use aether_input::openxr_tracking::{TrackingConfidence, TrackingSnapshot};
+use aether_xr_hal::tracking::{TrackingConfidence, TrackingSnapshot};
 
 /// The main VR emulator that ties all subsystems together.
 ///
