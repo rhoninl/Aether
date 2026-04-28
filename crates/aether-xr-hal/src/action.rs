@@ -11,28 +11,7 @@
 
 use crate::frame::XrFrame;
 use crate::profile::{BindingPath, InteractionProfile};
-
-// TODO(P1-A): replace this local placeholder with the canonical `Pose3` from
-// `aether-xr-hal::pose` once P1-A lands. Kept inline so the sealed
-// `ActionValue` impl for poses compiles in isolation.
-/// 3D pose: position + orientation, in the same handedness convention as OpenXR
-/// (right-handed, +Y up, +X right, -Z forward).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Pose3 {
-    /// `[x, y, z]` in meters.
-    pub position: [f32; 3],
-    /// Quaternion `[x, y, z, w]`.
-    pub orientation: [f32; 4],
-}
-
-impl Default for Pose3 {
-    fn default() -> Self {
-        Self {
-            position: [0.0; 3],
-            orientation: [0.0, 0.0, 0.0, 1.0],
-        }
-    }
-}
+use crate::tracking::Pose3;
 
 mod sealed {
     /// Sealed-trait pattern: only this crate may implement [`ActionValue`].

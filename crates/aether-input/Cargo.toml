@@ -8,4 +8,4 @@ description = "VR input abstraction, interaction primitives, and locomotion comf
 desktop = []
 
 [dependencies]
-
+aether-xr-hal = { path = "../aether-xr-hal" }

@@ -20,11 +20,16 @@ pub mod view;
 
 pub use action::{
     ActionBuilder, ActionDecl, ActionKind, ActionManifest, ActionSetHandle, ActionState,
-    ActionValue, Pose3, XrAction, XrActionSet,
+    ActionValue, XrAction, XrActionSet,
 };
 pub use frame::XrFrame;
 pub use haptics::{HapticEffect, HapticTarget, XrHaptics};
 pub use profile::{BindingPath, InteractionProfile};
 pub use swapchain::{
     SwapchainConfig, SwapchainFormat, SwapchainImageIndex, SwapchainUsage, XrSwapchain,
+};
+pub use tracking::{
+    ControllerAnalog, ControllerButtons, ControllerState, Hand, HandJoint, HandJointSet, Pose3,
+    TrackingConfidence, TrackingPipeline, TrackingSnapshot, DEFAULT_TRACKING_PREDICTION_NS,
+    MAX_HAND_JOINTS,
 };
