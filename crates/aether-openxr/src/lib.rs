@@ -5,6 +5,24 @@ pub mod instance;
 pub mod session;
 pub mod swapchain;
 
+// HAL trait implementations against the real OpenXR loader. Gated on both
+// the feature flag and the host target — `openxr` only links on Linux and
+// Windows. See docs/design/xr-hal-refactor.md §11 (open questions).
+#[cfg(all(
+    feature = "openxr-runtime",
+    any(target_os = "linux", target_os = "windows")
+))]
+pub mod hal;
+
+#[cfg(all(
+    feature = "openxr-runtime",
+    any(target_os = "linux", target_os = "windows")
+))]
+pub use hal::{
+    OpenXrActionSet, OpenXrHalFrame, OpenXrHalSession, OpenXrHaptics, OpenXrInstance,
+    OpenXrPlatform, OpenXrSwapchain,
+};
+
 pub use error::OpenXrError;
 
 // Re-export the raw `openxr` binding crate when the `openxr-runtime` feature

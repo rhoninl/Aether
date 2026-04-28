@@ -242,6 +242,7 @@ name = "aether-openxr"
 version = "0.1.0"
 dependencies = [
  "aether-input",
+ "aether-xr-hal",
  "log",
  "openxr",
 ]
