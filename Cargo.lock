@@ -437,6 +437,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "aether-xr-hal"
+version = "0.1.0"
+
+[[package]]
 name = "aether-zoning"
 version = "0.1.0"
 

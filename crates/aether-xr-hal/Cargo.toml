@@ -1,0 +1,9 @@
+[package]
+name = "aether-xr-hal"
+version = "0.1.0"
+edition = "2021"
+description = "OpenXR-aligned hardware abstraction layer for Aether's XR subsystem"
+
+[dependencies]
+
+[dev-dependencies]
