@@ -30,6 +30,7 @@ members = [
     "crates/aether-vr-emulator",
     "crates/aether-vr-overlay",
     "crates/aether-openxr",
+    "crates/aether-xr-hal",
     "crates/aether-build",
     "crates/aether-cli",
     "crates/aether-multiplayer",
