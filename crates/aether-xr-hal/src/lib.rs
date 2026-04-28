@@ -23,10 +23,15 @@ pub use action::{
     ActionValue, XrAction, XrActionSet,
 };
 pub use frame::XrFrame;
-pub use haptics::{HapticEffect, HapticTarget, XrHaptics};
+pub use haptics::{
+    clamp_amplitude, HapticAction, HapticPulse, HapticTarget, XrHaptics, MAX_HAPTIC_AMPLITUDE,
+    MIN_HAPTIC_AMPLITUDE,
+};
 pub use profile::{BindingPath, InteractionProfile};
 pub use swapchain::{
-    SwapchainConfig, SwapchainFormat, SwapchainImageIndex, SwapchainUsage, XrSwapchain,
+    SwapchainConfig, SwapchainError, SwapchainFormat, SwapchainImageIndex, SwapchainState,
+    SwapchainUsage, XrSwapchain, DEFAULT_HEIGHT, DEFAULT_SAMPLE_COUNT, DEFAULT_WIDTH,
+    MAX_SWAPCHAIN_IMAGES,
 };
 pub use tracking::{
     ControllerAnalog, ControllerButtons, ControllerState, Hand, HandJoint, HandJointSet, Pose3,

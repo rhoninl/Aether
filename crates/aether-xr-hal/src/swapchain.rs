@@ -1,14 +1,75 @@
-//! Swapchain trait and supporting value types (design doc §5.5, §8).
+//! Swapchain trait + value types (design doc §5.5, §8, P1-C/P2-C).
 //!
 //! `XrSwapchain` mirrors the OpenXR swapchain image-rotation contract:
 //! `xrEnumerateSwapchainImages` / `xrAcquireSwapchainImage` /
 //! `xrWaitSwapchainImage` / `xrReleaseSwapchainImage`. The image type is left
 //! as an associated type so this crate avoids a `wgpu` dependency in V1; backends
-//! bind `Image = wgpu::Texture` once the renderer integration lands.
+//! bind `Image = wgpu::Texture` once renderer integration lands.
 
-/// Index returned by `xrAcquireSwapchainImage`. Wraps a `u32` (OpenXR's
-/// `XrSwapchainImageIndex`) so the API never exposes a raw counter that can be
-/// mistaken for an image count or a frame index.
+pub const MAX_SWAPCHAIN_IMAGES: u32 = 4;
+pub const DEFAULT_WIDTH: u32 = 1440;
+pub const DEFAULT_HEIGHT: u32 = 1600;
+pub const DEFAULT_SAMPLE_COUNT: u32 = 1;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SwapchainFormat {
+    Rgba8Srgb,
+    Rgba8Unorm,
+    Bgra8Srgb,
+    Bgra8Unorm,
+    Rgba16Float,
+    Rgb10A2Unorm,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SwapchainUsage {
+    ColorAttachment,
+    Sampled,
+    ColorAttachmentAndSampled,
+}
+
+#[derive(Debug, Clone)]
+pub struct SwapchainConfig {
+    pub width: u32,
+    pub height: u32,
+    pub format: SwapchainFormat,
+    pub sample_count: u32,
+    pub image_count: u32,
+    pub usage: SwapchainUsage,
+}
+
+impl Default for SwapchainConfig {
+    fn default() -> Self {
+        Self {
+            width: DEFAULT_WIDTH,
+            height: DEFAULT_HEIGHT,
+            format: SwapchainFormat::Rgba8Srgb,
+            sample_count: DEFAULT_SAMPLE_COUNT,
+            image_count: 3,
+            usage: SwapchainUsage::ColorAttachment,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SwapchainError {
+    AlreadyAcquired,
+    NotAcquired,
+    NotWaited,
+    NoImageToRelease,
+    NotCreated,
+    InvalidConfig(String),
+    ImageIndexOutOfRange { index: u32, count: u32 },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SwapchainState {
+    Idle,
+    Acquired,
+    Ready,
+}
+
+/// Index returned by `xrAcquireSwapchainImage`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SwapchainImageIndex(pub u32);
 
@@ -18,73 +79,17 @@ impl SwapchainImageIndex {
     }
 }
 
-// TODO(P1-C): the design doc §8 moves `SwapchainConfig` / `SwapchainFormat` /
-// `SwapchainUsage` from `aether-input::openxr_swapchain` into this crate as
-// wgpu-aligned value types. P1-C owns the canonical definitions; the
-// placeholders below let P2-C (the trait surface) compile in isolation. When
-// P1-C lands, replace these with the merged value types and update
-// `XrSwapchain::create_*` call sites accordingly.
-
-/// Placeholder for the swapchain creation descriptor. See P1-C for the canonical
-/// definition (extent, sample count, array size, format, usage, mip count).
-#[derive(Debug, Clone)]
-pub struct SwapchainConfig {
-    pub width: u32,
-    pub height: u32,
-    pub sample_count: u32,
-    pub array_size: u32,
-    pub format: SwapchainFormat,
-    pub usage: SwapchainUsage,
-}
-
-/// Placeholder for the wgpu-aligned color/depth format enum (see P1-C).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SwapchainFormat {
-    /// 8-bit-per-channel sRGB color, 4 channels.
-    Rgba8UnormSrgb,
-    /// 32-bit float depth.
-    Depth32Float,
-}
-
-/// Placeholder for the bitflag set describing how the swapchain images will be
-/// used (color attachment, depth attachment, sampled, etc.). See P1-C.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SwapchainUsage(pub u32);
-
-impl SwapchainUsage {
-    pub const COLOR_ATTACHMENT: Self = Self(1 << 0);
-    pub const DEPTH_STENCIL_ATTACHMENT: Self = Self(1 << 1);
-    pub const SAMPLED: Self = Self(1 << 2);
-    pub const TRANSFER_SRC: Self = Self(1 << 3);
-    pub const TRANSFER_DST: Self = Self(1 << 4);
-}
-
-/// Per-eye swapchain handle.
-///
-/// Backends own image rotation; consumers acquire → wait → render → release per
-/// frame, exactly as the OpenXR spec requires. `Image` is an associated type to
-/// keep `aether-xr-hal` free of a `wgpu` dependency in V1; both the OpenXR and
-/// emulator backends bind it to `wgpu::Texture` so render code is identical.
+/// Per-eye swapchain handle. Backends own image rotation; consumers acquire →
+/// wait → render → release per frame, exactly as the OpenXR spec requires.
 pub trait XrSwapchain {
     /// Backend-specific image handle. In V1 both backends will set this to
     /// `wgpu::Texture` (see design doc §8).
     type Image;
     type Error: std::error::Error + Send + Sync + 'static;
 
-    /// Static slice of all images owned by this swapchain
-    /// (`xrEnumerateSwapchainImages`).
     fn images(&self) -> &[Self::Image];
-
-    /// Acquire the next image from the swapchain. Returns the index into
-    /// `images()` (`xrAcquireSwapchainImage`).
     fn acquire(&mut self) -> Result<SwapchainImageIndex, Self::Error>;
-
-    /// Wait until the acquired image is ready for rendering, with a nanosecond
-    /// timeout (`xrWaitSwapchainImage`).
     fn wait(&mut self, timeout_ns: u64) -> Result<(), Self::Error>;
-
-    /// Release the most-recently-acquired image back to the runtime
-    /// (`xrReleaseSwapchainImage`).
     fn release(&mut self) -> Result<(), Self::Error>;
 }
 
@@ -99,12 +104,11 @@ mod tests {
     }
 
     #[test]
-    fn swapchain_usage_flags_are_distinct() {
-        // Sanity: bit positions don't collide.
-        assert_ne!(
-            SwapchainUsage::COLOR_ATTACHMENT,
-            SwapchainUsage::DEPTH_STENCIL_ATTACHMENT
-        );
-        assert_ne!(SwapchainUsage::COLOR_ATTACHMENT, SwapchainUsage::SAMPLED);
+    fn default_config_has_safe_dimensions() {
+        let c = SwapchainConfig::default();
+        assert_eq!(c.width, DEFAULT_WIDTH);
+        assert_eq!(c.height, DEFAULT_HEIGHT);
+        assert_eq!(c.format, SwapchainFormat::Rgba8Srgb);
+        assert!(c.image_count > 0 && c.image_count <= MAX_SWAPCHAIN_IMAGES);
     }
 }
