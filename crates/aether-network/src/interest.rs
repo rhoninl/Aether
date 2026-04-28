@@ -101,7 +101,7 @@ impl InterestManager {
             let priority = (bucket as i32) * 1_000_000 + (1_000.0 - distance).max(0.0) as i32;
             sorted.push((priority, *id));
         }
-        sorted.sort_by(|a, b| b.0.cmp(&a.0));
+        sorted.sort_by_key(|b| std::cmp::Reverse(b.0));
         sorted
             .into_iter()
             .take(budget.max_entities)

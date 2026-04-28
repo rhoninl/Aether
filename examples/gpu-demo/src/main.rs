@@ -267,16 +267,14 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
 
-            WindowEvent::Resized(new_size) => {
-                if new_size.width > 0 && new_size.height > 0 {
-                    renderer.resize(new_size.width, new_size.height);
-                    camera.set_aspect_ratio(new_size.width, new_size.height);
-                    log::debug!(
-                        "window resized: width={}, height={}",
-                        new_size.width,
-                        new_size.height
-                    );
-                }
+            WindowEvent::Resized(new_size) if new_size.width > 0 && new_size.height > 0 => {
+                renderer.resize(new_size.width, new_size.height);
+                camera.set_aspect_ratio(new_size.width, new_size.height);
+                log::debug!(
+                    "window resized: width={}, height={}",
+                    new_size.width,
+                    new_size.height
+                );
             }
 
             WindowEvent::KeyboardInput {
