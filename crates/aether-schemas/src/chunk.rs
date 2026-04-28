@@ -32,7 +32,18 @@ impl ChunkCoord {
 
 /// LOD level; 0 is highest fidelity, higher values are coarser meshes.
 #[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    JsonSchema,
 )]
 #[serde(transparent)]
 pub struct LodLevel(pub u8);
@@ -49,12 +60,6 @@ impl LodLevel {
             ));
         }
         Ok(())
-    }
-}
-
-impl Default for LodLevel {
-    fn default() -> Self {
-        LodLevel(0)
     }
 }
 

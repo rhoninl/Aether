@@ -126,11 +126,7 @@ pub enum MergeDecision {
 /// A review store: keyed by diff CID.
 pub trait ReviewStore {
     /// Create a review gate for a diff with the given reviewers.
-    fn request_review(
-        &mut self,
-        diff_cid: Cid,
-        reviewers: Vec<ReviewerRef>,
-    ) -> Result<Review>;
+    fn request_review(&mut self, diff_cid: Cid, reviewers: Vec<ReviewerRef>) -> Result<Review>;
 
     /// Record a review action by `who`.
     fn review(
@@ -185,11 +181,7 @@ fn recompute_aggregate(review: &mut Review) {
 }
 
 impl ReviewStore for MemoryReviewStore {
-    fn request_review(
-        &mut self,
-        diff_cid: Cid,
-        reviewers: Vec<ReviewerRef>,
-    ) -> Result<Review> {
+    fn request_review(&mut self, diff_cid: Cid, reviewers: Vec<ReviewerRef>) -> Result<Review> {
         let review = Review {
             diff_cid,
             reviewers: reviewers

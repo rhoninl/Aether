@@ -1,4 +1,5 @@
 use crate::capabilities::InputActionPath;
+pub use aether_xr_hal::tracking::Pose3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum XRButton {
@@ -19,14 +20,6 @@ pub enum ActionPhase {
     Started,
     Updated,
     Canceled,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct Pose3 {
-    pub position: [f32; 3],
-    pub rotation: [f32; 4],
-    pub linear_velocity: [f32; 3],
-    pub angular_velocity: [f32; 3],
 }
 
 #[derive(Debug, Clone)]

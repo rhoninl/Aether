@@ -66,7 +66,11 @@ fn upload_scan_approve_publish_stable_cid() {
         pipe.get(&cid).unwrap().state,
         CanonicalPipelineState::Scanning
     );
-    assert_eq!(&pipe.get(&cid).unwrap().cid, &expected_cid, "CID stable after scan");
+    assert_eq!(
+        &pipe.get(&cid).unwrap().cid,
+        &expected_cid,
+        "CID stable after scan"
+    );
 
     // Approve
     pipe.approve(&cid).unwrap();

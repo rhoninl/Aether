@@ -1,112 +1,11 @@
-//! OpenXR session lifecycle state machine and reference space management.
-//!
-//! Models the OpenXR session state graph per the specification, including
-//! valid state transitions, loss pending handling, and reference spaces.
+//! OpenXR session state-machine driver. Value types re-exported from
+//! `aether_xr_hal::session` (P1-B); the [`SessionManager`] state machine stays
+//! here until P3 lands a real backend.
 
-use crate::actions::Pose3;
-
-/// Default prediction offset in nanoseconds (~11ms for 90Hz displays).
-pub const DEFAULT_PREDICTION_OFFSET_NS: u64 = 11_111_111;
-
-/// OpenXR session states per the specification.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SessionState {
-    /// Session has been created but not yet started.
-    Idle,
-    /// Session is ready to begin rendering.
-    Ready,
-    /// Session is running but not yet visible to the user.
-    Synchronized,
-    /// Session is visible to the user but does not have input focus.
-    Visible,
-    /// Session is visible and has input focus.
-    Focused,
-    /// Session is being stopped.
-    Stopping,
-    /// Session has lost its connection to the runtime (e.g., device unplugged).
-    LossPending,
-    /// Session is exiting and should be destroyed.
-    Exiting,
-}
-
-/// Errors that can occur during session state transitions.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SessionTransitionError {
-    /// The requested transition is not valid from the current state.
-    InvalidTransition {
-        from: SessionState,
-        to: SessionState,
-    },
-    /// The session is in a terminal state and cannot transition further.
-    SessionTerminated,
-}
-
-/// OpenXR reference space types.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum ReferenceSpaceType {
-    /// Origin at the initial head position; recenters with runtime reset.
-    Local,
-    /// Origin at the center of the play area floor; provides room-scale boundaries.
-    Stage,
-    /// Origin locked to the head-mounted display; moves with the user's head.
-    View,
-}
-
-/// A reference space with a type and optional offset pose.
-#[derive(Debug, Clone)]
-pub struct ReferenceSpace {
-    /// The type of reference space.
-    pub space_type: ReferenceSpaceType,
-    /// An offset pose applied to the reference space origin.
-    pub offset: Pose3,
-}
-
-impl ReferenceSpace {
-    /// Create a new reference space with no offset.
-    pub fn new(space_type: ReferenceSpaceType) -> Self {
-        Self {
-            space_type,
-            offset: Pose3 {
-                position: [0.0, 0.0, 0.0],
-                rotation: [0.0, 0.0, 0.0, 1.0], // identity quaternion
-                linear_velocity: [0.0, 0.0, 0.0],
-                angular_velocity: [0.0, 0.0, 0.0],
-            },
-        }
-    }
-
-    /// Create a new reference space with a custom offset pose.
-    pub fn with_offset(space_type: ReferenceSpaceType, offset: Pose3) -> Self {
-        Self { space_type, offset }
-    }
-}
-
-/// Configuration for creating an OpenXR session.
-#[derive(Debug, Clone)]
-pub struct SessionConfig {
-    /// Application name reported to the OpenXR runtime.
-    pub application_name: String,
-    /// Requested reference space type.
-    pub reference_space: ReferenceSpaceType,
-    /// Prediction offset in nanoseconds for frame timing.
-    pub prediction_offset_ns: u64,
-    /// Whether to request hand tracking extension.
-    pub enable_hand_tracking: bool,
-    /// Whether to enable haptic feedback.
-    pub enable_haptics: bool,
-}
-
-impl Default for SessionConfig {
-    fn default() -> Self {
-        Self {
-            application_name: "Aether".to_string(),
-            reference_space: ReferenceSpaceType::Local,
-            prediction_offset_ns: DEFAULT_PREDICTION_OFFSET_NS,
-            enable_hand_tracking: false,
-            enable_haptics: true,
-        }
-    }
-}
+pub use aether_xr_hal::session::{
+    ReferenceSpace, ReferenceSpaceType, SessionConfig, SessionState, SessionTransitionError,
+    DEFAULT_PREDICTION_OFFSET_NS,
+};
 
 /// Manages the OpenXR session lifecycle state machine.
 ///
@@ -334,6 +233,7 @@ impl SessionManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use aether_xr_hal::tracking::Pose3;
 
     fn make_manager() -> SessionManager {
         SessionManager::new(SessionConfig::default())

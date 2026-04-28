@@ -30,9 +30,9 @@ pub mod merge;
 pub mod remote;
 pub mod review;
 pub mod rollback;
-pub mod sig;
 #[cfg(feature = "shim")]
 pub mod shim;
+pub mod sig;
 
 pub use branch::{Branch, BranchStore, MemoryBranchStore, DEFAULT_BRANCH};
 pub use diff::{

@@ -42,10 +42,7 @@ fn full_thin_slice_end_to_end() {
         "AETHER_DEMO_WORLD_FIXTURE_PATH",
         fixture("hello.world.yaml"),
     );
-    std::env::set_var(
-        "AETHER_DEMO_BEHAVIOR_FIXTURE_PATH",
-        fixture("patrol.beh"),
-    );
+    std::env::set_var("AETHER_DEMO_BEHAVIOR_FIXTURE_PATH", fixture("patrol.beh"));
     std::env::set_var(
         "AETHER_DEMO_SCENARIO_FIXTURE_PATH",
         fixture("patrol.scenario.yaml"),
@@ -95,8 +92,8 @@ fn full_thin_slice_end_to_end() {
     }
 
     // Final record: done + pass + merge_cid.
-    let done: serde_json::Value = serde_json::from_str(lines[cursor])
-        .expect("final record must be JSON");
+    let done: serde_json::Value =
+        serde_json::from_str(lines[cursor]).expect("final record must be JSON");
     assert_eq!(done.get("step").and_then(|v| v.as_str()), Some("done"));
     assert_eq!(done.get("verdict").and_then(|v| v.as_str()), Some("pass"));
     let merge_from_line = done

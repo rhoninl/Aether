@@ -68,8 +68,10 @@ pub async fn run_stdio(state: SharedState) -> std::io::Result<()> {
             Ok(req) => handle_envelope(req, &state.registry, &state.auth),
             Err(err_resp) => err_resp,
         };
-        let bytes = serde_json::to_vec(&response)
-            .unwrap_or_else(|_| br#"{"jsonrpc":"2.0","id":null,"error":{"code":-32603,"message":"encode failure"}}"#.to_vec());
+        let bytes = serde_json::to_vec(&response).unwrap_or_else(|_| {
+            br#"{"jsonrpc":"2.0","id":null,"error":{"code":-32603,"message":"encode failure"}}"#
+                .to_vec()
+        });
         stdout.write_all(&bytes).await?;
         stdout.write_all(b"\n").await?;
         stdout.flush().await?;
@@ -142,7 +144,8 @@ mod tests {
         let input = b"{\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"world.create\",\"params\":{\"manifest_yaml\":\"name:x\\n\"}}\n";
         let mut output = Vec::<u8>::new();
         run_blocking(Cursor::new(&input[..]), &mut output, &st).unwrap();
-        let v: serde_json::Value = serde_json::from_str(std::str::from_utf8(&output).unwrap().trim()).unwrap();
+        let v: serde_json::Value =
+            serde_json::from_str(std::str::from_utf8(&output).unwrap().trim()).unwrap();
         let code = v
             .get("error")
             .and_then(|e| e.get("data"))

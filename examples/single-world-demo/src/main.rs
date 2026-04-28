@@ -316,16 +316,14 @@ impl ApplicationHandler for App {
                 event_loop.exit();
             }
 
-            WindowEvent::Resized(new_size) => {
-                if new_size.width > 0 && new_size.height > 0 {
-                    renderer.resize(new_size.width, new_size.height);
-                    camera.aspect = new_size.width as f32 / new_size.height as f32;
-                    log::info!(
-                        "window resized: width={}, height={}",
-                        new_size.width,
-                        new_size.height
-                    );
-                }
+            WindowEvent::Resized(new_size) if new_size.width > 0 && new_size.height > 0 => {
+                renderer.resize(new_size.width, new_size.height);
+                camera.aspect = new_size.width as f32 / new_size.height as f32;
+                log::info!(
+                    "window resized: width={}, height={}",
+                    new_size.width,
+                    new_size.height
+                );
             }
 
             WindowEvent::KeyboardInput {

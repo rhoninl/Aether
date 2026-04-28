@@ -11,9 +11,7 @@ fn cid_of_nth(n: u8) -> Cid {
 }
 
 fn human(id: &str) -> ReviewerRef {
-    ReviewerRef::Human {
-        user_id: id.into(),
-    }
+    ReviewerRef::Human { user_id: id.into() }
 }
 
 fn agent(id: &str) -> ReviewerRef {

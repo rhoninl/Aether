@@ -207,6 +207,9 @@ dependencies = [
 [[package]]
 name = "aether-input"
 version = "0.1.0"
+dependencies = [
+ "aether-xr-hal",
+]
 
 [[package]]
 name = "aether-multiplayer"
@@ -239,7 +242,9 @@ name = "aether-openxr"
 version = "0.1.0"
 dependencies = [
  "aether-input",
+ "aether-xr-hal",
  "log",
+ "openxr",
 ]
 
 [[package]]
@@ -387,6 +392,8 @@ dependencies = [
  "aether-input",
  "aether-renderer",
  "aether-vr-overlay",
+ "aether-xr-hal",
+ "log",
  "minifb",
  "serde",
 ]
@@ -396,6 +403,7 @@ name = "aether-vr-overlay"
 version = "0.1.0"
 dependencies = [
  "aether-input",
+ "aether-xr-hal",
 ]
 
 [[package]]
@@ -435,6 +443,10 @@ dependencies = [
  "thiserror 1.0.69",
  "tracing",
 ]
+
+[[package]]
+name = "aether-xr-hal"
+version = "0.1.0"
 
 [[package]]
 name = "aether-zoning"
@@ -3728,6 +3740,27 @@ name = "openssl-probe"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
+
+[[package]]
+name = "openxr"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a2d6934d2508f94fd4cbda6c2a326f111f60ce59fd9136df6d478564397dd40"
+dependencies = [
+ "libc",
+ "libloading",
+ "ndk-context",
+ "openxr-sys",
+]
+
+[[package]]
+name = "openxr-sys"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f10e7e38c47f2175fc39363713b656db899fa0b4a14341029702cbdfa6f44d05"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "orbclient"

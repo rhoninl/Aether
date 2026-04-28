@@ -137,10 +137,8 @@ impl schemars::JsonSchema for Cid {
             ),
             ..Default::default()
         }));
-        schema
-            .string
-            .get_or_insert_with(Default::default)
-            .pattern = Some(r"^cid:v\d+:[0-9a-f]{64}$".into());
+        schema.string.get_or_insert_with(Default::default).pattern =
+            Some(r"^cid:v\d+:[0-9a-f]{64}$".into());
         Schema::Object(schema)
     }
 }

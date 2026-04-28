@@ -1,3 +1,8 @@
+// Drawing primitives intentionally take many arguments (color, position,
+// clip rect, font, transform, etc.); refactoring into builder structs
+// would obscure call sites with no readability gain.
+#![allow(clippy::too_many_arguments)]
+
 //! `aether-renderer-soft` — a minimal, zero-dependency software rasterizer
 //! for unit tests, headless demos, and tooling.
 //!

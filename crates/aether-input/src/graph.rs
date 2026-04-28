@@ -223,6 +223,10 @@ impl GestureDetector {
 
     /// Tick the detector to check for time-based gesture completions (e.g., hold).
     /// Call this every frame even if no input changed.
+    // The match-then-if pattern reads naturally for these gesture state
+    // transitions; folding the `if` into a match guard would obscure the
+    // distinct "tracker variant matches" vs "trigger condition met" steps.
+    #[allow(clippy::collapsible_match, clippy::collapsible_if)]
     pub fn tick(&mut self, now_ms: u64) -> Vec<ActionEvent> {
         let mut events = Vec::new();
 

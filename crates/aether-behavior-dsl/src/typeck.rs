@@ -344,8 +344,7 @@ mod tests {
 
     #[test]
     fn trigger_with_caps_passes() {
-        let src =
-            "behavior Foo { @caps(Network) version 1 trigger(\"hello\", {\"k\": 1}); }";
+        let src = "behavior Foo { @caps(Network) version 1 trigger(\"hello\", {\"k\": 1}); }";
         let m = parse(src).unwrap();
         let checked = check(m).unwrap();
         assert!(checked.effects.contains(Effect::Network));

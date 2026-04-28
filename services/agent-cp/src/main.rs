@@ -70,30 +70,33 @@ fn main() -> std::io::Result<()> {
     let state = Arc::new(SharedState::new(registry.clone(), auth.clone()));
 
     let want_stdio = cli.stdio || env::var(ENV_MCP_STDIO).is_ok_and(|v| !v.is_empty());
-    let ws_addr = if cli.no_ws {
-        None
-    } else {
-        Some(
-            cli.ws_addr
-                .clone()
-                .unwrap_or_else(|| env::var(ENV_WS_ADDR).unwrap_or_else(|_| DEFAULT_WS_ADDR.into())),
-        )
-    };
+    let ws_addr =
+        if cli.no_ws {
+            None
+        } else {
+            Some(cli.ws_addr.clone().unwrap_or_else(|| {
+                env::var(ENV_WS_ADDR).unwrap_or_else(|_| DEFAULT_WS_ADDR.into())
+            }))
+        };
     let grpc_addr = if cli.no_grpc {
         None
     } else {
-        Some(
-            cli.grpc_addr
-                .clone()
-                .unwrap_or_else(|| env::var(ENV_GRPC_ADDR).unwrap_or_else(|_| DEFAULT_GRPC_ADDR.into())),
-        )
+        Some(cli.grpc_addr.clone().unwrap_or_else(|| {
+            env::var(ENV_GRPC_ADDR).unwrap_or_else(|_| DEFAULT_GRPC_ADDR.into())
+        }))
     };
     let max_frame = env::var(ENV_GRPC_MAX_FRAME)
         .ok()
         .and_then(|v| v.parse::<u32>().ok())
         .unwrap_or(aether_agent_cp::transport::grpc::DEFAULT_GRPC_MAX_FRAME_BYTES);
 
-    emit_banner(&registry, &auth, want_stdio, ws_addr.as_deref(), grpc_addr.as_deref());
+    emit_banner(
+        &registry,
+        &auth,
+        want_stdio,
+        ws_addr.as_deref(),
+        grpc_addr.as_deref(),
+    );
 
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -133,7 +136,7 @@ fn main() -> std::io::Result<()> {
         match res {
             Ok(Ok(())) => Ok(()),
             Ok(Err(e)) => Err(e),
-            Err(e) => Err(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())),
+            Err(e) => Err(std::io::Error::other(e.to_string())),
         }
     })
 }
@@ -172,7 +175,9 @@ where
     }
 
     let (res, idx) = FirstOf(&mut handles).await;
-    let _ = handles.remove(idx);
+    // The removed handle is a join-handle future that's already produced its
+    // value (FirstOf returned it); drop it now to free the slot.
+    drop(handles.remove(idx));
     (res, idx, handles)
 }
 

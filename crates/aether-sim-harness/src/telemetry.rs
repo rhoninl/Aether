@@ -59,7 +59,9 @@ pub struct DurationNs {
 
 impl DurationNs {
     pub fn from_duration(d: Duration) -> Self {
-        Self { nanos: d.as_nanos() }
+        Self {
+            nanos: d.as_nanos(),
+        }
     }
 
     pub fn to_duration(&self) -> Duration {

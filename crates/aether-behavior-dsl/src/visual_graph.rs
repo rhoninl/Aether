@@ -133,7 +133,6 @@ pub fn graph_to_ast(graph: &VisualGraph) -> Result<Module, GraphError> {
     let mut visited = std::collections::BTreeSet::new();
     fn visit(
         id: u32,
-        graph: &VisualGraph,
         children_of: &std::collections::BTreeMap<u32, Vec<(u32, u32)>>,
         visited: &mut std::collections::BTreeSet<u32>,
     ) -> Result<(), GraphError> {
@@ -142,7 +141,7 @@ pub fn graph_to_ast(graph: &VisualGraph) -> Result<Module, GraphError> {
         }
         if let Some(kids) = children_of.get(&id) {
             for (_, child) in kids {
-                visit(*child, graph, children_of, visited)?;
+                visit(*child, children_of, visited)?;
             }
         }
         Ok(())
@@ -150,7 +149,7 @@ pub fn graph_to_ast(graph: &VisualGraph) -> Result<Module, GraphError> {
     if !graph.nodes.iter().any(|n| n.id == graph.root_id) {
         return Err(GraphError::RootNotFound(graph.root_id));
     }
-    visit(graph.root_id, graph, &children_of, &mut visited)?;
+    visit(graph.root_id, &children_of, &mut visited)?;
     if visited.len() != graph.nodes.len() {
         // Find any orphan.
         for n in &graph.nodes {
@@ -179,16 +178,9 @@ pub fn modules_structurally_equal(a: &Module, b: &Module) -> bool {
 
 fn nodes_structurally_equal(a: &Node, b: &Node) -> bool {
     match (&a.kind, &b.kind) {
-        (
-            NodeKind::Verb {
-                verb: va,
-                args: aa,
-            },
-            NodeKind::Verb {
-                verb: vb,
-                args: ab,
-            },
-        ) => va == vb && exprs_structurally_equal(aa, ab),
+        (NodeKind::Verb { verb: va, args: aa }, NodeKind::Verb { verb: vb, args: ab }) => {
+            va == vb && exprs_structurally_equal(aa, ab)
+        }
         (
             NodeKind::Combinator {
                 combinator: ca,
@@ -204,7 +196,10 @@ fn nodes_structurally_equal(a: &Node, b: &Node) -> bool {
             ca == cb
                 && pa == pb
                 && ka.len() == kb.len()
-                && ka.iter().zip(kb).all(|(x, y)| nodes_structurally_equal(x, y))
+                && ka
+                    .iter()
+                    .zip(kb)
+                    .all(|(x, y)| nodes_structurally_equal(x, y))
         }
         _ => false,
     }

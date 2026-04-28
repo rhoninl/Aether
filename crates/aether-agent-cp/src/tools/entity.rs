@@ -74,17 +74,12 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
                 .get("prototypes")
                 .and_then(|v| v.as_array())
                 .ok_or_else(|| {
-                    ToolError::schema(
-                        "missing required array `prototypes`",
-                        "/prototypes",
-                    )
+                    ToolError::schema("missing required array `prototypes`", "/prototypes")
                 })?
                 .clone();
             let w = b.spawn_entities(&world_cid, &protos)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
@@ -106,15 +101,11 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             let ops = params
                 .get("ops")
                 .and_then(|v| v.as_array())
-                .ok_or_else(|| {
-                    ToolError::schema("missing required array `ops`", "/ops")
-                })?
+                .ok_or_else(|| ToolError::schema("missing required array `ops`", "/ops"))?
                 .clone();
             let w = b.modify_entities(&world_cid, &ops)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
@@ -137,10 +128,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             let target_id = required_str(&params, "target_id")?.to_string();
             let link_kind = required_str(&params, "link_kind")?.to_string();
             let w = b.link_entities(&world_cid, &source_id, &target_id, &link_kind)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {

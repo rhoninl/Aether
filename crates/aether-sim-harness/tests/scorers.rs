@@ -1,8 +1,6 @@
 //! Scorer integration tests against end-to-end scenarios.
 
-use aether_sim_harness::{
-    run_scenario, AgentAction, Input, NetEvent, Scenario,
-};
+use aether_sim_harness::{run_scenario, AgentAction, Input, NetEvent, Scenario};
 
 #[test]
 fn smooth_vr_session_passes_comfort() {

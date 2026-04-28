@@ -11,6 +11,10 @@
 //! expect from `aether-schemas`; types are opaque byte blobs so the
 //! swap is mechanical.
 #![cfg(feature = "shim")]
+// This is a temporary shim mirroring `aether-schemas`. Field-level docs
+// here would just restate the obvious until the schemas crate lands and
+// this file is deleted (see top-level doc comment).
+#![allow(clippy::missing_docs_in_private_items, missing_docs)]
 
 use serde::{Deserialize, Serialize};
 

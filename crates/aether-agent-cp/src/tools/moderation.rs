@@ -29,10 +29,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
         let cid = required_str(&params, "artifact_cid")?.to_string();
         let reason = required_str(&params, "reason")?.to_string();
         let report = b.report_moderation(&cid, &reason)?;
-        Ok(serde_json::to_value(report).map_err(|e| ToolError::new(
-            crate::error::codes::INTERNAL,
-            e.to_string(),
-        ))?)
+        Ok(serde_json::to_value(report)
+            .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
     });
     registry.register(
         ToolDescriptor {
@@ -105,6 +103,11 @@ mod tests {
                 serde_json::json!({"artifact_cid": cid, "reason": "contains slurs"}),
             )
             .unwrap();
-        assert!(out.get("report_id").unwrap().as_str().unwrap().starts_with("mr_"));
+        assert!(out
+            .get("report_id")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .starts_with("mr_"));
     }
 }

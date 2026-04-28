@@ -83,6 +83,42 @@ impl ActionMap {
         self.bindings.retain(|b| b.input != *source);
     }
 
+    /// Produce an `ActionManifest` enumerating the unique abstract actions in
+    /// this map (P4-B). Action kind is inferred from the input source: button-
+    /// or key-driven sources become `Boolean`; axis-driven sources become
+    /// `Float`. Suggested headset bindings are *not* populated here — those
+    /// are headset-profile-specific and live one layer above the desktop map.
+    pub fn to_manifest(
+        &self,
+        name: impl Into<String>,
+        localized_name: impl Into<String>,
+        priority: u32,
+    ) -> aether_xr_hal::action::ActionManifest {
+        use aether_xr_hal::action::{ActionKind, ActionManifest};
+        use std::collections::BTreeMap;
+
+        let mut kind_per_action: BTreeMap<String, ActionKind> = BTreeMap::new();
+        for binding in &self.bindings {
+            let kind = match binding.input {
+                InputSource::MouseAxis(_) | InputSource::GamepadAxis(_) => ActionKind::Float,
+                _ => ActionKind::Boolean,
+            };
+            // First binding for an action wins the kind; this matches the
+            // convention that all bindings for a given action share a value
+            // type. Mismatched kinds across bindings would be a config bug,
+            // not something the manifest can repair.
+            kind_per_action
+                .entry(binding.action_name.clone())
+                .or_insert(kind);
+        }
+
+        let mut manifest = ActionManifest::new(name, localized_name, priority);
+        for (action_name, kind) in kind_per_action {
+            manifest = manifest.action(action_name, kind, |a| a);
+        }
+        manifest
+    }
+
     /// Create a default WASD + mouse desktop action map.
     pub fn default_desktop() -> Self {
         let mut map = Self::new();
@@ -277,6 +313,42 @@ mod tests {
         assert!(!map
             .resolve(&InputSource::MouseAxis(MouseAxis::X))
             .is_empty());
+    }
+
+    #[test]
+    fn to_manifest_groups_by_action_and_infers_kind() {
+        use aether_xr_hal::action::ActionKind;
+
+        let mut map = ActionMap::new();
+        map.bind(
+            "jump",
+            InputSource::Keyboard(KeyCode::Space),
+            InputGesture::Press,
+        );
+        map.bind("jump", InputSource::GamepadButton(0), InputGesture::Press);
+        map.bind(
+            "look_x",
+            InputSource::MouseAxis(MouseAxis::X),
+            InputGesture::Press,
+        );
+
+        let manifest = map.to_manifest("gameplay", "Gameplay", 0);
+        assert_eq!(manifest.name(), "gameplay");
+        assert_eq!(manifest.actions().len(), 2);
+
+        let jump = manifest
+            .actions()
+            .iter()
+            .find(|a| a.name == "jump")
+            .unwrap();
+        assert_eq!(jump.kind, ActionKind::Boolean);
+
+        let look_x = manifest
+            .actions()
+            .iter()
+            .find(|a| a.name == "look_x")
+            .unwrap();
+        assert_eq!(look_x.kind, ActionKind::Float);
     }
 
     #[test]

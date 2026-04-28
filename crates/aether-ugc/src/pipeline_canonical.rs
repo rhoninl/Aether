@@ -101,7 +101,11 @@ impl CanonicalUgcPipeline {
 
     /// Transition Uploaded → Scanning.
     pub fn scan(&mut self, cid: &Cid) -> Result<(), CanonicalPipelineError> {
-        self.advance(cid, CanonicalPipelineState::Uploaded, CanonicalPipelineState::Scanning)?;
+        self.advance(
+            cid,
+            CanonicalPipelineState::Uploaded,
+            CanonicalPipelineState::Scanning,
+        )?;
 
         // Re-verify CID: the body bytes must still hash to the key. This
         // is the "content-addressed" invariant.
@@ -122,10 +126,18 @@ impl CanonicalUgcPipeline {
 
     /// Transition Scanning → Approved (clean scan) or Rejected.
     pub fn approve(&mut self, cid: &Cid) -> Result<(), CanonicalPipelineError> {
-        self.advance(cid, CanonicalPipelineState::Scanning, CanonicalPipelineState::Approved)
+        self.advance(
+            cid,
+            CanonicalPipelineState::Scanning,
+            CanonicalPipelineState::Approved,
+        )
     }
 
-    pub fn reject(&mut self, cid: &Cid, reason: impl Into<String>) -> Result<(), CanonicalPipelineError> {
+    pub fn reject(
+        &mut self,
+        cid: &Cid,
+        reason: impl Into<String>,
+    ) -> Result<(), CanonicalPipelineError> {
         let reason_string = reason.into();
         let artifact = self
             .artifacts
@@ -150,7 +162,11 @@ impl CanonicalUgcPipeline {
     /// Transition Approved → Published. The CID is the identity on which
     /// the registry can key the world discovery record.
     pub fn publish(&mut self, cid: &Cid) -> Result<ContentAddress, CanonicalPipelineError> {
-        self.advance(cid, CanonicalPipelineState::Approved, CanonicalPipelineState::Published)?;
+        self.advance(
+            cid,
+            CanonicalPipelineState::Approved,
+            CanonicalPipelineState::Published,
+        )?;
         let artifact = self.artifacts.get(cid).expect("just advanced");
         info!(%cid, "artifact published");
         Ok(artifact.content_address())
@@ -204,13 +220,25 @@ mod tests {
         let mut pipe = CanonicalUgcPipeline::new();
         let bytes = envelope(b"hello");
         let cid = pipe.upload(&bytes).unwrap();
-        assert_eq!(pipe.get(&cid).unwrap().state, CanonicalPipelineState::Uploaded);
+        assert_eq!(
+            pipe.get(&cid).unwrap().state,
+            CanonicalPipelineState::Uploaded
+        );
         pipe.scan(&cid).unwrap();
-        assert_eq!(pipe.get(&cid).unwrap().state, CanonicalPipelineState::Scanning);
+        assert_eq!(
+            pipe.get(&cid).unwrap().state,
+            CanonicalPipelineState::Scanning
+        );
         pipe.approve(&cid).unwrap();
-        assert_eq!(pipe.get(&cid).unwrap().state, CanonicalPipelineState::Approved);
+        assert_eq!(
+            pipe.get(&cid).unwrap().state,
+            CanonicalPipelineState::Approved
+        );
         let addr = pipe.publish(&cid).unwrap();
-        assert_eq!(pipe.get(&cid).unwrap().state, CanonicalPipelineState::Published);
+        assert_eq!(
+            pipe.get(&cid).unwrap().state,
+            CanonicalPipelineState::Published
+        );
         assert_eq!(addr.cid, cid);
     }
 
@@ -220,7 +248,10 @@ mod tests {
         let bytes = envelope(b"x");
         let cid = pipe.upload(&bytes).unwrap();
         let err = pipe.approve(&cid).unwrap_err();
-        assert!(matches!(err, CanonicalPipelineError::IllegalTransition { .. }));
+        assert!(matches!(
+            err,
+            CanonicalPipelineError::IllegalTransition { .. }
+        ));
     }
 
     #[test]
@@ -229,6 +260,9 @@ mod tests {
         let cid = pipe.upload(&envelope(b"y")).unwrap();
         pipe.scan(&cid).unwrap();
         pipe.reject(&cid, "malware").unwrap();
-        assert_eq!(pipe.get(&cid).unwrap().state, CanonicalPipelineState::Rejected);
+        assert_eq!(
+            pipe.get(&cid).unwrap().state,
+            CanonicalPipelineState::Rejected
+        );
     }
 }

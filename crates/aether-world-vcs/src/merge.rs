@@ -89,7 +89,8 @@ fn resolution_hint(a: &[Op], b: &[Op]) -> String {
     match (a.first(), b.first()) {
         (Some(Op::AddEntity { .. }), Some(Op::RemoveEntity { .. }))
         | (Some(Op::RemoveEntity { .. }), Some(Op::AddEntity { .. })) => {
-            "add/remove conflict: one side created the entity, the other removed it; pick one".into()
+            "add/remove conflict: one side created the entity, the other removed it; pick one"
+                .into()
         }
         (Some(Op::ModifyComponent { .. }), Some(Op::ModifyComponent { .. })) => {
             "component modified on both sides; pick one value or write a merge value".into()

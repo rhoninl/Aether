@@ -37,7 +37,9 @@ pub struct ToolEntry {
 
 impl std::fmt::Debug for ToolEntry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ToolEntry").field("descriptor", &self.descriptor).finish()
+        f.debug_struct("ToolEntry")
+            .field("descriptor", &self.descriptor)
+            .finish()
     }
 }
 
@@ -81,11 +83,10 @@ impl ToolRegistry {
     pub fn call(&self, name: &str, params: serde_json::Value) -> ToolResult<serde_json::Value> {
         match self.tools.get(name) {
             Some(entry) => (entry.call)(params),
-            None => Err(ToolError::new(
-                codes::UNKNOWN_METHOD,
-                format!("unknown tool `{}`", name),
-            )
-            .suggest("call `tools/list` to discover available tool names")),
+            None => Err(
+                ToolError::new(codes::UNKNOWN_METHOD, format!("unknown tool `{}`", name))
+                    .suggest("call `tools/list` to discover available tool names"),
+            ),
         }
     }
 }

@@ -34,7 +34,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use aether_agent_cp::{
-    backend::InMemoryBackend, tools::build_default_registry, registry::ToolRegistry,
+    backend::InMemoryBackend, registry::ToolRegistry, tools::build_default_registry,
 };
 use aether_world_vcs::{
     branch::{BranchStore, MemoryBranchStore, DEFAULT_BRANCH},
@@ -133,7 +133,11 @@ pub fn run<W: Write>(mut out: W) -> Result<String, DemoError> {
 
     // Step 2: world.create.
     let manifest_yaml = read_to_string(&world_path, "world manifest")?;
-    let created = call_tool(&registry, "world.create", serde_json::json!({ "manifest_yaml": manifest_yaml }))?;
+    let created = call_tool(
+        &registry,
+        "world.create",
+        serde_json::json!({ "manifest_yaml": manifest_yaml }),
+    )?;
     let genesis_world_cid = json_string(&created, "cid")?;
     let world_name = created
         .pointer("/manifest/name")
@@ -281,7 +285,8 @@ pub fn run<W: Write>(mut out: W) -> Result<String, DemoError> {
         timestamp_unix_ms: 0,
     };
     let signed = sign_diff(diff, &sk).map_err(|e| DemoError::Vcs(e.to_string()))?;
-    verify_signed_diff(&signed).map_err(|e| DemoError::Vcs(format!("signature did not verify: {}", e)))?;
+    verify_signed_diff(&signed)
+        .map_err(|e| DemoError::Vcs(format!("signature did not verify: {}", e)))?;
     let diff_cid =
         cid_of(&signed.diff).map_err(|e| DemoError::Vcs(format!("cid_of(diff): {}", e)))?;
 
@@ -351,12 +356,9 @@ fn call_tool(
     name: &str,
     params: serde_json::Value,
 ) -> Result<serde_json::Value, DemoError> {
-    registry.call(name, params).map_err(|e| {
-        DemoError::Mcp(format!(
-            "{}: code={} msg={}",
-            name, e.code, e.message
-        ))
-    })
+    registry
+        .call(name, params)
+        .map_err(|e| DemoError::Mcp(format!("{}: code={} msg={}", name, e.code, e.message)))
 }
 
 fn json_string(value: &serde_json::Value, key: &str) -> Result<String, DemoError> {
@@ -401,8 +403,7 @@ pub enum DemoError {
 fn main() -> std::process::ExitCode {
     let _ = tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
         )
         .with_writer(std::io::stderr)
         .try_init();

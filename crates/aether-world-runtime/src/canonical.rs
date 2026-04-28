@@ -9,8 +9,8 @@
 
 use aether_canonical_shim::{
     CanonicalCodec, ChunkManifest as WireChunkManifest, ChunkRef, Cid, ContentAddress, PortalDef,
-    PortalScheme as WirePortalScheme, SchemaError, SpawnPointDef, WorldManifest as WireWorldManifest,
-    WorldStatus as WireWorldStatus,
+    PortalScheme as WirePortalScheme, SchemaError, SpawnPointDef,
+    WorldManifest as WireWorldManifest, WorldStatus as WireWorldStatus,
 };
 use tracing::trace;
 

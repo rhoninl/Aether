@@ -12,8 +12,18 @@ fn compile_success_returns_wasm_and_cid() {
             serde_json::json!({"dsl_source": "on tick do log \"hi\""}),
         )
         .unwrap();
-    assert!(out.get("cid").unwrap().as_str().unwrap().starts_with("cid:"));
-    assert!(!out.get("wasm_bytes_b64").unwrap().as_str().unwrap().is_empty());
+    assert!(out
+        .get("cid")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        .starts_with("cid:"));
+    assert!(!out
+        .get("wasm_bytes_b64")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        .is_empty());
     assert!(out.get("source_hash").unwrap().as_str().unwrap().len() == 64);
 }
 
@@ -66,12 +76,7 @@ fn deploy_happy_path() {
         )
         .unwrap();
     assert_eq!(
-        deployed
-            .get("scripts")
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .len(),
+        deployed.get("scripts").unwrap().as_object().unwrap().len(),
         1
     );
 }

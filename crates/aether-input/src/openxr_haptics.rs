@@ -1,21 +1,17 @@
-//! OpenXR haptic output dispatch and cooldown management.
-//!
-//! Converts `HapticRequest` values into OpenXR-compatible haptic actions,
-//! enforcing cooldown periods and amplitude clamping.
+//! OpenXR haptic dispatcher. `HapticAction`/`HapticTarget`/`clamp_amplitude`
+//! re-exported from `aether_xr_hal::haptics` (P1-C); the [`HapticDispatcher`]
+//! itself stays here until P6 wires it into the real `XrHaptics` backend.
 
 use crate::haptics::{HapticChannel, HapticEffect, HapticRequest, HapticWave};
+pub use aether_xr_hal::haptics::{
+    clamp_amplitude, HapticAction, HapticTarget, MAX_HAPTIC_AMPLITUDE, MIN_HAPTIC_AMPLITUDE,
+};
 
 /// Default haptic pulse duration in milliseconds.
 pub const DEFAULT_HAPTIC_DURATION_MS: u32 = 100;
 
 /// Default haptic amplitude [0.0, 1.0].
 pub const DEFAULT_HAPTIC_AMPLITUDE: f32 = 0.5;
-
-/// Minimum allowed haptic amplitude.
-pub const MIN_HAPTIC_AMPLITUDE: f32 = 0.0;
-
-/// Maximum allowed haptic amplitude.
-pub const MAX_HAPTIC_AMPLITUDE: f32 = 1.0;
 
 /// Default click haptic duration in milliseconds.
 pub const CLICK_DURATION_MS: u32 = 20;
@@ -37,29 +33,6 @@ pub const BUZZ_AMPLITUDE: f32 = 0.3;
 
 /// Default buzz haptic frequency in Hz.
 pub const BUZZ_FREQUENCY_HZ: f32 = 160.0;
-
-/// An OpenXR-compatible haptic action ready for submission to the runtime.
-#[derive(Debug, Clone)]
-pub struct HapticAction {
-    /// Target hand(s) for this haptic action.
-    pub target: HapticTarget,
-    /// Duration of the haptic in milliseconds.
-    pub duration_ms: u32,
-    /// Amplitude of the haptic [0.0, 1.0].
-    pub amplitude: f32,
-    /// Frequency in Hz (0 for runtime default).
-    pub frequency_hz: f32,
-    /// Whether this haptic should loop.
-    pub looped: bool,
-}
-
-/// Target hand(s) for a haptic action.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum HapticTarget {
-    Left,
-    Right,
-    Both,
-}
 
 /// Per-hand cooldown state for haptic dispatch.
 #[derive(Debug, Clone)]
@@ -205,6 +178,32 @@ impl HapticDispatcher {
             }
         }
     }
+
+    /// Dispatch a request and forward the resulting action to an `XrHaptics`
+    /// backend (P6-B). Returns `Ok(true)` if the action was sent, `Ok(false)`
+    /// if cooldown or `enabled=false` suppressed it.
+    pub fn dispatch_to<H: aether_xr_hal::haptics::XrHaptics>(
+        &mut self,
+        request: &HapticRequest,
+        now_ms: u64,
+        backend: &H,
+    ) -> Result<bool, H::Error> {
+        let Some(action) = self.dispatch(request, now_ms) else {
+            return Ok(false);
+        };
+        backend.apply(action.target, action_to_pulse(&action))?;
+        Ok(true)
+    }
+}
+
+/// Convert a [`HapticAction`] (high-level dispatcher output) into a
+/// [`HapticPulse`] (one OpenXR `xrApplyHapticFeedback` call).
+pub fn action_to_pulse(action: &HapticAction) -> aether_xr_hal::haptics::HapticPulse {
+    aether_xr_hal::haptics::HapticPulse {
+        duration_ns: u64::from(action.duration_ms).saturating_mul(1_000_000),
+        frequency_hz: action.frequency_hz,
+        amplitude: clamp_amplitude(action.amplitude),
+    }
 }
 
 /// Convert a `HapticChannel` to a `HapticTarget`.
@@ -276,11 +275,6 @@ fn wave_to_action(wave: &HapticWave, target: HapticTarget, looped: bool) -> Hapt
             looped,
         },
     }
-}
-
-/// Clamp an amplitude value to the valid [0.0, 1.0] range.
-pub fn clamp_amplitude(amplitude: f32) -> f32 {
-    amplitude.clamp(MIN_HAPTIC_AMPLITUDE, MAX_HAPTIC_AMPLITUDE)
 }
 
 #[cfg(test)]

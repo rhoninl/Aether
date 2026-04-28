@@ -124,9 +124,8 @@ fn derive_verdict(comfort: &ComfortScore, coherence: &CoherenceScore) -> Verdict
     for r in &comfort.reasons {
         if r.severity == "fail" {
             fail_reasons.push(
-                FailureReason::new(format!("vr.{}", r.code), r.message.clone()).with_data(
-                    serde_json::json!({"value": r.value, "threshold": r.threshold}),
-                ),
+                FailureReason::new(format!("vr.{}", r.code), r.message.clone())
+                    .with_data(serde_json::json!({"value": r.value, "threshold": r.threshold})),
             );
         } else {
             warnings.push(Warning {
@@ -310,7 +309,9 @@ mod tests {
         let s = Scenario::new("bad")
             .push(Input::AgentAction {
                 agent: "a".into(),
-                action: AgentAction::SmoothLocomotion { accel: [10.0, 0.0, 0.0] },
+                action: AgentAction::SmoothLocomotion {
+                    accel: [10.0, 0.0, 0.0],
+                },
             })
             .push_ticks(1);
         let r = run_scenario(&s);

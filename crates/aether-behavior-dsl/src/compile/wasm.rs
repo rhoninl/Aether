@@ -433,8 +433,7 @@ fn emit_node_body(
             parameter,
             children,
         } => {
-            let child_ordinals: Vec<u32> =
-                children.iter().map(|c| ordinal_of(flat, c)).collect();
+            let child_ordinals: Vec<u32> = children.iter().map(|c| ordinal_of(flat, c)).collect();
             emit_combinator(f, *combinator, *parameter, &child_ordinals, node_fn_base);
         }
     }
@@ -443,10 +442,7 @@ fn emit_node_body(
 fn emit_verb(f: &mut Function, verb: Verb, args: &[Expr], ctx: &mut CompileCtx) {
     match verb {
         Verb::Spawn => {
-            let (ptr, _len) = args
-                .first()
-                .map(|e| eval_string(e, ctx))
-                .unwrap_or((0, 0));
+            let (ptr, _len) = args.first().map(|e| eval_string(e, ctx)).unwrap_or((0, 0));
             let (x, y, z) = args.get(1).map(eval_vec3).unwrap_or((0.0, 0.0, 0.0));
             f.instructions()
                 .i32_const(ptr as i32)
@@ -478,10 +474,7 @@ fn emit_verb(f: &mut Function, verb: Verb, args: &[Expr], ctx: &mut CompileCtx) 
                 .call(IMPORT_DAMAGE);
         }
         Verb::Trigger => {
-            let (ptr, len) = args
-                .first()
-                .map(|e| eval_string(e, ctx))
-                .unwrap_or((0, 0));
+            let (ptr, len) = args.first().map(|e| eval_string(e, ctx)).unwrap_or((0, 0));
             f.instructions()
                 .i32_const(ptr as i32)
                 .i32_const(len as i32)
@@ -493,10 +486,7 @@ fn emit_verb(f: &mut Function, verb: Verb, args: &[Expr], ctx: &mut CompileCtx) 
         }
         Verb::Dialogue => {
             let speaker = args.first().map(eval_entity).unwrap_or(-1);
-            let (ptr, len) = args
-                .get(1)
-                .map(|e| eval_string(e, ctx))
-                .unwrap_or((0, 0));
+            let (ptr, len) = args.get(1).map(|e| eval_string(e, ctx)).unwrap_or((0, 0));
             f.instructions()
                 .i32_const(speaker)
                 .i32_const(ptr as i32)
@@ -726,4 +716,3 @@ pub fn required_exports() -> BTreeSet<(String, String)> {
     .into_iter()
     .collect()
 }
-

@@ -1,111 +1,11 @@
-//! OpenXR swapchain management types for wgpu integration.
-//!
-//! Provides configuration, state machine, and lifecycle management for
-//! VR swapchain image acquisition and release.
+//! OpenXR swapchain manager. Value types re-exported from
+//! `aether_xr_hal::swapchain` (P1-C); the [`SwapchainManager`] state machine
+//! stays here until P5 lands a real wgpu-backed swapchain.
 
-/// Maximum number of swapchain images.
-pub const MAX_SWAPCHAIN_IMAGES: u32 = 4;
-
-/// Default swapchain image width in pixels.
-pub const DEFAULT_WIDTH: u32 = 1440;
-
-/// Default swapchain image height in pixels.
-pub const DEFAULT_HEIGHT: u32 = 1600;
-
-/// Default sample count for multisampling.
-pub const DEFAULT_SAMPLE_COUNT: u32 = 1;
-
-/// Swapchain color format (mirroring common wgpu/Vulkan formats).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SwapchainFormat {
-    /// 8-bit per channel RGBA, sRGB non-linear encoding.
-    Rgba8Srgb,
-    /// 8-bit per channel RGBA, linear encoding.
-    Rgba8Unorm,
-    /// 8-bit per channel BGRA, sRGB non-linear encoding.
-    Bgra8Srgb,
-    /// 8-bit per channel BGRA, linear encoding.
-    Bgra8Unorm,
-    /// 16-bit per channel RGBA, floating point.
-    Rgba16Float,
-    /// 10-bit RGB + 2-bit alpha, unsigned normalized.
-    Rgb10A2Unorm,
-}
-
-/// Usage flags for swapchain images.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SwapchainUsage {
-    /// Images will be used as color render targets.
-    ColorAttachment,
-    /// Images will be sampled in shaders.
-    Sampled,
-    /// Images will be used for both rendering and sampling.
-    ColorAttachmentAndSampled,
-}
-
-/// Configuration for creating a swapchain.
-#[derive(Debug, Clone)]
-pub struct SwapchainConfig {
-    /// Width of each swapchain image in pixels.
-    pub width: u32,
-    /// Height of each swapchain image in pixels.
-    pub height: u32,
-    /// Color format for swapchain images.
-    pub format: SwapchainFormat,
-    /// Number of samples for multisampling.
-    pub sample_count: u32,
-    /// Number of images in the swapchain.
-    pub image_count: u32,
-    /// Usage flags.
-    pub usage: SwapchainUsage,
-}
-
-impl Default for SwapchainConfig {
-    fn default() -> Self {
-        Self {
-            width: DEFAULT_WIDTH,
-            height: DEFAULT_HEIGHT,
-            format: SwapchainFormat::Rgba8Srgb,
-            sample_count: DEFAULT_SAMPLE_COUNT,
-            image_count: 3,
-            usage: SwapchainUsage::ColorAttachment,
-        }
-    }
-}
-
-/// Errors that can occur during swapchain operations.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SwapchainError {
-    /// Tried to acquire an image when one is already acquired.
-    AlreadyAcquired,
-    /// Tried to wait for an image when none is acquired.
-    NotAcquired,
-    /// Tried to release an image when the wait has not completed.
-    NotWaited,
-    /// Tried to release an image when none is acquired.
-    NoImageToRelease,
-    /// The swapchain has not been created yet.
-    NotCreated,
-    /// Configuration is invalid.
-    InvalidConfig(String),
-    /// The swapchain image index is out of range.
-    ImageIndexOutOfRange { index: u32, count: u32 },
-}
-
-/// The state of the swapchain lifecycle.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SwapchainState {
-    /// Swapchain is idle; no image is acquired.
-    Idle,
-    /// An image has been acquired but not yet waited on.
-    Acquired,
-    /// The acquired image is ready for rendering (wait completed).
-    Ready,
-}
-
-/// Index of an acquired swapchain image.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct SwapchainImageIndex(pub u32);
+pub use aether_xr_hal::swapchain::{
+    SwapchainConfig, SwapchainError, SwapchainFormat, SwapchainImageIndex, SwapchainState,
+    SwapchainUsage, DEFAULT_HEIGHT, DEFAULT_SAMPLE_COUNT, DEFAULT_WIDTH, MAX_SWAPCHAIN_IMAGES,
+};
 
 /// Manages the swapchain lifecycle: acquire -> wait -> render -> release.
 #[derive(Debug)]

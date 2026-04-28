@@ -40,15 +40,14 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             .at("/scenario_yaml")
             .with_patch(report.repair_patch.unwrap_or_default()));
         }
-        Ok(serde_json::to_value(report).map_err(|e| ToolError::new(
-            crate::error::codes::INTERNAL,
-            e.to_string(),
-        ))?)
+        Ok(serde_json::to_value(report)
+            .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
     });
     registry.register(
         ToolDescriptor {
             name: "sim.run".into(),
-            description: "Run a scenario against a world and return a verdict with telemetry.".into(),
+            description: "Run a scenario against a world and return a verdict with telemetry."
+                .into(),
             input_schema: schema(),
             mutates: false,
             streaming: false,

@@ -238,7 +238,9 @@ mod tests {
 
     #[test]
     fn combinator_round_trip() {
-        for name in ["sequence", "selector", "parallel", "invert", "retry", "timeout"] {
+        for name in [
+            "sequence", "selector", "parallel", "invert", "retry", "timeout",
+        ] {
             let c = Combinator::from_name(name).unwrap();
             assert_eq!(c.name(), name);
         }

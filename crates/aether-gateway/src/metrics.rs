@@ -30,11 +30,9 @@ pub struct RouteMetricsSnapshot {
 impl RouteMetricsSnapshot {
     /// Average latency in milliseconds, or 0 if no requests recorded.
     pub fn latency_avg_ms(&self) -> u64 {
-        if self.total_requests == 0 {
-            0
-        } else {
-            self.latency_sum_ms / self.total_requests
-        }
+        self.latency_sum_ms
+            .checked_div(self.total_requests)
+            .unwrap_or(0)
     }
 
     /// Error rate as a fraction in `[0.0, 1.0]`.

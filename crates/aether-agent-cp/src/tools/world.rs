@@ -59,10 +59,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             ensure_object(&params)?;
             let yaml = required_str(&params, "manifest_yaml")?;
             let w = b.create_world(yaml)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
@@ -81,19 +79,19 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
         let call: ToolFn = Arc::new(move |params| {
             ensure_object(&params)?;
             let base_cid = required_str(&params, "base_cid")?.to_string();
-            let patch = params.get("patch").cloned().ok_or_else(|| {
-                ToolError::schema("missing required object `patch`", "/patch")
-            })?;
+            let patch = params
+                .get("patch")
+                .cloned()
+                .ok_or_else(|| ToolError::schema("missing required object `patch`", "/patch"))?;
             let w = b.patch_world(&base_cid, &patch)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
                 name: "world.patch".into(),
-                description: "Apply a structured patch to an existing world, producing a new cid.".into(),
+                description: "Apply a structured patch to an existing world, producing a new cid."
+                    .into(),
                 input_schema: schema_world_patch(),
                 mutates: true,
                 streaming: false,
@@ -144,7 +142,12 @@ mod tests {
                 serde_json::json!({"manifest_yaml": "name: my-world\n"}),
             )
             .unwrap();
-        assert!(out.get("cid").unwrap().as_str().unwrap().starts_with("cid:"));
+        assert!(out
+            .get("cid")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .starts_with("cid:"));
     }
 
     #[test]
@@ -157,7 +160,9 @@ mod tests {
     #[test]
     fn world_create_non_object_params() {
         let r = reg();
-        let err = r.call("world.create", serde_json::json!("oops")).unwrap_err();
+        let err = r
+            .call("world.create", serde_json::json!("oops"))
+            .unwrap_err();
         assert_eq!(err.code, codes::SCHEMA_VALIDATION);
     }
 

@@ -39,8 +39,7 @@ fn normalise(s: &str) -> String {
 fn run_golden(stem: &str) {
     let src = read(&format!("{}.beh", stem));
     let ast = parse(&src).unwrap_or_else(|e| panic!("{}: parse: {:?}", stem, e));
-    let checked = check(ast.clone())
-        .unwrap_or_else(|e| panic!("{}: typecheck: {:?}", stem, e));
+    let checked = check(ast.clone()).unwrap_or_else(|e| panic!("{}: typecheck: {:?}", stem, e));
 
     // AST snapshot.
     let ast_json = serde_json::to_string_pretty(&ast).expect("json");
