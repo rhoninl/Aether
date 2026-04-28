@@ -178,6 +178,32 @@ impl HapticDispatcher {
             }
         }
     }
+
+    /// Dispatch a request and forward the resulting action to an `XrHaptics`
+    /// backend (P6-B). Returns `Ok(true)` if the action was sent, `Ok(false)`
+    /// if cooldown or `enabled=false` suppressed it.
+    pub fn dispatch_to<H: aether_xr_hal::haptics::XrHaptics>(
+        &mut self,
+        request: &HapticRequest,
+        now_ms: u64,
+        backend: &H,
+    ) -> Result<bool, H::Error> {
+        let Some(action) = self.dispatch(request, now_ms) else {
+            return Ok(false);
+        };
+        backend.apply(action.target, action_to_pulse(&action))?;
+        Ok(true)
+    }
+}
+
+/// Convert a [`HapticAction`] (high-level dispatcher output) into a
+/// [`HapticPulse`] (one OpenXR `xrApplyHapticFeedback` call).
+pub fn action_to_pulse(action: &HapticAction) -> aether_xr_hal::haptics::HapticPulse {
+    aether_xr_hal::haptics::HapticPulse {
+        duration_ns: u64::from(action.duration_ms).saturating_mul(1_000_000),
+        frequency_hz: action.frequency_hz,
+        amplitude: clamp_amplitude(action.amplitude),
+    }
 }
 
 /// Convert a `HapticChannel` to a `HapticTarget`.

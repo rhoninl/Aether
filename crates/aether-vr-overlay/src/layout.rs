@@ -2,7 +2,7 @@
 //!
 //! Collects metrics and formats them into text lines for rendering.
 
-use aether_input::openxr_tracking::TrackingSnapshot;
+use aether_xr_hal::tracking::TrackingSnapshot;
 
 /// Debug data to display in the overlay panel.
 #[derive(Debug, Clone)]
@@ -122,9 +122,8 @@ fn quaternion_to_yaw_pitch(q: [f32; 4]) -> (f32, f32) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aether_input::actions::Pose3;
-    use aether_input::openxr_tracking::{
-        ControllerAnalog, ControllerButtons, ControllerState, Hand, TrackingConfidence,
+    use aether_xr_hal::tracking::{
+        ControllerAnalog, ControllerButtons, ControllerState, Hand, Pose3, TrackingConfidence,
     };
 
     fn default_pose() -> Pose3 {

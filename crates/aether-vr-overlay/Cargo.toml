@@ -6,3 +6,4 @@ description = "Platform-agnostic VR debug overlay renderer for the Aether engine
 
 [dependencies]
 aether-input = { path = "../aether-input" }
+aether-xr-hal = { path = "../aether-xr-hal" }
