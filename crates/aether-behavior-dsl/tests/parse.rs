@@ -60,7 +60,7 @@ fn rejects_unknown_combinator_with_suggestion() {
 
 #[test]
 fn retry_parameter_must_be_positive() {
-    let err = parse("behavior X { version 1 retry(-1) { spawn(\"x\", vec3(0,0,0)); } }")
-        .unwrap_err();
+    let err =
+        parse("behavior X { version 1 retry(-1) { spawn(\"x\", vec3(0,0,0)); } }").unwrap_err();
     assert_eq!(err.code(), "BDSL-E0020");
 }

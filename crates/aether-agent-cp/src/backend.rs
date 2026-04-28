@@ -154,11 +154,8 @@ pub trait Backend: Send + Sync {
         world_cid: &Cid,
         prototypes: &[serde_json::Value],
     ) -> ToolResult<WorldState>;
-    fn modify_entities(
-        &self,
-        world_cid: &Cid,
-        ops: &[serde_json::Value],
-    ) -> ToolResult<WorldState>;
+    fn modify_entities(&self, world_cid: &Cid, ops: &[serde_json::Value])
+        -> ToolResult<WorldState>;
     fn link_entities(
         &self,
         world_cid: &Cid,
@@ -263,7 +260,10 @@ impl InMemoryBackend {
         kind: &str,
         payload: serde_json::Value,
     ) {
-        let seq = state.next_telemetry_seq.entry(world_cid.clone()).or_insert(0);
+        let seq = state
+            .next_telemetry_seq
+            .entry(world_cid.clone())
+            .or_insert(0);
         *seq += 1;
         let event = TelemetryEvent {
             world_cid: world_cid.clone(),
@@ -272,7 +272,11 @@ impl InMemoryBackend {
             payload,
             timestamp: Utc::now().to_rfc3339(),
         };
-        state.telemetry.entry(world_cid.clone()).or_default().push(event);
+        state
+            .telemetry
+            .entry(world_cid.clone())
+            .or_default()
+            .push(event);
     }
 
     /// Re-cid + re-insert a world after mutation. Returns the new stored state.
@@ -319,12 +323,12 @@ impl Backend for InMemoryBackend {
                 "manifest is missing required `name` field",
                 "/manifest_yaml",
             )
-            .with_patch(
-                RepairPatch::new("manifest must declare a `name`").with_op(RepairOp::Replace {
+            .with_patch(RepairPatch::new("manifest must declare a `name`").with_op(
+                RepairOp::Replace {
                     path: "/manifest_yaml".into(),
                     value: serde_json::Value::String("name: unnamed-world\n".into()),
-                }),
-            ));
+                },
+            )));
         }
         self.with_state(|s| {
             let cid = Self::cid_for_json(&manifest);
@@ -333,12 +337,7 @@ impl Backend for InMemoryBackend {
             }
             let world = WorldState::new(cid.clone(), manifest);
             s.worlds.insert(cid.clone(), world.clone());
-            Self::emit_telemetry(
-                s,
-                &cid,
-                "world.created",
-                serde_json::json!({ "cid": cid }),
-            );
+            Self::emit_telemetry(s, &cid, "world.created", serde_json::json!({ "cid": cid }));
             Ok(world)
         })
     }
@@ -373,26 +372,24 @@ impl Backend for InMemoryBackend {
             if let Some(entities) = patch.get("entities") {
                 if let Some(add) = entities.get("add").and_then(|v| v.as_array()) {
                     for e in add {
-                        let id = e
-                            .get("id")
-                            .and_then(|v| v.as_str())
-                            .ok_or_else(|| {
-                                ToolError::schema(
-                                    "entity missing `id`",
-                                    "/patch/entities/add",
-                                )
-                                .with_patch(
-                                    RepairPatch::new(
-                                        "every added entity must carry a string `id`",
-                                    )
-                                    .with_op(RepairOp::Hint {
-                                        path: "/patch/entities/add".into(),
-                                        hint: "set `{\"id\":\"ent:...\",...}` on each entry"
-                                            .into(),
-                                    }),
-                                )
-                            })?
-                            .to_string();
+                        let id =
+                            e.get("id")
+                                .and_then(|v| v.as_str())
+                                .ok_or_else(|| {
+                                    ToolError::schema("entity missing `id`", "/patch/entities/add")
+                                        .with_patch(
+                                            RepairPatch::new(
+                                                "every added entity must carry a string `id`",
+                                            )
+                                            .with_op(RepairOp::Hint {
+                                                path: "/patch/entities/add".into(),
+                                                hint:
+                                                    "set `{\"id\":\"ent:...\",...}` on each entry"
+                                                        .into(),
+                                            }),
+                                        )
+                                })?
+                                .to_string();
                         next.entities.insert(id, e.clone());
                     }
                 }
@@ -417,9 +414,10 @@ impl Backend for InMemoryBackend {
 
     fn query_world(&self, cid: &Cid, jsonpath: &str) -> ToolResult<serde_json::Value> {
         self.with_state(|s| {
-            let world = s.worlds.get(cid).ok_or_else(|| {
-                ToolError::not_found("world", cid.to_string())
-            })?;
+            let world = s
+                .worlds
+                .get(cid)
+                .ok_or_else(|| ToolError::not_found("world", cid.to_string()))?;
             // Support a simple `/`-separated pointer for portability.
             let value: serde_json::Value = serde_json::to_value(world)
                 .map_err(|e| ToolError::new(codes::INTERNAL, e.to_string()))?;
@@ -433,16 +431,14 @@ impl Backend for InMemoryBackend {
         prototypes: &[serde_json::Value],
     ) -> ToolResult<WorldState> {
         if prototypes.is_empty() {
-            return Err(ToolError::schema(
-                "prototypes must not be empty",
-                "/prototypes",
-            )
-            .with_patch(RepairPatch::new("supply at least one prototype").with_op(
-                RepairOp::Replace {
-                    path: "/prototypes".into(),
-                    value: serde_json::json!([{"id":"ent:1","kind":"npc"}]),
-                },
-            )));
+            return Err(
+                ToolError::schema("prototypes must not be empty", "/prototypes").with_patch(
+                    RepairPatch::new("supply at least one prototype").with_op(RepairOp::Replace {
+                        path: "/prototypes".into(),
+                        value: serde_json::json!([{"id":"ent:1","kind":"npc"}]),
+                    }),
+                ),
+            );
         }
         self.with_state(|s| {
             let mut world = s
@@ -451,15 +447,12 @@ impl Backend for InMemoryBackend {
                 .cloned()
                 .ok_or_else(|| ToolError::not_found("world", world_cid.to_string()))?;
             for (idx, p) in prototypes.iter().enumerate() {
-                let id = p
-                    .get("id")
-                    .and_then(|v| v.as_str())
-                    .ok_or_else(|| {
-                        ToolError::schema(
-                            format!("prototype #{} is missing `id`", idx),
-                            format!("/prototypes/{}", idx),
-                        )
-                    })?;
+                let id = p.get("id").and_then(|v| v.as_str()).ok_or_else(|| {
+                    ToolError::schema(
+                        format!("prototype #{} is missing `id`", idx),
+                        format!("/prototypes/{}", idx),
+                    )
+                })?;
                 world.entities.insert(id.to_string(), p.clone());
             }
             let out = Self::rehash(s, world);
@@ -515,11 +508,14 @@ impl Backend for InMemoryBackend {
                             format!("unknown op kind `{}`", other),
                             format!("/ops/{}/op", idx),
                         )
-                        .with_patch(RepairPatch::new("allowed ops are `set` and `remove`")
-                            .with_op(RepairOp::Replace {
-                                path: format!("/ops/{}/op", idx),
-                                value: serde_json::Value::String("set".into()),
-                            })));
+                        .with_patch(
+                            RepairPatch::new("allowed ops are `set` and `remove`").with_op(
+                                RepairOp::Replace {
+                                    path: format!("/ops/{}/op", idx),
+                                    value: serde_json::Value::String("set".into()),
+                                },
+                            ),
+                        ));
                     }
                 }
             }
@@ -551,16 +547,16 @@ impl Backend for InMemoryBackend {
                 return Err(ToolError::not_found("entity", source_id.to_string())
                     .at("/source_id")
                     .with_patch(
-                        RepairPatch::new("link source must exist in the world")
-                            .with_op(RepairOp::Hint {
+                        RepairPatch::new("link source must exist in the world").with_op(
+                            RepairOp::Hint {
                                 path: "/source_id".into(),
                                 hint: "spawn the entity first via entity.spawn".into(),
-                            }),
+                            },
+                        ),
                     ));
             }
             if !world.entities.contains_key(target_id) {
-                return Err(ToolError::not_found("entity", target_id.to_string())
-                    .at("/target_id"));
+                return Err(ToolError::not_found("entity", target_id.to_string()).at("/target_id"));
             }
             world.links.push(Link {
                 source_id: source_id.into(),
@@ -580,16 +576,14 @@ impl Backend for InMemoryBackend {
 
     fn compile_script(&self, dsl_source: &str) -> ToolResult<CompiledScript> {
         if dsl_source.trim().is_empty() {
-            return Err(ToolError::schema(
-                "dsl_source must not be empty",
-                "/dsl_source",
-            )
-            .with_patch(RepairPatch::new("supply a non-empty DSL source").with_op(
-                RepairOp::Replace {
-                    path: "/dsl_source".into(),
-                    value: serde_json::Value::String("on tick do log \"hi\"\n".into()),
-                },
-            )));
+            return Err(
+                ToolError::schema("dsl_source must not be empty", "/dsl_source").with_patch(
+                    RepairPatch::new("supply a non-empty DSL source").with_op(RepairOp::Replace {
+                        path: "/dsl_source".into(),
+                        value: serde_json::Value::String("on tick do log \"hi\"\n".into()),
+                    }),
+                ),
+            );
         }
         // Minimal DSL check: we require the source to contain `on` somewhere.
         if !dsl_source.contains("on") {
@@ -651,8 +645,9 @@ impl Backend for InMemoryBackend {
                 .cloned()
                 .ok_or_else(|| ToolError::not_found("world", world_cid.to_string()))?;
             if !world.entities.contains_key(entity_ref) {
-                return Err(ToolError::not_found("entity", entity_ref.to_string())
-                    .at("/entity_ref"));
+                return Err(
+                    ToolError::not_found("entity", entity_ref.to_string()).at("/entity_ref")
+                );
             }
             world.scripts.insert(
                 entity_ref.to_string(),
@@ -679,11 +674,11 @@ impl Backend for InMemoryBackend {
                 "/scenario_yaml",
             )
         })?;
-        let ticks = scenario
-            .get("ticks")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(60);
-        let expected = scenario.get("expect").and_then(|v| v.as_str()).unwrap_or("pass");
+        let ticks = scenario.get("ticks").and_then(|v| v.as_u64()).unwrap_or(60);
+        let expected = scenario
+            .get("expect")
+            .and_then(|v| v.as_str())
+            .unwrap_or("pass");
         self.with_state(|s| {
             let world = s.worlds.get(world_cid).ok_or_else(|| {
                 ToolError::not_found("world", world_cid.to_string()).at("/world_cid")
@@ -708,12 +703,10 @@ impl Backend for InMemoryBackend {
                     }),
                 ),
                 SimVerdict::Inconclusive => Some(
-                    RepairPatch::new("world has no entities to simulate").with_op(
-                        RepairOp::Hint {
-                            path: "/world_cid".into(),
-                            hint: "call entity.spawn before sim.run".into(),
-                        },
-                    ),
+                    RepairPatch::new("world has no entities to simulate").with_op(RepairOp::Hint {
+                        path: "/world_cid".into(),
+                        hint: "call entity.spawn before sim.run".into(),
+                    }),
                 ),
             };
             let report = SimReport {
@@ -774,21 +767,20 @@ impl Backend for InMemoryBackend {
 
     fn ugc_approve(&self, cid: &Cid) -> ToolResult<UgcArtifact> {
         self.with_state(|s| {
-            let art = s.ugc.get_mut(cid).ok_or_else(|| {
-                ToolError::not_found("ugc_artifact", cid.to_string())
-            })?;
+            let art = s
+                .ugc
+                .get_mut(cid)
+                .ok_or_else(|| ToolError::not_found("ugc_artifact", cid.to_string()))?;
             if matches!(art.status, UgcStatus::Rejected) {
                 return Err(ToolError::new(
                     codes::MODERATION_BLOCKED,
                     "artifact has been rejected and cannot be approved",
                 )
                 .with_patch(
-                    RepairPatch::new("re-upload a compliant replacement").with_op(
-                        RepairOp::Hint {
-                            path: "/cid".into(),
-                            hint: "call ugc.upload with a clean payload".into(),
-                        },
-                    ),
+                    RepairPatch::new("re-upload a compliant replacement").with_op(RepairOp::Hint {
+                        path: "/cid".into(),
+                        hint: "call ugc.upload with a clean payload".into(),
+                    }),
                 ));
             }
             art.status = UgcStatus::Approved;
@@ -798,9 +790,10 @@ impl Backend for InMemoryBackend {
 
     fn ugc_publish(&self, cid: &Cid) -> ToolResult<UgcArtifact> {
         self.with_state(|s| {
-            let art = s.ugc.get_mut(cid).ok_or_else(|| {
-                ToolError::not_found("ugc_artifact", cid.to_string())
-            })?;
+            let art = s
+                .ugc
+                .get_mut(cid)
+                .ok_or_else(|| ToolError::not_found("ugc_artifact", cid.to_string()))?;
             if !matches!(art.status, UgcStatus::Approved) {
                 return Err(ToolError::new(
                     codes::CONFLICT,
@@ -821,14 +814,14 @@ impl Backend for InMemoryBackend {
 
     fn report_moderation(&self, cid: &Cid, reason: &str) -> ToolResult<ModerationReport> {
         if reason.trim().is_empty() {
-            return Err(ToolError::schema(
-                "reason must not be empty",
-                "/reason",
-            )
-            .with_patch(RepairPatch::new("describe the issue").with_op(RepairOp::Replace {
-                path: "/reason".into(),
-                value: serde_json::Value::String("contains disallowed content".into()),
-            })));
+            return Err(
+                ToolError::schema("reason must not be empty", "/reason").with_patch(
+                    RepairPatch::new("describe the issue").with_op(RepairOp::Replace {
+                        path: "/reason".into(),
+                        value: serde_json::Value::String("contains disallowed content".into()),
+                    }),
+                ),
+            );
         }
         self.with_state(|s| {
             if !s.ugc.contains_key(cid) {
@@ -875,7 +868,13 @@ fn lookup_pointer(value: &serde_json::Value, jsonpath: &str) -> Option<serde_jso
     let pointer = if trimmed.starts_with('/') {
         trimmed.to_string()
     } else {
-        format!("/{}", trimmed.trim_start_matches('$').trim_start_matches('.').replace('.', "/"))
+        format!(
+            "/{}",
+            trimmed
+                .trim_start_matches('$')
+                .trim_start_matches('.')
+                .replace('.', "/")
+        )
     };
     value.pointer(&pointer).cloned()
 }
@@ -925,10 +924,7 @@ mod tests {
         let w = b
             .spawn_entities(
                 &w.cid,
-                &[
-                    serde_json::json!({"id":"a"}),
-                    serde_json::json!({"id":"b"}),
-                ],
+                &[serde_json::json!({"id":"a"}), serde_json::json!({"id":"b"})],
             )
             .unwrap();
         let w = b

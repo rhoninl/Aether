@@ -42,15 +42,14 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             ensure_object(&params)?;
             let dsl = required_str(&params, "dsl_source")?;
             let compiled = b.compile_script(dsl)?;
-            Ok(serde_json::to_value(compiled).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(compiled)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
                 name: "script.compile".into(),
-                description: "Compile behavior-DSL source to WASM and return the artifact cid.".into(),
+                description: "Compile behavior-DSL source to WASM and return the artifact cid."
+                    .into(),
                 input_schema: schema_compile(),
                 mutates: false,
                 streaming: false,
@@ -67,10 +66,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             let entity_ref = required_str(&params, "entity_ref")?.to_string();
             let script_cid = required_str(&params, "script_cid")?.to_string();
             let w = b.deploy_script(&world_cid, &entity_ref, &script_cid)?;
-            Ok(serde_json::to_value(w).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(w)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
@@ -101,10 +98,7 @@ mod tests {
     fn compile_rejects_source_without_handler() {
         let r = reg();
         let err = r
-            .call(
-                "script.compile",
-                serde_json::json!({"dsl_source": "noop"}),
-            )
+            .call("script.compile", serde_json::json!({"dsl_source": "noop"}))
             .unwrap_err();
         assert_eq!(err.code, codes::COMPILE_FAILED);
         assert!(err.repair_patch.is_some());
@@ -119,8 +113,18 @@ mod tests {
                 serde_json::json!({"dsl_source": "on tick do log \"x\""}),
             )
             .unwrap();
-        assert!(out.get("cid").unwrap().as_str().unwrap().starts_with("cid:"));
-        assert!(!out.get("wasm_bytes_b64").unwrap().as_str().unwrap().is_empty());
+        assert!(out
+            .get("cid")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .starts_with("cid:"));
+        assert!(!out
+            .get("wasm_bytes_b64")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .is_empty());
     }
 
     #[test]

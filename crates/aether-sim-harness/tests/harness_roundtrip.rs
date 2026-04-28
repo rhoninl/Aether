@@ -19,7 +19,9 @@ fn failed_scenario_returns_repair_patch() {
     let s = Scenario::new("bad")
         .push(Input::AgentAction {
             agent: "a".into(),
-            action: AgentAction::SmoothLocomotion { accel: [12.0, 0.0, 0.0] },
+            action: AgentAction::SmoothLocomotion {
+                accel: [12.0, 0.0, 0.0],
+            },
         })
         .push_ticks(1);
     let mut h = DefaultHarness::new();

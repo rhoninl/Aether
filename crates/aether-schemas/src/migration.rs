@@ -50,9 +50,9 @@ impl SchemaVersion {
             other => Err(SchemaError::UnsupportedVersion {
                 found: other,
                 expected: vec![0, 1],
-                suggested_fix: format!(
+                suggested_fix:
                     "set `schema_version` to 1 (the current stable wire); support for v0 is migration-only"
-                ),
+                        .to_string(),
             }),
         }
     }
@@ -103,6 +103,10 @@ impl schemars::JsonSchema for SchemaVersion {
 /// be applied uniformly to any artifact kind. `from`/`to` must differ by
 /// exactly 1 step.
 pub trait Migrator {
+    // `from_version` / `to_version` are queried per migrator instance —
+    // implementations may carry per-instance state. The clippy hint to
+    // make them associated functions doesn't apply.
+    #[allow(clippy::wrong_self_convention)]
     fn from_version(&self) -> SchemaVersion;
     fn to_version(&self) -> SchemaVersion;
     fn migrate(&self, value: serde_json::Value) -> SchemaResult<serde_json::Value>;
@@ -262,7 +266,10 @@ mod tests {
             "legacy_flag": true,
         });
         let v1 = MigratorV0ToV1.migrate(v0).unwrap();
-        assert_eq!(v1["migration_notes"]["legacy_flag"], serde_json::json!(true));
+        assert_eq!(
+            v1["migration_notes"]["legacy_flag"],
+            serde_json::json!(true)
+        );
         assert!(v1.get("legacy_flag").is_none());
     }
 
@@ -279,8 +286,7 @@ mod tests {
     #[test]
     fn apply_chain_stops_at_target() {
         let v0 = serde_json::json!({"world_id": "w"});
-        let out =
-            apply_chain(&[&MigratorV0ToV1 as &dyn Migrator], v0, SchemaVersion::V1).unwrap();
+        let out = apply_chain(&[&MigratorV0ToV1 as &dyn Migrator], v0, SchemaVersion::V1).unwrap();
         assert_eq!(out["schema_version"], serde_json::json!(1));
     }
 

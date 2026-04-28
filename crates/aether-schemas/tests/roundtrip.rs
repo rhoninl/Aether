@@ -12,8 +12,8 @@
 use std::path::PathBuf;
 
 use aether_schemas::{
-    emit_all_schemas, from_canonical_bytes, from_yaml_str, to_canonical_bytes, to_yaml_string,
-    Cid, ContentAddress, WorldManifest,
+    emit_all_schemas, from_canonical_bytes, from_yaml_str, to_canonical_bytes, to_yaml_string, Cid,
+    ContentAddress, WorldManifest,
 };
 
 fn crate_root() -> PathBuf {
@@ -22,7 +22,12 @@ fn crate_root() -> PathBuf {
 
 fn workspace_root() -> PathBuf {
     // crates/aether-schemas/ -> ../..
-    crate_root().parent().unwrap().parent().unwrap().to_path_buf()
+    crate_root()
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 fn fixture_dir() -> PathBuf {
@@ -96,5 +101,8 @@ fn canonical_bytes_deterministic_across_independent_constructions() {
     // ordering, iterator ordering, or float formatting drift.
     let a = WorldManifest::minimal_example();
     let b = WorldManifest::minimal_example();
-    assert_eq!(to_canonical_bytes(&a).unwrap(), to_canonical_bytes(&b).unwrap());
+    assert_eq!(
+        to_canonical_bytes(&a).unwrap(),
+        to_canonical_bytes(&b).unwrap()
+    );
 }

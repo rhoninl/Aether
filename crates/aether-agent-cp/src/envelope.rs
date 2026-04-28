@@ -184,10 +184,7 @@ mod tests {
 
     #[test]
     fn success_response_has_result() {
-        let resp = rpc_success(
-            Some(JsonRpcId::Num(1)),
-            serde_json::json!({"ok": true}),
-        );
+        let resp = rpc_success(Some(JsonRpcId::Num(1)), serde_json::json!({"ok": true}));
         assert!(resp.error.is_none());
         assert_eq!(resp.result.unwrap(), serde_json::json!({"ok": true}));
     }

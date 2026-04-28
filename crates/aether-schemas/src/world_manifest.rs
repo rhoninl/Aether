@@ -169,11 +169,7 @@ impl WorldManifest {
         for (i, s) in self.spawn_points.iter().enumerate() {
             s.validate(&format!("/spawn_points/{i}"))?;
         }
-        let default_count = self
-            .spawn_points
-            .iter()
-            .filter(|s| s.is_default)
-            .count();
+        let default_count = self.spawn_points.iter().filter(|s| s.is_default).count();
         if default_count > 1 {
             return Err(SchemaError::validation(
                 "/spawn_points",

@@ -127,9 +127,8 @@ impl Parser {
                         _ => return Err(self.unexpected("capability name")),
                     };
                     self.bump();
-                    let cap = Capability::from_name(&name).ok_or(
-                        BehaviorDslError::UnknownCapability { name, span },
-                    )?;
+                    let cap = Capability::from_name(&name)
+                        .ok_or(BehaviorDslError::UnknownCapability { name, span })?;
                     caps.insert(cap);
                     if matches!(self.peek().kind, TokenKind::Comma) {
                         self.bump();
@@ -278,11 +277,7 @@ impl Parser {
         }
 
         // Otherwise: unknown — prefer combinator error if it looks like one.
-        if [
-            "seq", "sel", "par", "inv", "repeat", "retries", "until",
-        ]
-        .contains(&name.as_str())
-        {
+        if ["seq", "sel", "par", "inv", "repeat", "retries", "until"].contains(&name.as_str()) {
             return Err(BehaviorDslError::UnknownCombinator {
                 name: name.clone(),
                 span: start,
@@ -449,7 +444,8 @@ mod tests {
 
     #[test]
     fn parse_module_with_caps() {
-        let src = "behavior Foo { @caps(Movement, Economy) version 2 spawn(\"coin\", vec3(0,0,0)); }";
+        let src =
+            "behavior Foo { @caps(Movement, Economy) version 2 spawn(\"coin\", vec3(0,0,0)); }";
         let m = parse(src).unwrap();
         assert!(m.caps.contains(Capability::Movement));
         assert!(m.caps.contains(Capability::Economy));

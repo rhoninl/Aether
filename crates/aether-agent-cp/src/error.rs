@@ -156,12 +156,12 @@ mod tests {
         let err = ToolError::new(codes::SCHEMA_VALIDATION, "bad input")
             .at("/manifest_yaml")
             .suggest("expected YAML with a `name:` field")
-            .with_patch(
-                RepairPatch::new("manifest must declare a name").with_op(RepairOp::Replace {
+            .with_patch(RepairPatch::new("manifest must declare a name").with_op(
+                RepairOp::Replace {
                     path: "/manifest_yaml".into(),
                     value: serde_json::Value::String("name: default\n".into()),
-                }),
-            );
+                },
+            ));
         assert_eq!(err.code, codes::SCHEMA_VALIDATION);
         assert_eq!(err.source_location.as_deref(), Some("/manifest_yaml"));
         assert!(err.suggested_fix.is_some());
@@ -176,9 +176,7 @@ mod tests {
                 path: "/x".into(),
                 value: serde_json::json!(42),
             })
-            .with_op(RepairOp::Remove {
-                path: "/y".into(),
-            })
+            .with_op(RepairOp::Remove { path: "/y".into() })
             .with_op(RepairOp::Add {
                 path: "/z".into(),
                 value: serde_json::json!("hello"),

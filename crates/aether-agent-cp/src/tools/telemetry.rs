@@ -45,7 +45,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
     registry.register(
         ToolDescriptor {
             name: "telemetry.stream".into(),
-            description: "Stream (or snapshot) world telemetry events filtered by `kind` substring.".into(),
+            description:
+                "Stream (or snapshot) world telemetry events filtered by `kind` substring.".into(),
             input_schema: schema(),
             mutates: false,
             streaming: true,
@@ -71,20 +72,14 @@ mod tests {
                 serde_json::json!({"manifest_yaml": "name: w\n"}),
             )
             .unwrap();
-        (
-            r,
-            out.get("cid").unwrap().as_str().unwrap().to_string(),
-        )
+        (r, out.get("cid").unwrap().as_str().unwrap().to_string())
     }
 
     #[test]
     fn telemetry_stream_returns_events() {
         let (r, cid) = full_reg();
         let out = r
-            .call(
-                "telemetry.stream",
-                serde_json::json!({"world_cid": cid}),
-            )
+            .call("telemetry.stream", serde_json::json!({"world_cid": cid}))
             .unwrap();
         assert!(out.get("events").unwrap().as_array().unwrap().len() >= 1);
     }

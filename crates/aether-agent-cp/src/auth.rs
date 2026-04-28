@@ -125,9 +125,7 @@ impl AuthVerifier {
         let token_data =
             decode::<Claims>(token, &self.inner.key, &self.inner.validation).map_err(|e| {
                 let msg = match e.kind() {
-                    jsonwebtoken::errors::ErrorKind::ExpiredSignature => {
-                        "bearer token has expired"
-                    }
+                    jsonwebtoken::errors::ErrorKind::ExpiredSignature => "bearer token has expired",
                     jsonwebtoken::errors::ErrorKind::InvalidSignature => {
                         "bearer token signature is invalid"
                     }

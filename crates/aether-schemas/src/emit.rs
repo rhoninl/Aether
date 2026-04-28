@@ -106,7 +106,11 @@ mod tests {
         for entry in ENTRIES {
             let body = (entry.body)().unwrap();
             let parsed: serde_json::Value = serde_json::from_str(&body).unwrap();
-            assert!(parsed.is_object(), "schema for {} must be an object", entry.filename);
+            assert!(
+                parsed.is_object(),
+                "schema for {} must be an object",
+                entry.filename
+            );
         }
     }
 
@@ -122,10 +126,8 @@ mod tests {
     }
 
     fn tempdir() -> PathBuf {
-        let dir = std::env::temp_dir().join(format!(
-            "aether-schemas-emit-test-{}",
-            std::process::id()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("aether-schemas-emit-test-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir

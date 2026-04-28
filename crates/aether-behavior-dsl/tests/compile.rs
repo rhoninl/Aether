@@ -20,8 +20,7 @@ fn spawn_compiles_to_valid_wasm() {
 
 #[test]
 fn move_compiles_to_valid_wasm() {
-    let wasm =
-        compile("behavior X { @caps(Movement) version 1 move(self, vec3(0,0,0), 1.5); }");
+    let wasm = compile("behavior X { @caps(Movement) version 1 move(self, vec3(0,0,0), 1.5); }");
     assert_valid_wasm(&wasm);
 }
 
@@ -33,9 +32,7 @@ fn damage_compiles_to_valid_wasm() {
 
 #[test]
 fn trigger_compiles_to_valid_wasm() {
-    let wasm = compile(
-        "behavior X { @caps(Network) version 1 trigger(\"evt\", {\"k\": 1}); }",
-    );
+    let wasm = compile("behavior X { @caps(Network) version 1 trigger(\"evt\", {\"k\": 1}); }");
     assert_valid_wasm(&wasm);
 }
 
@@ -65,9 +62,7 @@ fn combinators_compile_to_valid_wasm() {
 fn exported_tick_signature_is_i32_i32_i32() {
     use wasmparser::{FuncType, Parser, Payload, TypeRef, ValType};
 
-    let wasm = compile(
-        "behavior X { @caps(Movement) version 1 move(self, vec3(0,0,0), 1.0); }",
-    );
+    let wasm = compile("behavior X { @caps(Movement) version 1 move(self, vec3(0,0,0), 1.0); }");
     let mut types: Vec<FuncType> = Vec::new();
     let mut import_fn_types: Vec<u32> = Vec::new();
     let mut defined_fn_types: Vec<u32> = Vec::new();
@@ -130,8 +125,7 @@ fn exported_tick_signature_is_i32_i32_i32() {
 #[test]
 fn compiled_module_imports_all_expected_verbs() {
     let wasm = compile("behavior X { @caps(Movement) version 1 move(self, vec3(0,0,0), 1.0); }");
-    let summary =
-        aether_behavior_dsl::WasmSummary::from_bytes(&wasm).expect("summary produced");
+    let summary = aether_behavior_dsl::WasmSummary::from_bytes(&wasm).expect("summary produced");
     let names: Vec<String> = summary
         .imports
         .iter()

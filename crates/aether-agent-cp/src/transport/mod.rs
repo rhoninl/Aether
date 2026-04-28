@@ -95,11 +95,12 @@ fn authenticate(req: &JsonRpcRequest, auth: &AuthVerifier) -> Result<(), ToolErr
                 .and_then(|v| v.as_str())
         })
         .ok_or_else(|| {
-            ToolError::new(codes::UNAUTHORIZED, "missing Authorization bearer token")
-                .suggest(format!(
-                    "include an `auth` field with `Bearer <jwt>` minted by the identity service at {}",
-                    auth.jwks_url()
-                ))
+            ToolError::new(codes::UNAUTHORIZED, "missing Authorization bearer token").suggest(
+                format!(
+                "include an `auth` field with `Bearer <jwt>` minted by the identity service at {}",
+                auth.jwks_url()
+            ),
+            )
         })?;
     let token = AuthVerifier::parse_bearer(token).unwrap_or(token);
     auth.validate(token)?;

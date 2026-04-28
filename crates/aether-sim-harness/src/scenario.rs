@@ -14,19 +14,14 @@ use crate::error::{HarnessError, HarnessResult};
 /// The harness never peeks inside this payload — it's handed straight to
 /// the world materializer. For the golden tests we use the `empty` form
 /// and populate via inputs.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum WorldSnapshot {
     /// An empty world.
+    #[default]
     Empty,
     /// A world pre-populated with N transform-tagged entities.
     NEntities { count: u32 },
-}
-
-impl Default for WorldSnapshot {
-    fn default() -> Self {
-        Self::Empty
-    }
 }
 
 /// One typed input delivered to the harness on a specific tick.
@@ -39,15 +34,9 @@ pub enum Input {
     /// Advance the simulation by one fixed tick. No payload.
     Tick,
     /// An agent-initiated action.
-    AgentAction {
-        agent: String,
-        action: AgentAction,
-    },
+    AgentAction { agent: String, action: AgentAction },
     /// A simulated network event.
-    NetEvent {
-        client: u32,
-        event: NetEvent,
-    },
+    NetEvent { client: u32, event: NetEvent },
 }
 
 /// Agent action primitives. Rich enough to exercise the scorers.
@@ -106,9 +95,13 @@ pub enum NetEvent {
     ClientConnect,
     ClientDisconnect,
     /// Replicate a spawn to a specific client (for coherence tests).
-    ReplicateSpawn { entity_tag: String },
+    ReplicateSpawn {
+        entity_tag: String,
+    },
     /// Inject jitter in milliseconds for subsequent ticks.
-    Jitter { ms: u32 },
+    Jitter {
+        ms: u32,
+    },
     /// Entity hand-off between zones.
     ZoneHandoff {
         entity_tag: String,

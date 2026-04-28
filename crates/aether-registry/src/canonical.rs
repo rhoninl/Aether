@@ -37,10 +37,14 @@ impl CanonicalWorldIndex {
         category: &WorldCategory,
         featured: bool,
     ) -> Result<Cid, SchemaError> {
-        let span = tracing::trace_span!("registry::register_from_canonical", bytes = world_manifest_bytes.len());
+        let span = tracing::trace_span!(
+            "registry::register_from_canonical",
+            bytes = world_manifest_bytes.len()
+        );
         let _enter = span.enter();
 
-        let manifest = aether_canonical_shim::WorldManifest::from_canonical_bytes(world_manifest_bytes)?;
+        let manifest =
+            aether_canonical_shim::WorldManifest::from_canonical_bytes(world_manifest_bytes)?;
         let cid = Cid::sha256_of(world_manifest_bytes);
         let record = WireRecord {
             manifest_cid: cid.clone(),
@@ -63,10 +67,7 @@ impl CanonicalWorldIndex {
     /// thing, different entrypoint" convenience for callers that already
     /// hold the Rust struct; it still goes through canonical bytes so the
     /// CID is computed identically.
-    pub fn register_from_manifest(
-        &mut self,
-        manifest: &WorldManifest,
-    ) -> Result<Cid, SchemaError> {
+    pub fn register_from_manifest(&mut self, manifest: &WorldManifest) -> Result<Cid, SchemaError> {
         let canonical = manifest_to_canonical_bytes(manifest)?;
         self.register_from_canonical(&canonical, &manifest.category, manifest.featured)
     }

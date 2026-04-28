@@ -36,15 +36,12 @@ pub(crate) fn required_str<'a>(
     params: &'a serde_json::Value,
     field: &'static str,
 ) -> Result<&'a str, crate::error::ToolError> {
-    params
-        .get(field)
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| {
-            crate::error::ToolError::schema(
-                format!("missing required string field `{}`", field),
-                format!("/{}", field),
-            )
-        })
+    params.get(field).and_then(|v| v.as_str()).ok_or_else(|| {
+        crate::error::ToolError::schema(
+            format!("missing required string field `{}`", field),
+            format!("/{}", field),
+        )
+    })
 }
 
 /// Helper: ensure params is a JSON object, with a clear error otherwise.

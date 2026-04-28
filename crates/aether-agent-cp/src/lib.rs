@@ -1,3 +1,14 @@
+// Crate-wide clippy relaxations. The error type carries rich repair-patch
+// payloads which makes `Err` variants large; boxing every instance would be
+// churn for no semantic gain. `needless_question_mark` and `collapsible_if`
+// fire on intentionally-explicit transport plumbing.
+#![allow(
+    clippy::result_large_err,
+    clippy::needless_question_mark,
+    clippy::nonminimal_bool,
+    clippy::collapsible_if
+)]
+
 //! Agent Control Plane library.
 //!
 //! `aether-agent-cp` exposes a first-class MCP + gRPC-compatible surface that

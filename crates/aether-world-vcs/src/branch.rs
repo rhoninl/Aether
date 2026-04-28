@@ -35,8 +35,7 @@ pub struct Branch {
 pub trait BranchStore {
     /// Create a new branch forked from `parent`. If `parent` is
     /// `None`, the new branch starts at the zero CID.
-    fn branch(&mut self, parent: Option<&str>, name: &str, created_by: AgentRef)
-        -> Result<Branch>;
+    fn branch(&mut self, parent: Option<&str>, name: &str, created_by: AgentRef) -> Result<Branch>;
 
     /// Look up the current head CID of a branch.
     fn head(&self, branch: &str) -> Result<Cid>;
@@ -91,12 +90,7 @@ impl MemoryBranchStore {
 }
 
 impl BranchStore for MemoryBranchStore {
-    fn branch(
-        &mut self,
-        parent: Option<&str>,
-        name: &str,
-        created_by: AgentRef,
-    ) -> Result<Branch> {
+    fn branch(&mut self, parent: Option<&str>, name: &str, created_by: AgentRef) -> Result<Branch> {
         if self.branches.contains_key(name) {
             return Err(VcsError::BranchExists(name.to_string()));
         }

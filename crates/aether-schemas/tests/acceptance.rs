@@ -16,7 +16,12 @@ fn crate_root() -> PathBuf {
 }
 
 fn workspace_root() -> PathBuf {
-    crate_root().parent().unwrap().parent().unwrap().to_path_buf()
+    crate_root()
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 // --- #68 -------------------------------------------------------------------
@@ -32,8 +37,8 @@ fn box_on_plane_yaml_round_trips_with_stable_hash() {
     });
 
     // YAML -> Rust struct
-    let manifest: WorldManifest = from_yaml_str(&yaml)
-        .unwrap_or_else(|e| panic!("box_on_plane.yaml failed to parse: {e}"));
+    let manifest: WorldManifest =
+        from_yaml_str(&yaml).unwrap_or_else(|e| panic!("box_on_plane.yaml failed to parse: {e}"));
 
     // Fixture exercises Entity + Transform + Component (Mesh + RigidBody).
     assert!(
@@ -69,7 +74,8 @@ fn box_on_plane_yaml_round_trips_with_stable_hash() {
     // CID must be deterministic across three independent computations.
     let cid_a = manifest.cid().unwrap();
     let cid_b = re_parsed.cid().unwrap();
-    let from_bytes: WorldManifest = from_canonical_bytes(&to_canonical_bytes(&manifest).unwrap()).unwrap();
+    let from_bytes: WorldManifest =
+        from_canonical_bytes(&to_canonical_bytes(&manifest).unwrap()).unwrap();
     let cid_c = from_bytes.cid().unwrap();
     assert_eq!(cid_a, cid_b, "YAML round-trip must preserve the CID");
     assert_eq!(cid_a, cid_c, "binary round-trip must preserve the CID");
@@ -88,7 +94,10 @@ impl Lcg {
         Self(seed.wrapping_add(0x9E37_79B9_7F4A_7C15))
     }
     fn next(&mut self) -> u64 {
-        self.0 = self.0.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        self.0 = self
+            .0
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         self.0
     }
     fn next_u32(&mut self) -> u32 {
@@ -164,18 +173,17 @@ fn published_examples_parse_against_their_types() {
 
     let world_yaml = std::fs::read_to_string(examples_dir.join("world-manifest.example.yaml"))
         .expect("world-manifest.example.yaml missing");
-    let _: WorldManifest = from_yaml_str(&world_yaml)
-        .expect("world-manifest example must parse as WorldManifest");
+    let _: WorldManifest =
+        from_yaml_str(&world_yaml).expect("world-manifest example must parse as WorldManifest");
 
     let entity_yaml = std::fs::read_to_string(examples_dir.join("entity.example.yaml"))
         .expect("entity.example.yaml missing");
-    let _: Entity = serde_yaml::from_str(&entity_yaml)
-        .expect("entity example must parse as Entity");
+    let _: Entity =
+        serde_yaml::from_str(&entity_yaml).expect("entity example must parse as Entity");
 
     let prop_yaml = std::fs::read_to_string(examples_dir.join("prop.example.yaml"))
         .expect("prop.example.yaml missing");
-    let _: Prop = serde_yaml::from_str(&prop_yaml)
-        .expect("prop example must parse as Prop");
+    let _: Prop = serde_yaml::from_str(&prop_yaml).expect("prop example must parse as Prop");
 
     let chunk_yaml = std::fs::read_to_string(examples_dir.join("chunk-manifest.example.yaml"))
         .expect("chunk-manifest.example.yaml missing");

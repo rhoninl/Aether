@@ -53,8 +53,7 @@ pub struct ComfortScore {
 
 impl ComfortScore {
     pub fn is_pass(&self) -> bool {
-        self.overall >= COMFORT_PASS_THRESHOLD
-            && !self.reasons.iter().any(|r| r.severity == "fail")
+        self.overall >= COMFORT_PASS_THRESHOLD && !self.reasons.iter().any(|r| r.severity == "fail")
     }
 
     pub fn is_warn(&self) -> bool {
@@ -244,10 +243,7 @@ mod tests {
         }]);
         let s = score(&state);
         assert!(!s.is_pass());
-        assert!(s
-            .reasons
-            .iter()
-            .any(|r| r.code == "angular_velocity.fail"));
+        assert!(s.reasons.iter().any(|r| r.code == "angular_velocity.fail"));
     }
 
     #[test]
@@ -269,10 +265,7 @@ mod tests {
             },
         ]);
         let s = score(&state);
-        assert!(s
-            .reasons
-            .iter()
-            .any(|r| r.code == "fov_delta.fail"));
+        assert!(s.reasons.iter().any(|r| r.code == "fov_delta.fail"));
     }
 
     #[test]

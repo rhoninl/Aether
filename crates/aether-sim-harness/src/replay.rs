@@ -437,10 +437,7 @@ mod tests {
         let out = Replay::new(&s).run(&s);
         assert_eq!(out.state.current_tick, 5);
         // One sim.tick event per tick, plus sim.begin + sim.end.
-        let tick_events = out
-            .telemetry
-            .events_with_kind("sim.tick")
-            .count();
+        let tick_events = out.telemetry.events_with_kind("sim.tick").count();
         assert_eq!(tick_events, 5);
     }
 

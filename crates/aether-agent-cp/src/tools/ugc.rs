@@ -39,15 +39,14 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
             let media_type = required_str(&params, "media_type")?.to_string();
             let payload = required_str(&params, "payload_b64")?.to_string();
             let art = b.upload_ugc(&uploader, &media_type, &payload)?;
-            Ok(serde_json::to_value(art).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(art)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {
                 name: "ugc.upload".into(),
-                description: "Upload a UGC artifact (base64 payload); queues it for scanning.".into(),
+                description: "Upload a UGC artifact (base64 payload); queues it for scanning."
+                    .into(),
                 input_schema: schema_upload(),
                 mutates: true,
                 streaming: false,
@@ -85,10 +84,8 @@ pub fn register_in<B: Backend + 'static>(registry: &mut ToolRegistry, backend: A
                 UgcOp::Approve => b.ugc_approve(&cid),
                 UgcOp::Publish => b.ugc_publish(&cid),
             }?;
-            Ok(serde_json::to_value(art).map_err(|e| ToolError::new(
-                crate::error::codes::INTERNAL,
-                e.to_string(),
-            ))?)
+            Ok(serde_json::to_value(art)
+                .map_err(|e| ToolError::new(crate::error::codes::INTERNAL, e.to_string()))?)
         });
         registry.register(
             ToolDescriptor {

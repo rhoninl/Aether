@@ -54,7 +54,10 @@ pub async fn read_frame(
 /// Write one length-delimited JSON frame to `stream`.
 pub async fn write_frame(stream: &mut TcpStream, body: &[u8]) -> std::io::Result<()> {
     let len = u32::try_from(body.len()).map_err(|_| {
-        std::io::Error::new(std::io::ErrorKind::InvalidData, "frame body exceeds u32::MAX")
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "frame body exceeds u32::MAX",
+        )
     })?;
     stream.write_all(&len.to_be_bytes()).await?;
     stream.write_all(body).await?;

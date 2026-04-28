@@ -207,7 +207,8 @@ pub struct SpawnPointDef {
 
 impl CanonicalCodec for WorldManifest {
     fn to_canonical_bytes(&self) -> Result<Vec<u8>, SchemaError> {
-        let span = tracing::trace_span!("WorldManifest::to_canonical_bytes", world_id = %self.world_id);
+        let span =
+            tracing::trace_span!("WorldManifest::to_canonical_bytes", world_id = %self.world_id);
         let _enter = span.enter();
         let mut w = Writer::new().header(SCHEMA_V1);
         w.str(&self.world_id);
@@ -390,7 +391,8 @@ pub struct ChunkRef {
 
 impl CanonicalCodec for ChunkManifest {
     fn to_canonical_bytes(&self) -> Result<Vec<u8>, SchemaError> {
-        let span = tracing::trace_span!("ChunkManifest::to_canonical_bytes", world_id = %self.world_id);
+        let span =
+            tracing::trace_span!("ChunkManifest::to_canonical_bytes", world_id = %self.world_id);
         let _enter = span.enter();
         let mut w = Writer::new().header(SCHEMA_V1);
         w.str(&self.world_id);
@@ -543,7 +545,10 @@ impl ArtifactEnvelope {
 
     pub fn content_address(&self) -> Result<ContentAddress, SchemaError> {
         let bytes = self.to_canonical_bytes()?;
-        Ok(ContentAddress::new(Cid::sha256_of(&bytes), bytes.len() as u64))
+        Ok(ContentAddress::new(
+            Cid::sha256_of(&bytes),
+            bytes.len() as u64,
+        ))
     }
 
     /// CID of the inner body bytes (distinct from CID of the envelope).
@@ -651,7 +656,8 @@ mod tests {
     fn envelope_wraps_manifest() {
         let m = sample_manifest();
         let env = ArtifactEnvelope::wrap(ArtifactKind::WorldManifest, &m).unwrap();
-        let back = ArtifactEnvelope::from_canonical_bytes(&env.to_canonical_bytes().unwrap()).unwrap();
+        let back =
+            ArtifactEnvelope::from_canonical_bytes(&env.to_canonical_bytes().unwrap()).unwrap();
         assert_eq!(env, back);
         let inner = WorldManifest::from_canonical_bytes(&env.body).unwrap();
         assert_eq!(inner, m);

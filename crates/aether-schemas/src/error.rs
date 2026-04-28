@@ -41,7 +41,9 @@ pub enum SchemaError {
         suggested_fix: String,
     },
 
-    #[error("unsupported schema version {found}; expected one of {expected:?} (fix: {suggested_fix})")]
+    #[error(
+        "unsupported schema version {found}; expected one of {expected:?} (fix: {suggested_fix})"
+    )]
     UnsupportedVersion {
         found: u32,
         expected: Vec<u32>,

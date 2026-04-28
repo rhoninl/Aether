@@ -32,7 +32,12 @@ fn tool_call_without_token_returns_4010() {
     let resp = handle_envelope(req, &state.registry, &state.auth);
     let data = resp.error.unwrap().data.unwrap();
     assert_eq!(data.get("code").unwrap(), codes::UNAUTHORIZED);
-    assert!(data.get("suggested_fix").unwrap().as_str().unwrap().contains("identity"));
+    assert!(data
+        .get("suggested_fix")
+        .unwrap()
+        .as_str()
+        .unwrap()
+        .contains("identity"));
 }
 
 #[test]
@@ -47,7 +52,11 @@ fn tool_call_with_valid_token_succeeds() {
         auth: Some(format!("Bearer {}", tok)),
     };
     let resp = handle_envelope(req, &state.registry, &state.auth);
-    assert!(resp.error.is_none(), "expected success, got {:?}", resp.error);
+    assert!(
+        resp.error.is_none(),
+        "expected success, got {:?}",
+        resp.error
+    );
     assert!(resp.result.unwrap().get("cid").is_some());
 }
 
@@ -77,6 +86,13 @@ fn wrong_secret_rejected() {
         auth: Some(format!("Bearer {}", bad)),
     };
     let resp = handle_envelope(req, &state.registry, &state.auth);
-    let code = resp.error.unwrap().data.unwrap().get("code").unwrap().clone();
+    let code = resp
+        .error
+        .unwrap()
+        .data
+        .unwrap()
+        .get("code")
+        .unwrap()
+        .clone();
     assert_eq!(code, codes::UNAUTHORIZED);
 }
