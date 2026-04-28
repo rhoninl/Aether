@@ -4,6 +4,20 @@ version = "0.1.0"
 edition = "2021"
 description = "OpenXR runtime integration for Aether VR engine"
 
+[features]
+# When enabled, links against the real OpenXR loader via the `openxr` crate.
+# Default OFF so workspace builds and CI without an OpenXR loader continue
+# to compile. See docs/design/xr-hal-refactor.md §9 (extension policy) and
+# §11 (open questions / risks).
+default = []
+openxr-runtime = ["dep:openxr"]
+
 [dependencies]
 aether-input = { path = "../aether-input" }
 log = "0.4"
+
+# Pinned to 0.19 — currently the most-used Rust binding for the OpenXR
+# loader. Pin choice is per design doc §11 open question and may move
+# (e.g. to a forked/patched version) once the HAL refactor lands.
+[target.'cfg(any(target_os = "linux", target_os = "windows"))'.dependencies]
+openxr = { version = "0.19", optional = true }
