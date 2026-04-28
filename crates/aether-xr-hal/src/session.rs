@@ -82,6 +82,51 @@ impl Default for SessionConfig {
     }
 }
 
+/// Active XR session (design doc §5.3, P2-B).
+///
+/// Owns the lifecycle (`xrBeginSession` / `xrEndSession`), reference-space
+/// creation, swapchain creation, action-set attachment, and frame
+/// acquisition. The state itself is observed through `state()`; transitions
+/// are driven by events from `XrInstance::poll_events()`.
+pub trait XrSession {
+    type Frame: crate::frame::XrFrame;
+    type Swapchain: crate::swapchain::XrSwapchain;
+    type ActionSet;
+    type Error: std::error::Error + Send + Sync + 'static;
+
+    fn state(&self) -> SessionState;
+
+    /// `xrBeginSession`.
+    fn begin(
+        &mut self,
+        view_config: crate::instance::ViewConfigType,
+    ) -> Result<(), Self::Error>;
+
+    /// `xrEndSession`.
+    fn end(&mut self) -> Result<(), Self::Error>;
+
+    /// `xrRequestExitSession`.
+    fn request_exit(&mut self) -> Result<(), Self::Error>;
+
+    /// `xrCreateReferenceSpace`.
+    fn create_reference_space(
+        &self,
+        kind: ReferenceSpaceType,
+        offset: crate::tracking::Pose3,
+    ) -> Result<ReferenceSpace, Self::Error>;
+
+    fn create_swapchain(
+        &self,
+        config: crate::swapchain::SwapchainConfig,
+    ) -> Result<Self::Swapchain, Self::Error>;
+
+    /// `xrAttachSessionActionSets`.
+    fn attach_action_sets(&mut self, sets: &[Self::ActionSet]) -> Result<(), Self::Error>;
+
+    /// `xrWaitFrame` — produces the per-frame handle.
+    fn wait_frame(&mut self) -> Result<Self::Frame, Self::Error>;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

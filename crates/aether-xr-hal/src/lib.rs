@@ -22,7 +22,19 @@ pub use action::{
     ActionBuilder, ActionDecl, ActionKind, ActionManifest, ActionSetHandle, ActionState,
     ActionValue, XrAction, XrActionSet,
 };
-pub use frame::XrFrame;
+pub use event::XrEvent;
+pub use frame::{XrFrame, XrTime};
+pub use instance::{
+    ExtensionId, GraphicsRequirements, InstanceConfig, InstanceProperties, SystemProperties,
+    ViewConfigType, XrInstance,
+};
+pub use layer::{LayerBuilder, LayerSubmission, ProjectionLayerView};
+pub use platform::{RuntimeDescriptor, XrPlatform};
+pub use session::{
+    ReferenceSpace, ReferenceSpaceType, SessionConfig, SessionState, SessionTransitionError,
+    XrSession, DEFAULT_PREDICTION_OFFSET_NS,
+};
+pub use view::{Fov, View};
 pub use haptics::{
     clamp_amplitude, HapticAction, HapticPulse, HapticTarget, XrHaptics, MAX_HAPTIC_AMPLITUDE,
     MIN_HAPTIC_AMPLITUDE,
